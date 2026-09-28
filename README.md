@@ -2,6 +2,8 @@
 
 A client-side math practice site for grade-school students, starting with 6th grade. Students take quizzes, generate printable worksheets, and track their progress with charts — all running entirely in the browser, with no backend and no accounts.
 
+**Live site:** https://scttech.github.io/math_magic/
+
 ## Why client-side?
 
 Everything — problem generation, scoring, progress history — happens in your browser. Nothing is sent to a server, which also means no accounts and no data collection: a nice side effect for a site aimed at kids. Progress is saved to the browser's local storage automatically, and can be exported/imported as a JSON file to back it up or move it to another device or browser.
@@ -15,6 +17,8 @@ node tools/serve.js
 ```
 
 Then open http://localhost:8080/ in a browser.
+
+Or as I personally do with the Live Server extension in VSCode.
 
 ## Running the tests
 
