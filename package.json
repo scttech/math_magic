@@ -1,0 +1,12 @@
+{
+  "name": "math-magic",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Client-side grade-school math practice site (quizzes, worksheets, progress dashboard). No backend, no build step to run the site.",
+  "type": "module",
+  "scripts": {
+    "serve": "node tools/serve.js",
+    "test": "echo \"Open http://localhost:8080/tests/index.html after running 'npm run serve' (a headless CI runner is added in a later milestone).\""
+  },
+  "license": "MIT"
+}

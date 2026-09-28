@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Profiles</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <h1>Profiles</h1>
+
+      <section class="card">
+        <h2>Students</h2>
+        <ul id="profile-list" class="profile-list"></ul>
+
+        <form id="new-profile-form">
+          <fieldset>
+            <legend>Choose an avatar (optional)</legend>
+            <div id="new-profile-avatar-picker" class="avatar-picker"></div>
+          </fieldset>
+          <div class="new-profile-form-row">
+            <div class="field-row">
+              <label for="new-profile-name">Add a new profile</label>
+              <input id="new-profile-name" type="text" autocomplete="off" placeholder="e.g. Alex" required />
+            </div>
+            <button type="submit" class="btn">Add Profile</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Backup &amp; Transfer</h2>
+        <p>
+          All progress is saved only in this browser. Export it to a JSON file to back it up, or to move it to another
+          device or browser.
+        </p>
+
+        <div class="field-row">
+          <button id="export-btn" type="button" class="btn">Export Progress (JSON)</button>
+        </div>
+
+        <div class="field-row">
+          <label for="import-input">Import Progress (JSON)</label>
+          <input id="import-input" type="file" accept="application/json,.json" />
+        </div>
+
+        <div id="import-status" class="feedback" hidden></div>
+      </section>
+    </main>
+
+    <script type="module">
+      import { init } from './js/views/profilesView.js';
+      init();
+    </script>
+  </body>
+</html>

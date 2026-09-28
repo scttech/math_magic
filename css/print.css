@@ -1,0 +1,40 @@
+/* Print-only rules for the Worksheet Builder. Screen-only chrome (nav, the
+   setup form, toolbar buttons) is hidden; the worksheet and its answer key
+   are always shown regardless of the on-screen toggle, with the answer key
+   forced onto its own page. */
+
+@page {
+  margin: 0.75in;
+}
+
+@media print {
+  .screen-only,
+  #worksheet-setup {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+    font-size: 12pt;
+  }
+
+  .worksheet-sheet {
+    display: block !important;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
+
+  .answer-key {
+    break-before: page;
+  }
+
+  .worksheet-problems li {
+    break-inside: avoid;
+  }
+
+  .answer-blank {
+    border-bottom-color: #000;
+  }
+}

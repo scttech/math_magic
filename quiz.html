@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Quiz</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/screen.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <h1>Quiz</h1>
+
+      <section id="quiz-setup" class="card">
+        <div class="field-row">
+          <label for="grade-select">Grade</label>
+          <select id="grade-select"></select>
+        </div>
+
+        <fieldset>
+          <legend>Topics</legend>
+          <div id="topic-checkboxes" class="checkbox-grid"></div>
+        </fieldset>
+
+        <div class="field-row">
+          <label for="difficulty-select">Difficulty</label>
+          <select id="difficulty-select">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label for="count-select">Number of Questions</label>
+          <select id="count-select">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+
+        <button id="start-quiz-btn" type="button" class="btn">Start Quiz</button>
+      </section>
+
+      <section id="quiz-active" class="card" hidden>
+        <p id="progress-text" class="progress-text"></p>
+        <p id="prompt-text" style="font-size: 1.25rem"></p>
+
+        <form id="quiz-answer-form">
+          <div class="field-row">
+            <label for="answer-input">Your Answer</label>
+            <input id="answer-input" type="text" autocomplete="off" />
+          </div>
+          <button id="submit-answer-btn" type="submit" class="btn">Submit</button>
+          <button id="next-question-btn" type="button" class="btn secondary" hidden>Next</button>
+        </form>
+
+        <div id="feedback" class="feedback" hidden></div>
+      </section>
+
+      <section id="quiz-results" class="card" hidden>
+        <h2>Quiz Results</h2>
+        <p id="score-summary"></p>
+        <div id="topic-breakdown"></div>
+        <button id="retry-btn" type="button" class="btn">Try Again</button>
+        <button id="back-to-setup-btn" type="button" class="btn secondary">Back to Setup</button>
+      </section>
+    </main>
+
+    <script type="module">
+      import { init } from './js/views/quizView.js';
+      init();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,70 @@
+#quiz-active #prompt-text {
+  font-weight: 600;
+  margin: 0.75rem 0 1.25rem;
+}
+
+#quiz-answer-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+#quiz-answer-form .field-row {
+  flex: 1 1 220px;
+  margin-bottom: 0;
+}
+
+#quiz-results .btn {
+  margin-right: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.worksheet-header h1,
+.worksheet-header h2 {
+  margin-bottom: 0.25rem;
+}
+
+.worksheet-meta {
+  color: var(--color-text-muted);
+  margin-top: 0;
+}
+
+.worksheet-problems {
+  padding-left: 1.5rem;
+}
+
+.worksheet-problems li {
+  margin-bottom: 1.5rem;
+}
+
+.answer-blank {
+  display: block;
+  margin-top: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+  height: 1.5rem;
+  max-width: 320px;
+}
+
+.worksheet-answers {
+  columns: 2;
+  column-gap: 2rem;
+}
+
+/* Answer key is hidden on screen by default; the "Show Answer Key" toggle
+   adds this class. print.css always shows it regardless, for the printout. */
+.answer-key {
+  display: none;
+  margin-top: 1.5rem;
+}
+
+.answer-key.show-on-screen {
+  display: block;
+}

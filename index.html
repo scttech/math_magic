@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <section class="hero">
+        <div class="hero-text">
+          <h1>Welcome to Math Magic ✨</h1>
+          <p>
+            Practice grade-school math right in your browser — take quizzes, print worksheets, and track your progress.
+            Nothing you do here ever leaves your browser: no accounts, no server, no data collection.
+          </p>
+        </div>
+        <img
+          class="hero-image"
+          src="assets/images/math_magic-hero.jpg"
+          alt="A friendly cartoon wizard holding a spellbook and wand, surrounded by glowing numbers and math symbols"
+          width="720"
+          height="720"
+        />
+      </section>
+
+      <div class="card">
+        <h2>Take a Quiz</h2>
+        <p>Pick a topic and difficulty, then answer problems with instant feedback.</p>
+        <a class="btn" href="quiz.html">Start a Quiz</a>
+      </div>
+
+      <div class="card">
+        <h2>Build a Worksheet</h2>
+        <p>Generate a printable worksheet (with an answer key) for extra practice offline.</p>
+        <a class="btn" href="worksheet.html">Build a Worksheet</a>
+      </div>
+
+      <div class="card">
+        <h2>Track Progress</h2>
+        <p>See which topics are going well and which need more practice.</p>
+        <a class="btn" href="dashboard.html">View Progress</a>
+      </div>
+    </main>
+
+    <script type="module">
+      import { renderNav } from './js/app/nav.js';
+      renderNav('index.html');
+    </script>
+  </body>
+</html>

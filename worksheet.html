@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Worksheets</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/screen.css" />
+    <link rel="stylesheet" href="css/print.css" media="print" />
+  </head>
+  <body>
+    <nav id="site-nav" class="screen-only"></nav>
+
+    <main class="container">
+      <h1 class="screen-only">Worksheet Builder</h1>
+
+      <section id="worksheet-setup" class="card screen-only">
+        <div class="field-row">
+          <label for="grade-select">Grade</label>
+          <select id="grade-select"></select>
+        </div>
+
+        <fieldset>
+          <legend>Topics</legend>
+          <div id="topic-checkboxes" class="checkbox-grid"></div>
+        </fieldset>
+
+        <div class="field-row">
+          <label for="difficulty-select">Difficulty</label>
+          <select id="difficulty-select">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label for="count-select">Number of Problems</label>
+          <select id="count-select">
+            <option value="10">10</option>
+            <option value="15" selected>15</option>
+            <option value="20">20</option>
+            <option value="25">25</option>
+          </select>
+        </div>
+
+        <button id="generate-worksheet-btn" type="button" class="btn">Generate Worksheet</button>
+      </section>
+
+      <section id="worksheet-output" hidden>
+        <div class="toolbar screen-only">
+          <button id="print-btn" type="button" class="btn">Print / Save as PDF</button>
+          <button id="toggle-answer-key-btn" type="button" class="btn secondary">Show Answer Key</button>
+          <button id="edit-settings-btn" type="button" class="btn secondary">Edit Settings</button>
+        </div>
+
+        <div id="worksheet-sheet" class="worksheet-sheet card">
+          <header class="worksheet-header">
+            <h1>Math Magic Worksheet</h1>
+            <p id="worksheet-meta" class="worksheet-meta"></p>
+          </header>
+          <ol id="worksheet-problems" class="worksheet-problems"></ol>
+        </div>
+
+        <div id="answer-key-output" class="worksheet-sheet answer-key card">
+          <header class="worksheet-header">
+            <h2 id="answer-key-title">Answer Key</h2>
+          </header>
+          <ol id="worksheet-answers" class="worksheet-answers"></ol>
+        </div>
+      </section>
+    </main>
+
+    <script type="module">
+      import { init } from './js/views/worksheetView.js';
+      init();
+    </script>
+  </body>
+</html>

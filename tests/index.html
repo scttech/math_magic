@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Math Magic — Test Suite</title>
+    <link rel="stylesheet" href="qunit/qunit.css" />
+  </head>
+  <body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    <script src="qunit/qunit.js"></script>
+    <script>
+      // Flag read by the headless CI runner (tools/run-qunit-ci.js) to know when
+      // the suite has finished and whether it passed.
+      window.qunitDone = null;
+      QUnit.done((result) => {
+        window.qunitDone = result;
+      });
+    </script>
+
+    <script type="module" src="core/rng.test.js"></script>
+    <script type="module" src="core/problemGenerator.test.js"></script>
+    <script type="module" src="core/registry.test.js"></script>
+    <script type="module" src="core/problemSet.test.js"></script>
+    <script type="module" src="core/schemaMigrations.test.js"></script>
+    <script type="module" src="core/profileStore.test.js"></script>
+    <script type="module" src="core/progressStore.test.js"></script>
+    <script type="module" src="core/importExport.test.js"></script>
+    <script type="module" src="generators/fractionsDecimals.test.js"></script>
+    <script type="module" src="generators/ratiosProportions.test.js"></script>
+    <script type="module" src="generators/negativeNumbers.test.js"></script>
+    <script type="module" src="generators/expressionsEquations.test.js"></script>
+    <script type="module" src="generators/areaSurfaceVolume.test.js"></script>
+    <script type="module" src="generators/statistics.test.js"></script>
+  </body>
+</html>
