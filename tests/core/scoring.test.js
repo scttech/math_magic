@@ -1,5 +1,5 @@
 import '../../js/generators/grade6/index.js';
-import { computeAccuracyByTopic, computeAccuracyTrend, computeSummary } from '../../js/core/scoring.js';
+import { computeAccuracyByTopic, computeAccuracyTrend, computeSummary, computeStreak, computeBadges } from '../../js/core/scoring.js';
 
 function attempt({ completedAt, problems }) {
   return { attemptId: 'a', type: 'quiz', grade: '6', topics: [], difficulty: 'medium', startedAt: completedAt, completedAt, problems };
@@ -105,5 +105,91 @@ QUnit.module('core/scoring', () => {
   QUnit.test('computeSummary handles no attempts without dividing by zero', (assert) => {
     const summary = computeSummary({ attempts: [], worksheets: [] });
     assert.equal(summary.overallAccuracy, 0);
+  });
+
+  QUnit.test('computeStreak is 0 with no attempts', (assert) => {
+    assert.equal(computeStreak({ attempts: [], worksheets: [] }), 0);
+  });
+
+  QUnit.test('computeStreak counts consecutive days ending today', (assert) => {
+    const reference = new Date('2026-01-10T12:00:00.000Z');
+    const progress = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [
+        attempt({ completedAt: '2026-01-08T09:00:00.000Z', problems: [problem(FRACTIONS_GEN, true)] }),
+        attempt({ completedAt: '2026-01-09T09:00:00.000Z', problems: [problem(FRACTIONS_GEN, true)] }),
+        attempt({ completedAt: '2026-01-10T09:00:00.000Z', problems: [problem(FRACTIONS_GEN, true)] }),
+      ],
+    };
+    assert.equal(computeStreak(progress, reference), 3);
+  });
+
+  QUnit.test('computeStreak grants a one-day grace period when today has no attempt yet', (assert) => {
+    const reference = new Date('2026-01-10T23:00:00.000Z');
+    const progress = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [attempt({ completedAt: '2026-01-09T09:00:00.000Z', problems: [problem(FRACTIONS_GEN, true)] })],
+    };
+    assert.equal(computeStreak(progress, reference), 1);
+  });
+
+  QUnit.test('computeStreak is 0 once both today and yesterday are missing', (assert) => {
+    const reference = new Date('2026-01-10T12:00:00.000Z');
+    const progress = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [attempt({ completedAt: '2026-01-05T09:00:00.000Z', problems: [problem(FRACTIONS_GEN, true)] })],
+    };
+    assert.equal(computeStreak(progress, reference), 0);
+  });
+
+  QUnit.test('computeStreak stops at the first gap', (assert) => {
+    const reference = new Date('2026-01-10T12:00:00.000Z');
+    const progress = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [
+        attempt({ completedAt: '2026-01-10T09:00:00.000Z', problems: [problem(FRACTIONS_GEN, true)] }),
+        attempt({ completedAt: '2026-01-09T09:00:00.000Z', problems: [problem(FRACTIONS_GEN, true)] }),
+        // gap on Jan 8
+        attempt({ completedAt: '2026-01-07T09:00:00.000Z', problems: [problem(FRACTIONS_GEN, true)] }),
+      ],
+    };
+    assert.equal(computeStreak(progress, reference), 2);
+  });
+
+  QUnit.test('computeBadges returns earned:false for every badge with no attempts', (assert) => {
+    const badges = computeBadges({ attempts: [], worksheets: [] });
+    assert.ok(badges.length > 0);
+    assert.ok(badges.every((b) => b.earned === false));
+  });
+
+  QUnit.test('computeBadges marks "First Quiz" earned after one attempt', (assert) => {
+    const progress = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [attempt({ completedAt: '2026-01-01T00:00:00.000Z', problems: [problem(FRACTIONS_GEN, true)] })],
+    };
+    const badges = computeBadges(progress);
+    assert.ok(badges.find((b) => b.id === 'first-quiz').earned);
+    assert.notOk(badges.find((b) => b.id === 'five-quizzes').earned);
+  });
+
+  QUnit.test('computeBadges marks "Perfect Quiz" earned only when every problem in some attempt is correct', (assert) => {
+    const notPerfect = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [attempt({ completedAt: '2026-01-01T00:00:00.000Z', problems: [problem(FRACTIONS_GEN, true), problem(FRACTIONS_GEN, false)] })],
+    };
+    assert.notOk(computeBadges(notPerfect).find((b) => b.id === 'perfect-quiz').earned);
+
+    const perfect = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [attempt({ completedAt: '2026-01-01T00:00:00.000Z', problems: [problem(FRACTIONS_GEN, true), problem(FRACTIONS_GEN, true)] })],
+    };
+    assert.ok(computeBadges(perfect).find((b) => b.id === 'perfect-quiz').earned);
   });
 });

@@ -1,3 +1,5 @@
+![./assets/images/math_magic-hero.jpg](Math Magic Logo)
+
 # Math Magic
 
 A client-side math practice site for grade-school students, starting with 6th grade. Students take quizzes, generate printable worksheets, and track their progress with charts — all running entirely in the browser, with no backend and no accounts.
@@ -32,17 +34,28 @@ Then open http://localhost:8080/tests/index.html.
 
 ## Project structure
 
-- `js/core/` — the problem-generator contract, seeded RNG, topic/grade registry, profile and progress storage, import/export.
+- `js/core/` — the problem-generator contract, seeded RNG, topic/grade registry, scoring/aggregation, profile and progress storage, import/export.
 - `js/generators/<grade>/` — topic modules (e.g. `grade6/fractionsDecimals.js`) that plug into the registry. Adding a new grade or topic means adding a module here, not changing core code.
-- `js/views/` — the DOM-rendering code for the quiz, worksheet builder, dashboard, and profile screens.
+- `js/app/` — shared bootstrap (registers content, ensures a profile exists), nav bar, and the avatar-icon manifest.
+- `js/views/` — the DOM-rendering code for the home, quiz, worksheet builder, dashboard, and profile screens.
 - `js/charts/` — d3.js chart modules for the progress dashboard.
+- `assets/images/avatars/` — the selectable profile avatar icons.
 - `css/print.css` — the print stylesheet worksheets use for "Save as PDF" via the browser's print dialog.
 - `tests/` — QUnit test files, mirroring the `js/` structure.
 - `tools/serve.js` — local dev static server.
 
+## Contributing
+
+There's no CI — run the test suite locally (see above) and make sure it's green before committing.
+
 ## Status
 
-Early development. See the project plan for the current milestone and roadmap.
+Feature-complete: 
+* Quizzes
+* Worksheets with a printable answer key
+* Multi-profile progress tracking with JSON export/import
+* Progress dashboard with charts
+* Profile avatar picker.
 
 ## License
 

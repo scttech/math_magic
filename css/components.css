@@ -127,12 +127,16 @@ input[type='number'] {
 
 .badge.correct {
   background: #e4f7ec;
-  color: var(--color-success);
+  /* Darker than --color-success: at this badge's small font size, the lighter
+     green fails WCAG AA (3.05:1) against this background; this shade (used
+     the same way in .feedback.correct) clears 4.5:1. */
+  color: #1d6b41;
 }
 
 .badge.incorrect {
   background: #fbe9e7;
-  color: var(--color-error);
+  /* Same reasoning as .badge.correct — matches .feedback.incorrect's shade. */
+  color: #9c2e28;
 }
 
 .progress-text {
@@ -250,6 +254,41 @@ input[type='number'] {
   color: var(--color-text-muted);
   padding: 2rem 0;
   text-align: center;
+}
+
+.progress-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: #fff8e6;
+  border-color: #f0d78c;
+}
+
+.streak-display {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.badge-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #ffffff;
+  color: #8a6d00;
+  border: 1px solid #f0d78c;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .dashboard-profile-name {

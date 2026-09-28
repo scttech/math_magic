@@ -74,3 +74,47 @@ export function computeSummary(progressData) {
     totalWorksheets: progressData.worksheets.length,
   };
 }
+
+/**
+ * Current daily-practice streak: consecutive calendar days with at least one
+ * attempt, ending today. If today has no attempt yet but yesterday does, the
+ * streak still counts (a one-day grace period) so it doesn't look broken
+ * before the day is over.
+ */
+export function computeStreak(progressData, referenceDate = new Date()) {
+  const days = new Set(progressData.attempts.filter((a) => a.completedAt).map((a) => a.completedAt.slice(0, 10)));
+  if (days.size === 0) return 0;
+
+  const cursor = new Date(Date.UTC(referenceDate.getUTCFullYear(), referenceDate.getUTCMonth(), referenceDate.getUTCDate()));
+  if (!days.has(cursor.toISOString().slice(0, 10))) {
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
+  }
+
+  let streak = 0;
+  while (days.has(cursor.toISOString().slice(0, 10))) {
+    streak += 1;
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
+  }
+  return streak;
+}
+
+// A short, fixed list — not a badge engine. Each rule reads the same summary
+// stats + streak every caller already has, so adding one is a one-line diff.
+const BADGE_DEFINITIONS = [
+  { id: 'first-quiz', label: 'First Quiz', check: (summary) => summary.totalAttempts >= 1 },
+  { id: 'five-quizzes', label: '5 Quizzes Completed', check: (summary) => summary.totalAttempts >= 5 },
+  { id: 'fifty-problems', label: '50 Problems Answered', check: (summary) => summary.totalProblems >= 50 },
+  {
+    id: 'perfect-quiz',
+    label: 'Perfect Quiz',
+    check: (summary, progressData) => progressData.attempts.some((a) => a.problems.length > 0 && a.problems.every((p) => p.correct)),
+  },
+  { id: 'week-streak', label: '7-Day Streak', check: (summary, progressData, streak) => streak >= 7 },
+];
+
+/** Which of a small, fixed set of badges a profile has earned. */
+export function computeBadges(progressData) {
+  const summary = computeSummary(progressData);
+  const streak = computeStreak(progressData);
+  return BADGE_DEFINITIONS.map((badge) => ({ id: badge.id, label: badge.label, earned: badge.check(summary, progressData, streak) }));
+}

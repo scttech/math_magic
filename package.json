@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "serve": "node tools/serve.js",
-    "test": "echo \"Open http://localhost:8080/tests/index.html after running 'npm run serve' (a headless CI runner is added in a later milestone).\""
+    "test": "echo \"Run 'npm run serve', then open http://localhost:8080/tests/index.html in a browser.\""
   },
   "license": "MIT"
 }

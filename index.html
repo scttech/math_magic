@@ -32,6 +32,8 @@
         />
       </section>
 
+      <div id="progress-banner" class="card progress-banner" hidden></div>
+
       <div class="card">
         <h2>Take a Quiz</h2>
         <p>Pick a topic and difficulty, then answer problems with instant feedback.</p>
@@ -52,8 +54,8 @@
     </main>
 
     <script type="module">
-      import { renderNav } from './js/app/nav.js';
-      renderNav('index.html');
+      import { init } from './js/views/homeView.js';
+      init();
     </script>
   </body>
 </html>
