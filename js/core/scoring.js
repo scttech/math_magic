@@ -3,9 +3,14 @@
 // they're easy to unit test and reusable anywhere progress needs summarizing.
 import { getById } from './registry.js';
 
+// Falls back to the generatorId's last dot-segment for ids outside the
+// grade/topic registry (e.g. "skills.multiplicationTables" -> "multiplicationTables"),
+// so grade-agnostic skill drills still bucket sensibly instead of showing "unknown".
 function topicOf(generatorId) {
   const generator = getById(generatorId);
-  return generator ? generator.topic : 'unknown';
+  if (generator) return generator.topic;
+  const lastSegment = String(generatorId).split('.').pop();
+  return lastSegment || 'unknown';
 }
 
 /** Accuracy per topic across all recorded attempts, sorted weakest-first. */

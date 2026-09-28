@@ -16,11 +16,14 @@ function renderProgressBanner() {
 
   const streak = computeStreak(progress);
   const earnedBadges = computeBadges(progress).filter((b) => b.earned);
+  if (streak === 0 && earnedBadges.length === 0) return;
 
-  const streakEl = document.createElement('p');
-  streakEl.className = 'streak-display';
-  streakEl.textContent = streak > 0 ? `\u{1F525} ${streak}-day streak! Keep it up, ${profile.name}!` : `Welcome back, ${profile.name}!`;
-  banner.appendChild(streakEl);
+  if (streak > 0) {
+    const streakEl = document.createElement('p');
+    streakEl.className = 'streak-display';
+    streakEl.textContent = `\u{1F525} ${streak}-day streak! Keep it up, ${profile.name}!`;
+    banner.appendChild(streakEl);
+  }
 
   if (earnedBadges.length > 0) {
     const row = document.createElement('div');

@@ -42,6 +42,19 @@ QUnit.module('core/scoring', () => {
     assert.deepEqual(computeAccuracyByTopic({ attempts: [], worksheets: [] }), []);
   });
 
+  QUnit.test('computeAccuracyByTopic buckets an unregistered generatorId (e.g. a skill drill) by its last dot-segment', (assert) => {
+    const progress = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [attempt({ completedAt: '2026-01-01T00:00:00.000Z', problems: [problem('skills.multiplicationTables', true), problem('skills.multiplicationTables', false)] })],
+    };
+    const result = computeAccuracyByTopic(progress);
+    const skillEntry = result.find((r) => r.topic === 'multiplicationTables');
+    assert.ok(skillEntry, 'an unregistered generatorId still produces a labeled bucket, not "unknown"');
+    assert.equal(skillEntry.correct, 1);
+    assert.equal(skillEntry.total, 2);
+  });
+
   QUnit.test('computeAccuracyTrend buckets attempts by week and sorts chronologically', (assert) => {
     const progress = {
       schemaVersion: 1,

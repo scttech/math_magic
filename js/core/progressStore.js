@@ -29,9 +29,9 @@ export function setProgress(profileId, doc) {
   return migrated;
 }
 
-export function recordQuizAttempt(profileId, { grade, topics, difficulty, startedAt, completedAt, problems }) {
+export function recordQuizAttempt(profileId, { type = 'quiz', grade, topics, difficulty, startedAt, completedAt, problems }) {
   const doc = getProgress(profileId);
-  const attempt = { attemptId: generateId('atmp'), type: 'quiz', grade, topics, difficulty, startedAt, completedAt, problems };
+  const attempt = { attemptId: generateId('atmp'), type, grade, topics, difficulty, startedAt, completedAt, problems };
   doc.attempts.push(attempt);
   setProgress(profileId, doc);
   return attempt;

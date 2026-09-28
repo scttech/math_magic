@@ -421,3 +421,79 @@ input[type='number'] {
   flex: 1 1 220px;
   margin-bottom: 0;
 }
+
+.equation-display {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin: 0.75rem 0 1.5rem;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.choice-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-family: inherit;
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.choice-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+.choice-btn:focus-visible {
+  outline: 3px solid var(--color-primary-dark);
+  outline-offset: 2px;
+}
+
+.choice-btn:disabled {
+  cursor: not-allowed;
+}
+
+.choice-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Same colors as .badge.correct/.incorrect and .feedback.correct/.incorrect —
+   already verified to clear 4.5:1 contrast at these font sizes. */
+.choice-btn.correct {
+  background: #e4f7ec;
+  border-color: #1d6b41;
+  color: #1d6b41;
+}
+
+.choice-btn.incorrect {
+  background: #fbe9e7;
+  border-color: #9c2e28;
+  color: #9c2e28;
+}
+
+.choice-btn.reveal-correct {
+  border-color: #1d6b41;
+  box-shadow: inset 0 0 0 2px #1d6b41;
+}

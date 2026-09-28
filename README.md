@@ -36,6 +36,7 @@ Then open http://localhost:8080/tests/index.html.
 
 - `js/core/` — the problem-generator contract, seeded RNG, topic/grade registry, scoring/aggregation, profile and progress storage, import/export.
 - `js/generators/<grade>/` — topic modules (e.g. `grade6/fractionsDecimals.js`) that plug into the registry. Adding a new grade or topic means adding a module here, not changing core code.
+- `js/skills/` — grade-agnostic skill drills (e.g. multiplication tables) that live outside the grade/topic registry, since they use their own multiple-choice UI instead of the free-text quiz flow.
 - `js/app/` — shared bootstrap (registers content, ensures a profile exists), nav bar, and the avatar-icon manifest.
 - `js/views/` — the DOM-rendering code for the home, quiz, worksheet builder, dashboard, and profile screens.
 - `js/charts/` — d3.js chart modules for the progress dashboard.
@@ -55,7 +56,8 @@ Feature-complete:
 * Worksheets with a printable answer key
 * Multi-profile progress tracking with JSON export/import
 * Progress dashboard with charts
-* Profile avatar picker.
+* Profile avatar picker
+* Grade-agnostic skills practice (multiplication tables, with multiple-choice + keyboard answering)
 
 ## License
 

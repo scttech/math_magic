@@ -8,6 +8,7 @@ export const TOPIC_LABELS = {
   expressionsEquations: 'Expressions & Equations',
   areaSurfaceVolume: 'Area, Surface Area & Volume',
   statistics: 'Statistics',
+  multiplicationTables: 'Multiplication Tables',
 };
 
 export function topicLabel(topicKey) {
