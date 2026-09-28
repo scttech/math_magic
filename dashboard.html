@@ -13,15 +13,38 @@
   </head>
   <body>
     <nav id="site-nav"></nav>
+
     <main class="container">
-      <h1>Progress Dashboard</h1>
-      <div class="card">
-        <p>Coming soon — charts showing which topics are going well and which need more practice.</p>
+      <h1>Progress Dashboard <span id="dashboard-profile-name" class="dashboard-profile-name"></span></h1>
+
+      <div id="dashboard-empty" class="card" hidden>
+        <p>No quizzes taken yet. <a href="quiz.html">Take a quiz</a> to start seeing your progress here!</p>
+      </div>
+
+      <div id="dashboard-content">
+        <div id="stat-grid" class="stat-grid"></div>
+
+        <section class="card">
+          <h2>Accuracy by Topic</h2>
+          <p>Weakest topics are listed first, so it's easy to see where to focus practice.</p>
+          <div id="accuracy-by-topic-chart" class="chart-container"></div>
+        </section>
+
+        <section class="card">
+          <h2>Accuracy Over Time</h2>
+          <div class="dashboard-filters">
+            <label for="trend-topic-select">Topic</label>
+            <select id="trend-topic-select"></select>
+          </div>
+          <div id="trend-chart" class="chart-container"></div>
+        </section>
       </div>
     </main>
+
+    <script src="js/vendor/d3.v7.min.js"></script>
     <script type="module">
-      import { renderNav } from './js/app/nav.js';
-      renderNav('dashboard.html');
+      import { init } from './js/views/dashboardView.js';
+      init();
     </script>
   </body>
 </html>
