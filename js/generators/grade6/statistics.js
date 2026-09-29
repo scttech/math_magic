@@ -56,43 +56,85 @@ const measuresOfCenter = {
 
     if (measure === 'mean') {
       const answer = roundTo(mean(values), 2);
+      const answerDisplay = `${answer}`;
       return {
         promptText,
         answer,
-        answerDisplay: `${answer}`,
+        answerDisplay,
         checkAnswer: numericCheckAnswer(answer, 0.01),
-        meta: { generatorId: measuresOfCenter.id, difficulty },
+        meta: { generatorId: measuresOfCenter.id, difficulty, measure, values, answerDisplay },
       };
     }
     if (measure === 'median') {
       const answer = median(values);
+      const answerDisplay = `${answer}`;
       return {
         promptText,
         answer,
-        answerDisplay: `${answer}`,
+        answerDisplay,
         checkAnswer: numericCheckAnswer(answer, 1e-9),
-        meta: { generatorId: measuresOfCenter.id, difficulty },
+        meta: { generatorId: measuresOfCenter.id, difficulty, measure, values, answerDisplay },
       };
     }
     if (measure === 'mode') {
       const counts = new Map();
       for (const v of values) counts.set(v, (counts.get(v) || 0) + 1);
       const answer = [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+      const answerDisplay = `${answer}`;
       return {
         promptText,
         answer,
-        answerDisplay: `${answer}`,
+        answerDisplay,
         checkAnswer: numericCheckAnswer(answer, 1e-9),
-        meta: { generatorId: measuresOfCenter.id, difficulty },
+        meta: { generatorId: measuresOfCenter.id, difficulty, measure, values, answerDisplay },
       };
     }
     const answer = range(values);
+    const answerDisplay = `${answer}`;
     return {
       promptText,
       answer,
-      answerDisplay: `${answer}`,
+      answerDisplay,
       checkAnswer: numericCheckAnswer(answer, 1e-9),
-      meta: { generatorId: measuresOfCenter.id, difficulty },
+      meta: { generatorId: measuresOfCenter.id, difficulty, measure, values, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { measure, values, answerDisplay } = meta;
+    if (measure === 'mean') {
+      const sum = values.reduce((s, v) => s + v, 0);
+      return {
+        strategy: ['Add up all the values.', 'Divide by how many values there are.'],
+        workedSteps: [`Add the values: ${values.join(' + ')} = ${sum}.`, `Divide by ${values.length}: ${sum} ÷ ${values.length} = ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    if (measure === 'median') {
+      const sorted = values.slice().sort((a, b) => a - b);
+      const mid = sorted.length / 2;
+      return {
+        strategy: ['Put the values in order from least to greatest.', 'The median is the middle value (or the average of the two middle values).'],
+        workedSteps: [
+          `Order the values: ${sorted.join(', ')}.`,
+          sorted.length % 2 === 0
+            ? `There are two middle values, ${sorted[mid - 1]} and ${sorted[mid]}; their average is ${answerDisplay}.`
+            : `The middle value is ${answerDisplay}.`,
+        ],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    if (measure === 'mode') {
+      return {
+        strategy: ['The mode is the value that appears most often.'],
+        workedSteps: [`Count how many times each value appears; ${answerDisplay} appears the most.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    const sorted = values.slice().sort((a, b) => a - b);
+    return {
+      strategy: ['The range is the greatest value minus the least value.'],
+      workedSteps: [`Greatest value (${sorted[sorted.length - 1]}) − least value (${sorted[0]}) = ${answerDisplay}.`],
+      finalAnswerDisplay: answerDisplay,
     };
   },
 };
@@ -122,20 +164,38 @@ const frequencyTableQuestions = {
     const total = counts.reduce((sum, c) => sum + c, 0);
 
     if (question === 'total') {
+      const answerDisplay = `${total}`;
       return {
         promptText: `A survey recorded these responses and how often each occurred: ${tableText}. How many total responses were there?`,
         answer: total,
-        answerDisplay: `${total}`,
+        answerDisplay,
         checkAnswer: numericCheckAnswer(total, 1e-9),
-        meta: { generatorId: frequencyTableQuestions.id, difficulty },
+        meta: { generatorId: frequencyTableQuestions.id, difficulty, question, values, counts, answerDisplay },
       };
     }
+    const answerDisplay = `${mostFrequentValue}`;
     return {
       promptText: `A survey recorded these responses and how often each occurred: ${tableText}. Which response occurred most often?`,
       answer: mostFrequentValue,
-      answerDisplay: `${mostFrequentValue}`,
+      answerDisplay,
       checkAnswer: numericCheckAnswer(mostFrequentValue, 1e-9),
-      meta: { generatorId: frequencyTableQuestions.id, difficulty },
+      meta: { generatorId: frequencyTableQuestions.id, difficulty, question, values, counts, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { question, values, counts, answerDisplay } = meta;
+    const rows = values.map((v, i) => `${v}: ${counts[i]}`).join(', ');
+    if (question === 'total') {
+      return {
+        strategy: ['Add up the counts (frequencies) for every category.'],
+        workedSteps: [`Add the counts: ${counts.join(' + ')} = ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    return {
+      strategy: ['Find the category with the largest count (frequency).'],
+      workedSteps: [`Compare the counts (${rows}); the largest is for response ${answerDisplay}.`],
+      finalAnswerDisplay: answerDisplay,
     };
   },
 };
@@ -177,12 +237,30 @@ const missingValueGivenMean = {
     const missing = allValues[missingIndex];
     const knownValues = allValues.filter((_, i) => i !== missingIndex);
 
+    const answerDisplay = `${missing}`;
     return {
       promptText: `The mean of ${n} numbers is ${meanValue}. ${n - 1} of the numbers are: ${knownValues.join(', ')}. What is the missing number?`,
       answer: missing,
-      answerDisplay: `${missing}`,
+      answerDisplay,
       checkAnswer: numericCheckAnswer(missing, 1e-9),
-      meta: { generatorId: missingValueGivenMean.id, difficulty },
+      meta: { generatorId: missingValueGivenMean.id, difficulty, n, meanValue, knownValues, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { n, meanValue, knownValues, answerDisplay } = meta;
+    const knownSum = knownValues.reduce((s, v) => s + v, 0);
+    const total = meanValue * n;
+    return {
+      strategy: [
+        'Multiply the mean by how many numbers there are to find the total sum of all the numbers.',
+        'Subtract the sum of the known numbers from that total to find the missing number.',
+      ],
+      workedSteps: [
+        `The total of all ${n} numbers is mean × count = ${meanValue} × ${n} = ${total}.`,
+        `The known numbers add up to ${knownValues.join(' + ')} = ${knownSum}.`,
+        `Subtract: ${total} − ${knownSum} = ${answerDisplay}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
     };
   },
 };

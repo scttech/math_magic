@@ -1,4 +1,4 @@
-![./assets/images/math_magic-hero.jpg](Math Magic Logo)
+![Math Magic Logo](./assets/images/math_magic-hero.jpg)
 
 # Math Magic
 
@@ -38,7 +38,7 @@ Then open http://localhost:8080/tests/index.html.
 - `js/generators/<grade>/` — topic modules (e.g. `grade6/fractionsDecimals.js`) that plug into the registry. Adding a new grade or topic means adding a module here, not changing core code.
 - `js/skills/` — grade-agnostic skill drills (e.g. multiplication tables) that live outside the grade/topic registry, since they use their own multiple-choice UI instead of the free-text quiz flow.
 - `js/core/wordProblemTemplateEngine.js`, `wordProblemPatterns.js`, `wordListStore.js`, `wordProblemTemplateStore.js` — the Word Problems feature: a fixed set of math "patterns" (each owning an answer formula and an `explain()` for the Help page) filled in by editable `<person>`/`<food>`/`<object>`/`<mixed_number>`/`<amount>`/`<random_number_MIN_to_MAX>` templates, managed from Settings.
-- `js/core/helpRegistry.js`, `help.html` — the per-question Help system. A generator registers a `generatorId -> help URL builder`; currently only Word Problems does, so it's the model to follow when adding help for another topic.
+- `js/core/helpRegistry.js`, `help.html` — the per-question Help system. Any generator that defines an `explain(meta)` method automatically gets a help page (via the generator/topic registry) — no separate registration needed. Every grade-6 generator has one; `registerHelpProvider()` is an escape hatch for content outside that registry.
 - `js/app/` — shared bootstrap (registers content, ensures a profile exists), nav bar, and the avatar-icon manifest.
 - `js/views/` — the DOM-rendering code for the home, quiz, worksheet builder, dashboard, and profile screens.
 - `js/charts/` — d3.js chart modules for the progress dashboard.
@@ -61,7 +61,7 @@ Feature-complete:
 * Profile avatar picker
 * Grade-agnostic skills practice (multiplication tables, with multiple-choice + keyboard answering)
 * 6th-grade Word Problems built from editable templates, with a Settings page to manage them and their word lists
-* A per-question Help system for Word Problems: general steps to solve, plus an optional worked solution with the problem's actual numbers, opened in a new tab so quiz progress isn't lost
+* A per-question Help system across all 6th-grade topics: general steps to solve, plus an optional worked solution with the problem's actual numbers, opened in a new tab so quiz progress isn't lost
 
 ## License
 

@@ -70,22 +70,56 @@ const evaluateExpression = {
       // a(x + b) evaluated at x = value
       const answer = coeff * (value + constant);
       const bDisplay = constant < 0 ? `${VARIABLE} - ${Math.abs(constant)}` : `${VARIABLE} + ${constant}`;
+      const answerDisplay = `${answer}`;
       return {
         promptText: `Evaluate ${coeff}(${bDisplay}) when ${VARIABLE} = ${value}.`,
         answer,
-        answerDisplay: `${answer}`,
+        answerDisplay,
         checkAnswer: numericCheckAnswer(answer, 1e-9),
-        meta: { generatorId: evaluateExpression.id, difficulty },
+        meta: { generatorId: evaluateExpression.id, difficulty, coeff, constant, value, answerDisplay },
       };
     }
     const expr = formatLinearExpression({ coeff, constant: difficulty === 'easy' ? 0 : constant });
     const answer = coeff * value + (difficulty === 'easy' ? 0 : constant);
+    const answerDisplay = `${answer}`;
     return {
       promptText: `Evaluate ${expr} when ${VARIABLE} = ${value}.`,
       answer,
-      answerDisplay: `${answer}`,
+      answerDisplay,
       checkAnswer: numericCheckAnswer(answer, 1e-9),
-      meta: { generatorId: evaluateExpression.id, difficulty },
+      meta: { generatorId: evaluateExpression.id, difficulty, coeff, constant, value, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { difficulty, coeff, constant, value, answerDisplay } = meta;
+    if (difficulty === 'hard') {
+      const inner = value + constant;
+      const constantText = constant < 0 ? `− ${Math.abs(constant)}` : `+ ${constant}`;
+      return {
+        strategy: [
+          'Substitute the given value for the variable.',
+          'Do the operation inside the parentheses first.',
+          'Multiply by the number outside the parentheses.',
+        ],
+        workedSteps: [
+          `Substitute ${VARIABLE} = ${value}: ${coeff}(${value} ${constantText}).`,
+          `Add inside the parentheses first: ${value} + (${constant}) = ${inner}.`,
+          `Multiply: ${coeff} × ${inner} = ${answerDisplay}.`,
+        ],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    const usedConstant = difficulty === 'easy' ? 0 : constant;
+    const constantPhrase = usedConstant !== 0 ? (usedConstant < 0 ? ` − ${Math.abs(usedConstant)}` : ` + ${usedConstant}`) : '';
+    return {
+      strategy: ['Substitute the given value for the variable.', 'Multiply, then add or subtract, following order of operations.'],
+      workedSteps: [
+        `Substitute ${VARIABLE} = ${value}: ${coeff} × ${value}${constantPhrase}.`,
+        usedConstant !== 0
+          ? `${coeff} × ${value} = ${coeff * value}, then ${usedConstant < 0 ? 'subtract' : 'add'} ${Math.abs(usedConstant)}: ${answerDisplay}.`
+          : `${coeff} × ${value} = ${answerDisplay}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
     };
   },
 };
@@ -107,12 +141,13 @@ const simplifyExpression = {
       const bDisplay = b < 0 ? `${VARIABLE} - ${Math.abs(b)}` : `${VARIABLE} + ${b}`;
       const cDisplay = c < 0 ? `- ${Math.abs(c)}${VARIABLE}` : `+ ${c}${VARIABLE}`;
       const result = { coeff: a + c, constant: a * b };
+      const answerDisplay = formatLinearExpression(result);
       return {
         promptText: `Simplify: ${a}(${bDisplay}) ${cDisplay}`,
         answer: result,
-        answerDisplay: formatLinearExpression(result),
+        answerDisplay,
         checkAnswer: linearExpressionCheckAnswer(result),
-        meta: { generatorId: simplifyExpression.id, difficulty },
+        meta: { generatorId: simplifyExpression.id, difficulty, a, b, c, answerDisplay },
       };
     }
 
@@ -122,12 +157,41 @@ const simplifyExpression = {
     const bDisplay = coeffB < 0 ? `- ${Math.abs(coeffB)}${VARIABLE}` : `+ ${coeffB}${VARIABLE}`;
     const constantDisplay = constant === 0 ? '' : constant < 0 ? ` - ${Math.abs(constant)}` : ` + ${constant}`;
     const result = { coeff: coeffA + coeffB, constant };
+    const answerDisplay = formatLinearExpression(result);
     return {
       promptText: `Simplify: ${coeffA}${VARIABLE} ${bDisplay}${constantDisplay}`,
       answer: result,
-      answerDisplay: formatLinearExpression(result),
+      answerDisplay,
       checkAnswer: linearExpressionCheckAnswer(result),
-      meta: { generatorId: simplifyExpression.id, difficulty },
+      meta: { generatorId: simplifyExpression.id, difficulty, coeffA, coeffB, constant, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { difficulty, answerDisplay } = meta;
+    if (difficulty === 'hard') {
+      const { a, b, c } = meta;
+      return {
+        strategy: [
+          'Distribute: multiply the number outside the parentheses by each term inside.',
+          'Combine like terms (the x-terms together, and the plain numbers together).',
+        ],
+        workedSteps: [
+          `Distribute ${a} into the parentheses: ${a} × ${VARIABLE} + ${a} × (${b}) = ${a}${VARIABLE} + ${a * b}.`,
+          `Combine with the remaining ${c}${VARIABLE} term: ${a}${VARIABLE} + ${c}${VARIABLE} = ${a + c}${VARIABLE}.`,
+          `Result: ${answerDisplay}.`,
+        ],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    const { coeffA, coeffB, constant } = meta;
+    return {
+      strategy: ['Combine the x-terms (add their coefficients).', 'Combine the plain numbers.'],
+      workedSteps: [
+        `Combine the ${VARIABLE}-terms: ${coeffA}${VARIABLE} + ${coeffB}${VARIABLE} = ${coeffA + coeffB}${VARIABLE}.`,
+        constant !== 0 ? `The plain number stays as-is: ${constant}.` : 'There is no plain number to combine.',
+        `Result: ${answerDisplay}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
     };
   },
 };
@@ -147,12 +211,13 @@ const solveEquation = {
       const b = randomNonZeroInt(rng, -12, 12);
       const c = solution + b;
       const symbol = b < 0 ? '-' : '+';
+      const answerDisplay = `${solution}`;
       return {
         promptText: `${VARIABLE} ${symbol} ${Math.abs(b)} = ${c}. Solve for ${VARIABLE}.`,
         answer: solution,
-        answerDisplay: `${solution}`,
+        answerDisplay,
         checkAnswer: numericCheckAnswer(solution, 1e-9),
-        meta: { generatorId: solveEquation.id, difficulty },
+        meta: { generatorId: solveEquation.id, difficulty, b, c, answerDisplay },
       };
     }
 
@@ -162,12 +227,43 @@ const solveEquation = {
     const b = randomInt(rng, -15, 15);
     const c = a * solution + b;
     const bDisplay = b === 0 ? '' : b < 0 ? ` - ${Math.abs(b)}` : ` + ${b}`;
+    const answerDisplay = `${solution}`;
     return {
       promptText: `${a}${VARIABLE}${bDisplay} = ${c}. Solve for ${VARIABLE}.`,
       answer: solution,
-      answerDisplay: `${solution}`,
+      answerDisplay,
       checkAnswer: numericCheckAnswer(solution, 1e-9),
-      meta: { generatorId: solveEquation.id, difficulty },
+      meta: { generatorId: solveEquation.id, difficulty, a, b, c, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { difficulty, c, answerDisplay } = meta;
+    if (difficulty === 'easy') {
+      const { b } = meta;
+      const symbol = b < 0 ? '−' : '+';
+      return {
+        strategy: [`Undo the ${b < 0 ? 'subtraction' : 'addition'} by doing the opposite to both sides.`],
+        workedSteps: [
+          `${VARIABLE} ${symbol} ${Math.abs(b)} = ${c}`,
+          `${b < 0 ? 'Add' : 'Subtract'} ${Math.abs(b)} on both sides: ${VARIABLE} = ${c} ${b < 0 ? '+' : '−'} ${Math.abs(b)} = ${answerDisplay}.`,
+        ],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    const { a, b } = meta;
+    const afterSubtract = c - b;
+    return {
+      strategy: [
+        'Undo the addition or subtraction first: do the opposite to both sides.',
+        'Then undo the multiplication by dividing both sides by the coefficient.',
+      ],
+      workedSteps: [
+        b !== 0
+          ? `${b < 0 ? 'Add' : 'Subtract'} ${Math.abs(b)} on both sides: ${a}${VARIABLE} = ${c} ${b < 0 ? '+' : '−'} ${Math.abs(b)} = ${afterSubtract}.`
+          : `The equation is already ${a}${VARIABLE} = ${c}.`,
+        `Divide both sides by ${a}: ${VARIABLE} = ${afterSubtract} ÷ ${a} = ${answerDisplay}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
     };
   },
 };

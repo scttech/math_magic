@@ -1,7 +1,8 @@
+import '../../js/generators/grade6/index.js';
 import { createRng } from '../../js/core/rng.js';
-import { generators, buildHelpUrl } from '../../js/generators/grade6/wordProblems.js';
+import { generators } from '../../js/generators/grade6/wordProblems.js';
 import { addUserTemplate } from '../../js/core/wordProblemTemplateStore.js';
-import { hasHelp, buildHelpUrl as buildHelpUrlViaRegistry } from '../../js/core/helpRegistry.js';
+import { hasHelp, buildHelpUrl } from '../../js/core/helpRegistry.js';
 import { getPatternById } from '../../js/core/wordProblemPatterns.js';
 
 const wordProblemGenerator = generators[0];
@@ -24,24 +25,22 @@ QUnit.module('generators/grade6/wordProblems', (hooks) => {
       assert.ok(getPatternById(problem.meta.patternId), `seed ${seed}: meta.patternId is a real pattern`);
       assert.ok(problem.meta.values && typeof problem.meta.values === 'object', `seed ${seed}: meta.values is present`);
 
-      // explain() (used by the help page) must agree with the problem's own answer.
+      // explain() (used by the help page), both via the pattern directly and via the generator's own explain(), must agree with the problem's own answer.
       const pattern = getPatternById(problem.meta.patternId);
-      assert.equal(pattern.explain(problem.meta.values).finalAnswerDisplay, problem.answerDisplay, `seed ${seed}: explain() matches the generated answer`);
+      assert.equal(pattern.explain(problem.meta.values).finalAnswerDisplay, problem.answerDisplay, `seed ${seed}: pattern.explain() matches the generated answer`);
+      assert.equal(wordProblemGenerator.explain(problem.meta).finalAnswerDisplay, problem.answerDisplay, `seed ${seed}: generator.explain() matches the generated answer`);
     }
   });
 
-  QUnit.test('the word-problem generator is registered with the help system, and its URL round-trips the pattern and values', (assert) => {
+  QUnit.test('the word-problem generator is auto-detected by the help system, and its URL round-trips generatorId/meta', (assert) => {
     assert.ok(hasHelp(wordProblemGenerator.id));
     const rng = createRng(1);
     const problem = wordProblemGenerator.generate({ difficulty: 'medium', rng });
 
     const url = buildHelpUrl(problem);
-    assert.equal(buildHelpUrlViaRegistry(problem), url, 'the registry dispatches to the same builder');
-
     const params = new URLSearchParams(url.split('?')[1]);
-    assert.equal(params.get('type'), 'wordProblem');
-    assert.equal(params.get('patternId'), problem.meta.patternId);
-    assert.deepEqual(JSON.parse(params.get('values')), problem.meta.values);
+    assert.equal(params.get('generatorId'), wordProblemGenerator.id);
+    assert.deepEqual(JSON.parse(params.get('meta')), problem.meta);
     assert.equal(params.get('answer'), problem.answerDisplay);
   });
 

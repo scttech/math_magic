@@ -27,12 +27,13 @@ const areaRectangleTriangle = {
       const length = randomDimension(rng, { ...range, allowDecimal });
       const width = randomDimension(rng, { ...range, allowDecimal });
       const answer = roundTo(length * width, 2);
+      const answerDisplay = `${answer} square units`;
       return {
         promptText: `What is the area of a rectangle with length ${length} and width ${width}?`,
         answer,
-        answerDisplay: `${answer} square units`,
+        answerDisplay,
         checkAnswer: numericCheckAnswer(answer, 0.01),
-        meta: { generatorId: areaRectangleTriangle.id, difficulty },
+        meta: { generatorId: areaRectangleTriangle.id, difficulty, shape, length, width, answerDisplay },
       };
     }
 
@@ -44,12 +45,33 @@ const areaRectangleTriangle = {
       base = randomDimension(rng, { ...range, allowDecimal: true });
     }
     const answer = roundTo((base * height) / 2, 2);
+    const answerDisplay = `${answer} square units`;
     return {
       promptText: `What is the area of a triangle with base ${base} and height ${height}?`,
       answer,
-      answerDisplay: `${answer} square units`,
+      answerDisplay,
       checkAnswer: numericCheckAnswer(answer, 0.01),
-      meta: { generatorId: areaRectangleTriangle.id, difficulty },
+      meta: { generatorId: areaRectangleTriangle.id, difficulty, shape, base, height, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { shape, answerDisplay } = meta;
+    if (shape === 'rectangle') {
+      const { length, width } = meta;
+      return {
+        strategy: ['The area of a rectangle is length times width.'],
+        workedSteps: [`Area = length × width = ${length} × ${width} = ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    const { base, height } = meta;
+    return {
+      strategy: ['The area of a triangle is one-half times base times height.'],
+      workedSteps: [
+        `Area = ½ × base × height = ½ × ${base} × ${height}.`,
+        `${base} × ${height} = ${base * height}, then ÷ 2 = ${answerDisplay}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
     };
   },
 };
@@ -66,12 +88,21 @@ const areaParallelogram = {
     const base = randomDimension(rng, { ...range, allowDecimal });
     const height = randomDimension(rng, { ...range, allowDecimal });
     const answer = roundTo(base * height, 2);
+    const answerDisplay = `${answer} square units`;
     return {
       promptText: `What is the area of a parallelogram with base ${base} and height ${height}?`,
       answer,
-      answerDisplay: `${answer} square units`,
+      answerDisplay,
       checkAnswer: numericCheckAnswer(answer, 0.01),
-      meta: { generatorId: areaParallelogram.id, difficulty },
+      meta: { generatorId: areaParallelogram.id, difficulty, base, height, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { base, height, answerDisplay } = meta;
+    return {
+      strategy: ['The area of a parallelogram is base times height.'],
+      workedSteps: [`Area = base × height = ${base} × ${height} = ${answerDisplay}.`],
+      finalAnswerDisplay: answerDisplay,
     };
   },
 };
@@ -89,12 +120,21 @@ const volumeRectangularPrism = {
     const width = randomDimension(rng, { ...range, allowDecimal });
     const height = randomDimension(rng, { ...range, allowDecimal });
     const answer = roundTo(length * width * height, 2);
+    const answerDisplay = `${answer} cubic units`;
     return {
       promptText: `What is the volume of a rectangular prism with length ${length}, width ${width}, and height ${height}?`,
       answer,
-      answerDisplay: `${answer} cubic units`,
+      answerDisplay,
       checkAnswer: numericCheckAnswer(answer, 0.05),
-      meta: { generatorId: volumeRectangularPrism.id, difficulty },
+      meta: { generatorId: volumeRectangularPrism.id, difficulty, length, width, height, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { length, width, height, answerDisplay } = meta;
+    return {
+      strategy: ['The volume of a rectangular prism is length times width times height.'],
+      workedSteps: [`Volume = length × width × height = ${length} × ${width} × ${height} = ${answerDisplay}.`],
+      finalAnswerDisplay: answerDisplay,
     };
   },
 };
@@ -112,12 +152,32 @@ const surfaceAreaRectangularPrism = {
     const width = randomDimension(rng, { ...range, allowDecimal });
     const height = randomDimension(rng, { ...range, allowDecimal });
     const answer = roundTo(2 * (length * width + length * height + width * height), 2);
+    const answerDisplay = `${answer} square units`;
     return {
       promptText: `What is the surface area of a rectangular prism with length ${length}, width ${width}, and height ${height}?`,
       answer,
-      answerDisplay: `${answer} square units`,
+      answerDisplay,
       checkAnswer: numericCheckAnswer(answer, 0.05),
-      meta: { generatorId: surfaceAreaRectangularPrism.id, difficulty },
+      meta: { generatorId: surfaceAreaRectangularPrism.id, difficulty, length, width, height, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { length, width, height, answerDisplay } = meta;
+    const lw = roundTo(length * width, 2);
+    const lh = roundTo(length * height, 2);
+    const wh = roundTo(width * height, 2);
+    const sumOfFaces = roundTo(lw + lh + wh, 2);
+    return {
+      strategy: [
+        'A rectangular prism has 3 pairs of matching faces: top/bottom, front/back, and left/right.',
+        'Find the area of each of the 3 different faces, add them together, then double the total.',
+      ],
+      workedSteps: [
+        `Find the area of each face: length×width = ${lw}, length×height = ${lh}, width×height = ${wh}.`,
+        `Add them: ${lw} + ${lh} + ${wh} = ${sumOfFaces}.`,
+        `Double it (for the matching faces on the other side): 2 × ${sumOfFaces} = ${answerDisplay}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
     };
   },
 };

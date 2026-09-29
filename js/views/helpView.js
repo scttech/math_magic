@@ -1,6 +1,6 @@
 import '../app/init.js';
 import { renderNav } from '../app/nav.js';
-import { getPatternById } from '../core/wordProblemPatterns.js';
+import { getById } from '../core/registry.js';
 
 const els = {};
 
@@ -25,9 +25,8 @@ function cacheElements() {
 function parseParams() {
   const params = new URLSearchParams(window.location.search);
   return {
-    type: params.get('type'),
-    patternId: params.get('patternId'),
-    values: params.get('values'),
+    generatorId: params.get('generatorId'),
+    meta: params.get('meta'),
     prompt: params.get('prompt'),
     answer: params.get('answer'),
   };
@@ -38,26 +37,31 @@ function showNotFound() {
   els.notFound.hidden = false;
 }
 
-function renderWordProblemHelp(params) {
-  const pattern = getPatternById(params.patternId);
-  if (!pattern || typeof pattern.explain !== 'function') {
+function renderHelp(params) {
+  const generatorModule = getById(params.generatorId);
+  if (!generatorModule || typeof generatorModule.explain !== 'function') {
     showNotFound();
     return;
   }
 
-  let values;
+  let meta;
   try {
-    values = JSON.parse(params.values);
+    meta = JSON.parse(params.meta);
   } catch {
     showNotFound();
     return;
   }
 
-  const { strategy, workedSteps, finalAnswerDisplay } = pattern.explain(values);
+  const { strategy, workedSteps, finalAnswerDisplay } = generatorModule.explain(meta);
 
   els.context.textContent = params.prompt ? `You were working on: "${params.prompt}"` : '';
-  els.label.textContent = pattern.label;
-  els.description.textContent = pattern.description;
+  els.label.textContent = generatorModule.label;
+  if (generatorModule.description) {
+    els.description.textContent = generatorModule.description;
+    els.description.hidden = false;
+  } else {
+    els.description.hidden = true;
+  }
   els.strategySteps.innerHTML = strategy.map((step) => `<li>${escapeHtml(step)}</li>`).join('');
 
   els.showWorkedBtn.addEventListener('click', () => {
@@ -73,8 +77,8 @@ export function init() {
   renderNav(null);
 
   const params = parseParams();
-  if (params.type === 'wordProblem') {
-    renderWordProblemHelp(params);
+  if (params.generatorId) {
+    renderHelp(params);
   } else {
     showNotFound();
   }

@@ -4,11 +4,10 @@
 // at random each time and hands it to the shared template engine to fill in
 // and score.
 import { randomChoice } from '../../core/rng.js';
-import { WORD_PROBLEM_PATTERNS } from '../../core/wordProblemPatterns.js';
+import { WORD_PROBLEM_PATTERNS, getPatternById } from '../../core/wordProblemPatterns.js';
 import { listUserTemplatesForPattern } from '../../core/wordProblemTemplateStore.js';
 import { getWordLists } from '../../core/wordListStore.js';
 import { renderTemplate } from '../../core/wordProblemTemplateEngine.js';
-import { registerHelpProvider } from '../../core/helpRegistry.js';
 
 const GRADE = '6';
 const TOPIC = 'wordProblems';
@@ -44,20 +43,9 @@ const templatedWordProblem = {
       meta: { generatorId: templatedWordProblem.id, difficulty, patternId: entry.pattern.id, values },
     };
   },
+  explain(meta) {
+    return getPatternById(meta.patternId).explain(meta.values);
+  },
 };
-
-/** Builds this word problem instance's help-page URL, carrying its pattern id and exact values so the help page can rebuild the same worked solution. */
-export function buildHelpUrl(problem) {
-  const params = new URLSearchParams({
-    type: 'wordProblem',
-    patternId: problem.meta.patternId,
-    values: JSON.stringify(problem.meta.values),
-    prompt: problem.promptText,
-    answer: problem.answerDisplay,
-  });
-  return `help.html?${params.toString()}`;
-}
-
-registerHelpProvider(templatedWordProblem.id, buildHelpUrl);
 
 export const generators = [templatedWordProblem];

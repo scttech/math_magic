@@ -38,12 +38,26 @@ const simplifyRatio = {
     const divisor = gcd(a, b);
     const reducedA = a / divisor;
     const reducedB = b / divisor;
+    const answerDisplay = `${reducedA}:${reducedB}`;
     return {
       promptText: `Simplify the ratio ${a}:${b} to lowest terms.`,
-      answer: `${reducedA}:${reducedB}`,
-      answerDisplay: `${reducedA}:${reducedB}`,
+      answer: answerDisplay,
+      answerDisplay,
       checkAnswer: ratioCheckAnswer(reducedA, reducedB),
-      meta: { generatorId: simplifyRatio.id, difficulty },
+      meta: { generatorId: simplifyRatio.id, difficulty, a, b, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { a, b, answerDisplay } = meta;
+    const divisor = gcd(a, b);
+    return {
+      strategy: ['Find the greatest common factor (GCF) of both numbers in the ratio.', 'Divide both numbers by the GCF.'],
+      workedSteps: [
+        `The greatest common factor of ${a} and ${b} is ${divisor}.`,
+        `Divide both parts by ${divisor}: ${a} ÷ ${divisor} = ${a / divisor}, and ${b} ÷ ${divisor} = ${b / divisor}.`,
+        `The simplified ratio is ${answerDisplay}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
     };
   },
 };
@@ -63,12 +77,28 @@ const solveProportion = {
     const c = a * scale;
     const missing = b * scale;
     // Hide the fourth term: a/b = c/x, solve for x (= missing).
+    const answerDisplay = `${missing}`;
     return {
       promptText: `${a}/${b} = ${c}/x. What is x?`,
       answer: missing,
-      answerDisplay: `${missing}`,
+      answerDisplay,
       checkAnswer: numericCheckAnswer(missing, 1e-9),
-      meta: { generatorId: solveProportion.id, difficulty },
+      meta: { generatorId: solveProportion.id, difficulty, a, b, c, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { a, b, c, answerDisplay } = meta;
+    const scale = c / a;
+    return {
+      strategy: [
+        'Figure out what number the first fraction was multiplied by to get the second numerator.',
+        'Multiply the first denominator by that same number to find the missing value.',
+      ],
+      workedSteps: [
+        `${a} was multiplied by ${c} ÷ ${a} = ${scale} to get ${c}.`,
+        `Multiply ${b} by that same number: ${b} × ${scale} = ${answerDisplay}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
     };
   },
 };
@@ -98,12 +128,27 @@ const unitRateWordProblem = {
     const scale = randomInt(rng, 2, maxScale);
     const targetPer = b * scale;
     const answer = a * scale;
+    const answerDisplay = `${answer}`;
     return {
       promptText: `${scenario.verb} ${a} ${scenario.unit} for every ${b} ${scenario.per}. How many ${scenario.unit} are needed for ${targetPer} ${scenario.per}?`,
       answer,
-      answerDisplay: `${answer}`,
+      answerDisplay,
       checkAnswer: numericCheckAnswer(answer, 1e-9),
-      meta: { generatorId: unitRateWordProblem.id, difficulty },
+      meta: { generatorId: unitRateWordProblem.id, difficulty, scenario, a, b, scale, targetPer, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { scenario, a, b, scale, targetPer, answerDisplay } = meta;
+    return {
+      strategy: [
+        `Figure out how many groups of ${b} ${scenario.per} fit into ${targetPer} ${scenario.per}.`,
+        `Multiply the original ${scenario.unit} amount by that same scale factor.`,
+      ],
+      workedSteps: [
+        `${targetPer} ${scenario.per} is ${scale} times as many as ${b} ${scenario.per} (${b} × ${scale} = ${targetPer}).`,
+        `Multiply the ${scenario.unit} amount by ${scale} too: ${a} × ${scale} = ${answerDisplay}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
     };
   },
 };
