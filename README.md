@@ -1,4 +1,4 @@
-![./assets/images/math_magic-hero.jpg](Math Magic Logo)
+![https://github.com/scttech/math_magic/blob/master/assets/images/math_magic-hero.jpg](Math Magic Logo)
 
 # Math Magic
 
