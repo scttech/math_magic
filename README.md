@@ -1,4 +1,4 @@
-![Math Magic Logo](./assets/images/math_magic-hero.jpg)
+<img src="./assets/images/math_magic-hero.jpg" alt="Math Magic Logo" width="200" />
 
 # Math Magic
 
