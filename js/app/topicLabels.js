@@ -8,6 +8,7 @@ export const TOPIC_LABELS = {
   expressionsEquations: 'Expressions & Equations',
   areaSurfaceVolume: 'Area, Surface Area & Volume',
   statistics: 'Statistics',
+  wordProblems: 'Word Problems',
   multiplicationTables: 'Multiplication Tables',
 };
 

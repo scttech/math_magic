@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Settings</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <h1>Settings</h1>
+      <p class="progress-text">These settings are shared by every profile in this browser.</p>
+
+      <section class="card">
+        <h2>Word Lists</h2>
+        <p>
+          Word problems pull names, foods, and objects from these lists. Add your own, or remove ones you don't want —
+          each list needs at least one entry.
+        </p>
+        <div id="word-list-groups"></div>
+      </section>
+
+      <section class="card">
+        <h2>Word Problem Templates</h2>
+        <p>Every word problem comes from a template like these, with the pieces in angle brackets filled in randomly each time.</p>
+        <div id="template-list"></div>
+      </section>
+
+      <section class="card">
+        <h2>Add a New Template</h2>
+        <div class="field-row">
+          <label for="template-pattern-select">Problem Type</label>
+          <select id="template-pattern-select"></select>
+        </div>
+
+        <div id="pattern-reference" class="pattern-reference"></div>
+
+        <div class="field-row">
+          <label for="template-text-input">Template Text</label>
+          <textarea id="template-text-input" rows="4" placeholder="e.g. <person> has <mixed_number:start> pounds of <food>..."></textarea>
+        </div>
+
+        <p id="template-error" class="feedback incorrect" hidden></p>
+
+        <div class="toolbar">
+          <button id="template-preview-btn" type="button" class="btn secondary">Preview</button>
+          <button id="template-save-btn" type="button" class="btn">Save Template</button>
+        </div>
+
+        <div id="template-preview" class="card" hidden></div>
+      </section>
+    </main>
+
+    <script type="module">
+      import { init } from './js/views/settingsView.js';
+      init();
+    </script>
+  </body>
+</html>

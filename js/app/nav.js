@@ -12,6 +12,7 @@ const LINKS = [
   { href: 'skills.html', label: 'Skills' },
   { href: 'dashboard.html', label: 'Progress' },
   { href: 'profiles.html', label: 'Profiles' },
+  { href: 'settings.html', label: 'Settings' },
 ];
 
 export function renderNav(activeHref) {
@@ -20,9 +21,17 @@ export function renderNav(activeHref) {
   mount.innerHTML = '';
   mount.setAttribute('aria-label', 'Main navigation');
 
-  const brand = document.createElement('span');
+  const brand = document.createElement('a');
+  brand.href = 'index.html';
   brand.className = 'nav-brand';
-  brand.textContent = 'Math Magic';
+  const brandIcon = document.createElement('img');
+  brandIcon.className = 'nav-brand-icon';
+  brandIcon.src = 'assets/images/favicon-32.png';
+  brandIcon.alt = '';
+  brandIcon.width = 28;
+  brandIcon.height = 28;
+  brand.appendChild(brandIcon);
+  brand.appendChild(document.createTextNode('Math Magic'));
   mount.appendChild(brand);
 
   const list = document.createElement('ul');

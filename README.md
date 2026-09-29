@@ -37,6 +37,7 @@ Then open http://localhost:8080/tests/index.html.
 - `js/core/` — the problem-generator contract, seeded RNG, topic/grade registry, scoring/aggregation, profile and progress storage, import/export.
 - `js/generators/<grade>/` — topic modules (e.g. `grade6/fractionsDecimals.js`) that plug into the registry. Adding a new grade or topic means adding a module here, not changing core code.
 - `js/skills/` — grade-agnostic skill drills (e.g. multiplication tables) that live outside the grade/topic registry, since they use their own multiple-choice UI instead of the free-text quiz flow.
+- `js/core/wordProblemTemplateEngine.js`, `wordProblemPatterns.js`, `wordListStore.js`, `wordProblemTemplateStore.js` — the Word Problems feature: a fixed set of math "patterns" (each owning an answer formula) filled in by editable `<person>`/`<food>`/`<object>`/`<mixed_number>`/`<random_number_MIN_to_MAX>` templates, managed from Settings.
 - `js/app/` — shared bootstrap (registers content, ensures a profile exists), nav bar, and the avatar-icon manifest.
 - `js/views/` — the DOM-rendering code for the home, quiz, worksheet builder, dashboard, and profile screens.
 - `js/charts/` — d3.js chart modules for the progress dashboard.
@@ -58,6 +59,7 @@ Feature-complete:
 * Progress dashboard with charts
 * Profile avatar picker
 * Grade-agnostic skills practice (multiplication tables, with multiple-choice + keyboard answering)
+* 6th-grade Word Problems built from editable templates, with a Settings page to manage them and their word lists
 
 ## License
 

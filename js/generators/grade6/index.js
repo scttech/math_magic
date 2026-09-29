@@ -7,6 +7,7 @@ import { generators as negativeNumbersGenerators } from './negativeNumbers.js';
 import { generators as expressionsEquationsGenerators } from './expressionsEquations.js';
 import { generators as areaSurfaceVolumeGenerators } from './areaSurfaceVolume.js';
 import { generators as statisticsGenerators } from './statistics.js';
+import { generators as wordProblemsGenerators } from './wordProblems.js';
 
 const allGrade6Generators = [
   ...fractionsDecimalsGenerators,
@@ -15,6 +16,7 @@ const allGrade6Generators = [
   ...expressionsEquationsGenerators,
   ...areaSurfaceVolumeGenerators,
   ...statisticsGenerators,
+  ...wordProblemsGenerators,
 ];
 
 for (const mod of allGrade6Generators) {
