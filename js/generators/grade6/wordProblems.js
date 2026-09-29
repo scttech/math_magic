@@ -8,6 +8,7 @@ import { WORD_PROBLEM_PATTERNS } from '../../core/wordProblemPatterns.js';
 import { listUserTemplatesForPattern } from '../../core/wordProblemTemplateStore.js';
 import { getWordLists } from '../../core/wordListStore.js';
 import { renderTemplate } from '../../core/wordProblemTemplateEngine.js';
+import { registerHelpProvider } from '../../core/helpRegistry.js';
 
 const GRADE = '6';
 const TOPIC = 'wordProblems';
@@ -34,9 +35,29 @@ const templatedWordProblem = {
   generate({ difficulty, rng }) {
     const entry = randomChoice(rng, allTemplateEntries());
     const wordLists = getWordLists();
-    const { promptText, answer, answerDisplay, checkAnswer } = renderTemplate({ text: entry.text, pattern: entry.pattern, rng, difficulty, wordLists });
-    return { promptText, answer, answerDisplay, checkAnswer, meta: { generatorId: templatedWordProblem.id, difficulty } };
+    const { promptText, answer, answerDisplay, checkAnswer, values } = renderTemplate({ text: entry.text, pattern: entry.pattern, rng, difficulty, wordLists });
+    return {
+      promptText,
+      answer,
+      answerDisplay,
+      checkAnswer,
+      meta: { generatorId: templatedWordProblem.id, difficulty, patternId: entry.pattern.id, values },
+    };
   },
 };
+
+/** Builds this word problem instance's help-page URL, carrying its pattern id and exact values so the help page can rebuild the same worked solution. */
+export function buildHelpUrl(problem) {
+  const params = new URLSearchParams({
+    type: 'wordProblem',
+    patternId: problem.meta.patternId,
+    values: JSON.stringify(problem.meta.values),
+    prompt: problem.promptText,
+    answer: problem.answerDisplay,
+  });
+  return `help.html?${params.toString()}`;
+}
+
+registerHelpProvider(templatedWordProblem.id, buildHelpUrl);
 
 export const generators = [templatedWordProblem];

@@ -634,3 +634,51 @@ input[type='number'] {
   width: 100%;
   resize: vertical;
 }
+
+.quiz-active-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.quiz-active-header .progress-text {
+  margin-bottom: 0;
+}
+
+.help-link {
+  display: inline-block;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  text-decoration: none;
+}
+
+/* Without this, [hidden]'s UA-stylesheet display:none loses to the explicit
+   display: inline-block above (author styles beat UA styles at equal
+   specificity), so the link would stay visible even while hidden. */
+.help-link[hidden] {
+  display: none;
+}
+
+.help-link:hover {
+  text-decoration: underline;
+}
+
+#help-strategy-steps,
+#worked-solution-steps {
+  padding-left: 1.5rem;
+}
+
+#help-strategy-steps li,
+#worked-solution-steps li {
+  margin-bottom: 0.5rem;
+}
+
+#worked-solution {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}

@@ -134,7 +134,10 @@ export function validateTemplateText(text, pattern) {
 
 /**
  * Fill a template's tags with random values, run the pattern's answer
- * formula, and return the rendered problem: { promptText, answer, answerDisplay, checkAnswer }.
+ * formula, and return the rendered problem: { promptText, answer, answerDisplay,
+ * checkAnswer, values }. `values` (the resolved role values, e.g. { start, gained,
+ * consumed }) is also handed back so a generator can stash it for the help system
+ * to later reconstruct the same worked solution via pattern.explain(values).
  */
 export function renderTemplate({ text, pattern, rng, difficulty, wordLists }) {
   const tags = parseTags(text);
@@ -184,5 +187,5 @@ export function renderTemplate({ text, pattern, rng, difficulty, wordLists }) {
   }
   promptText += text.slice(cursor);
 
-  return { promptText, answer, answerDisplay, checkAnswer };
+  return { promptText, answer, answerDisplay, checkAnswer, values };
 }

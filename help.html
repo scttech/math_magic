@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Help</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <h1>Need a Hand?</h1>
+
+      <section id="help-content" class="card">
+        <p id="help-context" class="progress-text"></p>
+        <h2 id="help-label"></h2>
+        <p id="help-description"></p>
+
+        <h3>Steps to Solve</h3>
+        <ol id="help-strategy-steps"></ol>
+
+        <button id="show-worked-solution-btn" type="button" class="btn secondary">Still Stuck? Show Me the Worked Solution</button>
+
+        <div id="worked-solution" hidden>
+          <h3>Worked Solution</h3>
+          <ol id="worked-solution-steps"></ol>
+          <p id="worked-solution-answer" class="feedback correct"></p>
+        </div>
+      </section>
+
+      <section id="help-not-found" class="card" hidden>
+        <p>Sorry, help isn't available for this problem yet.</p>
+      </section>
+
+      <button id="close-tab-btn" type="button" class="btn secondary">Close This Tab</button>
+      <p class="progress-text">If that doesn't work, you can just close this tab and go back to your quiz.</p>
+    </main>
+
+    <script type="module">
+      import { init } from './js/views/helpView.js';
+      init();
+    </script>
+  </body>
+</html>

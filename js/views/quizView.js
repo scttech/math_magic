@@ -6,6 +6,7 @@ import { buildProblemSet } from '../core/problemSet.js';
 import { randomSeed } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordQuizAttempt } from '../core/progressStore.js';
+import { hasHelp, buildHelpUrl } from '../core/helpRegistry.js';
 
 const els = {};
 let state = null;
@@ -21,6 +22,7 @@ function cacheElements() {
   els.startBtn = document.getElementById('start-quiz-btn');
   els.progressText = document.getElementById('progress-text');
   els.promptText = document.getElementById('prompt-text');
+  els.helpLink = document.getElementById('help-link');
   els.answerInput = document.getElementById('answer-input');
   els.submitBtn = document.getElementById('submit-answer-btn');
   els.nextBtn = document.getElementById('next-question-btn');
@@ -68,6 +70,12 @@ function renderQuestion() {
   const problem = state.problems[state.currentIndex];
   els.progressText.textContent = `Question ${state.currentIndex + 1} of ${state.problems.length}`;
   els.promptText.textContent = problem.promptText;
+  if (hasHelp(problem.meta.generatorId)) {
+    els.helpLink.href = buildHelpUrl(problem);
+    els.helpLink.hidden = false;
+  } else {
+    els.helpLink.hidden = true;
+  }
   els.answerInput.value = '';
   els.answerInput.disabled = false;
   els.submitBtn.hidden = false;

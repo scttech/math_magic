@@ -67,4 +67,21 @@ QUnit.module('core/wordProblemPatterns', () => {
       assert.ok(checkAnswer(answerDisplay));
     }
   });
+
+  QUnit.test("every pattern's explain() agrees with compute() on the final answer, and returns non-empty steps", (assert) => {
+    for (const pattern of WORD_PROBLEM_PATTERNS) {
+      for (let seed = 0; seed < 50; seed++) {
+        const rng = createRng(seed * 17 + 3);
+        const { values, answerDisplay } = renderTemplate({ text: pattern.defaultTemplates[0], pattern, rng, difficulty: 'medium', wordLists });
+        const { strategy, workedSteps, finalAnswerDisplay } = pattern.explain(values);
+        assert.ok(strategy.length > 0, `${pattern.id} seed ${seed}: strategy has steps`);
+        assert.ok(workedSteps.length > 0, `${pattern.id} seed ${seed}: workedSteps has steps`);
+        assert.ok(
+          strategy.every((s) => typeof s === 'string' && s.length > 0) && workedSteps.every((s) => typeof s === 'string' && s.length > 0),
+          `${pattern.id} seed ${seed}: every step is a non-empty string`
+        );
+        assert.equal(finalAnswerDisplay, answerDisplay, `${pattern.id} seed ${seed}: explain()'s final answer matches compute()'s`);
+      }
+    }
+  });
 });

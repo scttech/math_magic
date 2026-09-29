@@ -41,6 +41,22 @@ const combineThenRemove = {
     const remaining = subFractions(addFractions(values.start, values.gained), values.consumed);
     return { answer: remaining, answerDisplay: formatMixedNumber(remaining), checkAnswer: fractionCheckAnswer(remaining) };
   },
+  explain(values) {
+    const total = addFractions(values.start, values.gained);
+    const remaining = subFractions(total, values.consumed);
+    return {
+      strategy: [
+        'Add the starting amount and the amount gained to find the total on hand.',
+        'Subtract the amount used or removed from that total.',
+        'The result is what is left.',
+      ],
+      workedSteps: [
+        `Add the starting amount and the amount gained: ${formatMixedNumber(values.start)} + ${formatMixedNumber(values.gained)} = ${formatMixedNumber(total)}.`,
+        `Subtract the amount used or removed: ${formatMixedNumber(total)} − ${formatMixedNumber(values.consumed)} = ${formatMixedNumber(remaining)}.`,
+      ],
+      finalAnswerDisplay: formatMixedNumber(remaining),
+    };
+  },
   defaultTemplates: [
     '<person> has <mixed_number:start> pounds of <food> at home, then buys an additional <mixed_number:gained> pounds at the store. <person> consumes <mixed_number:consumed> pounds of <food> over the week. How many pounds of <food> does <person> have left?',
   ],
@@ -57,6 +73,14 @@ const multiplyRate = {
   compute(values) {
     const total = roundTo(values.quantity * values.pricePerItem, 2);
     return { answer: total, answerDisplay: total.toFixed(2), checkAnswer: numericCheckAnswer(total, 0.005) };
+  },
+  explain(values) {
+    const total = roundTo(values.quantity * values.pricePerItem, 2);
+    return {
+      strategy: ['Multiply the price of one item by how many items were bought.', 'The result is the total cost.'],
+      workedSteps: [`Multiply the quantity by the price per item: ${values.quantity} × $${values.pricePerItem.toFixed(2)} = $${total.toFixed(2)}.`],
+      finalAnswerDisplay: total.toFixed(2),
+    };
   },
   defaultTemplates: [
     '<person> buys <random_number_2_to_12:quantity> <object>s. Each <object> costs $<amount:pricePerItem>. How much did <person> spend in total?',
@@ -81,6 +105,24 @@ const compareTotals = {
     const positiveDiff = diff.num < 0 ? { num: -diff.num, den: diff.den } : diff;
     return { answer: positiveDiff, answerDisplay: formatMixedNumber(positiveDiff), checkAnswer: fractionCheckAnswer(positiveDiff) };
   },
+  explain(values) {
+    const diff = subFractions(values.amountA, values.amountB);
+    const positiveDiff = diff.num < 0 ? { num: -diff.num, den: diff.den } : diff;
+    const larger = diff.num < 0 ? values.amountB : values.amountA;
+    const smaller = diff.num < 0 ? values.amountA : values.amountB;
+    return {
+      strategy: [
+        'Figure out which amount is larger.',
+        'Subtract the smaller amount from the larger amount.',
+        'The result is how much more the larger amount has.',
+      ],
+      workedSteps: [
+        `Compare the two amounts: ${formatMixedNumber(values.amountA)} and ${formatMixedNumber(values.amountB)}. The larger amount is ${formatMixedNumber(larger)}.`,
+        `Subtract the smaller from the larger: ${formatMixedNumber(larger)} − ${formatMixedNumber(smaller)} = ${formatMixedNumber(positiveDiff)}.`,
+      ],
+      finalAnswerDisplay: formatMixedNumber(positiveDiff),
+    };
+  },
   defaultTemplates: [
     '<person> has <mixed_number:amountA> pounds of <food>. A friend has <mixed_number:amountB> pounds of <food>. How many more pounds of <food> does the person with more have?',
   ],
@@ -97,6 +139,14 @@ const divideShare = {
   compute(values) {
     const each = divFractions(values.total, { num: values.shareCount, den: 1 });
     return { answer: each, answerDisplay: formatMixedNumber(each), checkAnswer: fractionCheckAnswer(each) };
+  },
+  explain(values) {
+    const each = divFractions(values.total, { num: values.shareCount, den: 1 });
+    return {
+      strategy: ['Divide the total amount by how many ways it is being split.', 'The result is each share.'],
+      workedSteps: [`Divide the total by the number of shares: ${formatMixedNumber(values.total)} ÷ ${values.shareCount} = ${formatMixedNumber(each)}.`],
+      finalAnswerDisplay: formatMixedNumber(each),
+    };
   },
   defaultTemplates: [
     '<person> has <mixed_number:total> pounds of <food> and wants to split it evenly among <random_number_2_to_6:shareCount> friends. How many pounds of <food> does each friend get?',

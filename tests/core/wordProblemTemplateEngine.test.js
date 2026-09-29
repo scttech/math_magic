@@ -136,4 +136,15 @@ QUnit.module('core/wordProblemTemplateEngine', () => {
       assert.notOk(checkAnswer(Number(answerDisplay) + 1000), `seed ${seed}: checkAnswer rejects a wrong answer`);
     }
   });
+
+  QUnit.test('renderTemplate also returns the resolved role values, for the help system to reuse', (assert) => {
+    const pattern = {
+      requiredRoles: [{ type: 'mixed_number', name: 'start' }],
+      compute: (values) => ({ answer: values.start, answerDisplay: 'x', checkAnswer: () => true }),
+    };
+    const wordLists = { person: ['P'], food: ['F'], object: ['O'] };
+    const rng = createRng(7);
+    const { values } = renderTemplate({ text: '<person> has <mixed_number:start> pounds of <food>.', pattern, rng, difficulty: 'medium', wordLists });
+    assert.ok(values.start && Number.isInteger(values.start.num) && Number.isInteger(values.start.den), 'values.start is a fraction object');
+  });
 });
