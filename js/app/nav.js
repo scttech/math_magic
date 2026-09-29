@@ -16,59 +16,30 @@ const LINKS = [
   { href: 'settings.html', label: 'Settings' },
 ];
 
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+
+function navLinksHtml(activeHref) {
+  return LINKS.map((link) => {
+    const isActive = link.href === activeHref;
+    return `<li><a href="${link.href}"${isActive ? ' class="active" aria-current="page"' : ''}>${link.label}</a></li>`;
+  }).join('');
+}
+
+function profileHtml(profile) {
+  if (!profile) return '';
+  const avatar = profile.avatarIcon ? `<img class="avatar-thumb" src="${avatarIconUrl(profile.avatarIcon)}" alt="" />` : '\u{1F464} ';
+  return `<a href="profiles.html" class="nav-profile">${avatar}${escapeHtml(profile.name)}</a>`;
+}
+
 export function renderNav(activeHref) {
   mountCalculator();
 
   const mount = document.getElementById('site-nav');
   if (!mount) return;
-  mount.innerHTML = '';
   mount.setAttribute('aria-label', 'Main navigation');
-
-  const brand = document.createElement('a');
-  brand.href = 'index.html';
-  brand.className = 'nav-brand';
-  const brandIcon = document.createElement('img');
-  brandIcon.className = 'nav-brand-icon';
-  brandIcon.src = 'assets/images/favicon-32.png';
-  brandIcon.alt = '';
-  brandIcon.width = 28;
-  brandIcon.height = 28;
-  brand.appendChild(brandIcon);
-  brand.appendChild(document.createTextNode('Math Magic'));
-  mount.appendChild(brand);
-
-  const list = document.createElement('ul');
-  list.className = 'nav-links';
-  for (const link of LINKS) {
-    const item = document.createElement('li');
-    const anchor = document.createElement('a');
-    anchor.href = link.href;
-    anchor.textContent = link.label;
-    if (link.href === activeHref) {
-      anchor.setAttribute('aria-current', 'page');
-      anchor.classList.add('active');
-    }
-    item.appendChild(anchor);
-    list.appendChild(item);
-  }
-  mount.appendChild(list);
-
-  const profile = getActiveProfile();
-  if (profile) {
-    const profileLink = document.createElement('a');
-    profileLink.href = 'profiles.html';
-    profileLink.className = 'nav-profile';
-
-    if (profile.avatarIcon) {
-      const img = document.createElement('img');
-      img.className = 'avatar-thumb';
-      img.src = avatarIconUrl(profile.avatarIcon);
-      img.alt = '';
-      profileLink.appendChild(img);
-    } else {
-      profileLink.appendChild(document.createTextNode('\u{1F464} '));
-    }
-    profileLink.appendChild(document.createTextNode(profile.name));
-    mount.appendChild(profileLink);
-  }
+  mount.innerHTML = `<a href="index.html" class="nav-brand"><img class="nav-brand-icon" src="assets/images/favicon-32.png" alt="" width="28" height="28" />Math Magic</a>
+    <ul class="nav-links">${navLinksHtml(activeHref)}</ul>
+    ${profileHtml(getActiveProfile())}`;
 }
