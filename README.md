@@ -62,6 +62,7 @@ Feature-complete:
 * Grade-agnostic skills practice (multiplication tables, with multiple-choice + keyboard answering)
 * 6th-grade Word Problems built from editable templates, with a Settings page to manage them and their word lists
 * A per-question Help system across all 6th-grade topics: general steps to solve, plus an optional worked solution with the problem's actual numbers, opened in a new tab so quiz progress isn't lost
+* A floating basic calculator, available on every page behind a toggle icon, for working through problems without leaving the page
 
 ## License
 

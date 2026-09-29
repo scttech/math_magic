@@ -4,6 +4,7 @@
 import '../app/init.js';
 import { getActiveProfile } from '../core/profileStore.js';
 import { avatarIconUrl } from './avatars.js';
+import { mountCalculator } from './calculator.js';
 
 const LINKS = [
   { href: 'index.html', label: 'Home' },
@@ -16,6 +17,8 @@ const LINKS = [
 ];
 
 export function renderNav(activeHref) {
+  mountCalculator();
+
   const mount = document.getElementById('site-nav');
   if (!mount) return;
   mount.innerHTML = '';
