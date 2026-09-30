@@ -265,4 +265,171 @@ const missingValueGivenMean = {
   },
 };
 
-export const generators = [measuresOfCenter, frequencyTableQuestions, missingValueGivenMean];
+// --- Identifying statistical questions ----------------------------------------
+
+function yesNoCheckAnswer(expectedYes) {
+  return (userInput) => {
+    if (typeof userInput !== 'string') return false;
+    const cleaned = userInput.trim().toLowerCase();
+    const isYes = cleaned === 'yes' || cleaned === 'y' || cleaned === 'true';
+    const isNo = cleaned === 'no' || cleaned === 'n' || cleaned === 'false';
+    if (!isYes && !isNo) return false;
+    return isYes === expectedYes;
+  };
+}
+
+const STATISTICAL_QUESTION_BANK = [
+  { text: 'How old are the students in my school?', isStatistical: true },
+  { text: 'How old am I?', isStatistical: false },
+  { text: 'How many pets does each student in my class have?', isStatistical: true },
+  { text: 'How many pets does Maya have?', isStatistical: false },
+  { text: 'What are the heights of the players on a basketball team?', isStatistical: true },
+  { text: 'How tall is the tallest player on the team?', isStatistical: false },
+  { text: 'How many books did each student read over the summer?', isStatistical: true },
+  { text: 'How many books did Noah read over the summer?', isStatistical: false },
+  { text: 'What is the favorite color of each student in the class?', isStatistical: true },
+  { text: 'What is my favorite color?', isStatistical: false },
+  { text: 'How many minutes did each runner take to finish the race?', isStatistical: true },
+  { text: 'How many minutes did the race winner take to finish?', isStatistical: false },
+  { text: 'What grades did students in the class get on the test?', isStatistical: true },
+  { text: 'What grade did I get on the test?', isStatistical: false },
+  { text: 'How many hours of sleep does each classmate get on a school night?', isStatistical: true },
+  { text: 'How many hours of sleep did I get last night?', isStatistical: false },
+];
+
+const statisticalQuestion = {
+  id: 'grade6.statistics.statisticalQuestion',
+  grade: GRADE,
+  topic: TOPIC,
+  label: 'Identifying Statistical Questions',
+  difficulties: ['easy', 'medium', 'hard'],
+  generate({ difficulty, rng }) {
+    const item = randomChoice(rng, STATISTICAL_QUESTION_BANK);
+    const answerDisplay = item.isStatistical ? 'Yes' : 'No';
+    return {
+      promptText: `Is this a statistical question? "${item.text}"`,
+      answer: item.isStatistical,
+      answerDisplay,
+      checkAnswer: yesNoCheckAnswer(item.isStatistical),
+      meta: { generatorId: statisticalQuestion.id, difficulty, text: item.text, isStatistical: item.isStatistical, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { isStatistical, answerDisplay } = meta;
+    return {
+      strategy: [
+        'A statistical question expects a variety of answers ("variability") because it asks about a group or something that changes.',
+        'A question with one specific, exact answer is not statistical.',
+      ],
+      workedSteps: [
+        isStatistical
+          ? 'This question asks about many different people or things, so the answers will vary — that makes it statistical.'
+          : 'This question has one specific, exact answer with no variability — that makes it not statistical.',
+        `Answer: ${answerDisplay}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
+    };
+  },
+};
+
+// --- Interquartile range --------------------------------------------------------
+
+function quartiles(values) {
+  const sorted = values.slice().sort((a, b) => a - b);
+  const n = sorted.length;
+  const mid = Math.floor(n / 2);
+  const lowerHalf = sorted.slice(0, mid);
+  const upperHalf = n % 2 === 0 ? sorted.slice(mid) : sorted.slice(mid + 1);
+  return { q1: median(lowerHalf), q3: median(upperHalf) };
+}
+
+const interquartileRange = {
+  id: 'grade6.statistics.interquartileRange',
+  grade: GRADE,
+  topic: TOPIC,
+  label: 'Interquartile Range (IQR)',
+  difficulties: ['easy', 'medium', 'hard'],
+  generate({ difficulty, rng }) {
+    const n = difficulty === 'easy' ? 8 : difficulty === 'medium' ? 9 : 11;
+    const maxVal = difficulty === 'easy' ? 30 : difficulty === 'medium' ? 50 : 80;
+    const values = Array.from({ length: n }, () => randomInt(rng, 1, maxVal));
+    const { q1, q3 } = quartiles(values);
+    const iqr = roundTo(q3 - q1, 2);
+    const answerDisplay = `${iqr}`;
+    return {
+      promptText: `Find the interquartile range (IQR) of this data set: ${values.join(', ')}`,
+      answer: iqr,
+      answerDisplay,
+      checkAnswer: numericCheckAnswer(iqr, 0.01),
+      meta: { generatorId: interquartileRange.id, difficulty, values, q1, q3, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { values, q1, q3, answerDisplay } = meta;
+    const sorted = values.slice().sort((a, b) => a - b);
+    return {
+      strategy: [
+        'Order the data and split it in half at the median.',
+        'Q1 is the median of the lower half; Q3 is the median of the upper half.',
+        'IQR = Q3 − Q1.',
+      ],
+      workedSteps: [
+        `Ordered data: ${sorted.join(', ')}.`,
+        `Q1 (median of the lower half) = ${q1}. Q3 (median of the upper half) = ${q3}.`,
+        `IQR = ${q3} − ${q1} = ${answerDisplay}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
+    };
+  },
+};
+
+// --- Mean absolute deviation ------------------------------------------------------
+
+const meanAbsoluteDeviation = {
+  id: 'grade6.statistics.meanAbsoluteDeviation',
+  grade: GRADE,
+  topic: TOPIC,
+  label: 'Mean Absolute Deviation (MAD)',
+  difficulties: ['easy', 'medium', 'hard'],
+  generate({ difficulty, rng }) {
+    const n = difficulty === 'easy' ? 4 : difficulty === 'medium' ? 5 : 6;
+    const maxVal = difficulty === 'easy' ? 20 : difficulty === 'medium' ? 35 : 50;
+    const values = Array.from({ length: n }, () => randomInt(rng, 1, maxVal));
+    const dataMean = mean(values);
+    const totalDeviation = values.reduce((sum, v) => sum + Math.abs(v - dataMean), 0);
+    const mad = roundTo(totalDeviation / n, 2);
+    const answerDisplay = `${mad}`;
+    return {
+      promptText: `Find the mean absolute deviation (MAD) of this data set: ${values.join(', ')}`,
+      answer: mad,
+      answerDisplay,
+      checkAnswer: numericCheckAnswer(mad, 0.05),
+      meta: { generatorId: meanAbsoluteDeviation.id, difficulty, values, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { values, answerDisplay } = meta;
+    // Recomputed (not read from meta) so it's guaranteed identical to generate()'s own calculation.
+    const dataMean = mean(values);
+    const meanDisplay = roundTo(dataMean, 2);
+    const deviations = values.map((v) => roundTo(Math.abs(v - dataMean), 2));
+    return {
+      strategy: ['Find the mean of the data set.', 'Find the distance (absolute difference) between each value and the mean.', 'Average those distances.'],
+      workedSteps: [
+        `The mean is ${meanDisplay}.`,
+        `Distances from the mean: ${values.map((v, i) => `|${v} − ${meanDisplay}| = ${deviations[i]}`).join(', ')}.`,
+        `Average the distances: (${deviations.join(' + ')}) ÷ ${values.length} = ${answerDisplay}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
+    };
+  },
+};
+
+export const generators = [
+  measuresOfCenter,
+  frequencyTableQuestions,
+  missingValueGivenMean,
+  statisticalQuestion,
+  interquartileRange,
+  meanAbsoluteDeviation,
+];

@@ -68,6 +68,8 @@ Feature-complete:
 * The Coordinate Plane (6.NS.C.6/C.8, 6.G.A.3): identifying coordinates, reflections, distance between points, quadrants, and polygon side lengths — rendered with a shared d3 grid component, plus an interactive click-to-plot problem type. Worksheets print a matching grid per problem (blank for click-to-plot, so it can be done by hand)
 * "Select All" on the Quiz/Worksheet topic checkboxes, with a proper indeterminate state for a partial selection
 * Filled out 6.EE (Expressions & Equations) to full Common Core coverage: whole-number exponents, identifying the parts of an expression (coefficient/constant/term count), checking whether a value is a solution to an equation or inequality, and writing an inequality from a phrase like "at least" or "more than"
+* Filled out 6.G (Geometry) to full coverage: composite area (composing/decomposing shapes), trapezoid area, and rectangular-prism volume with fractional edge lengths (6.G.A.3, coordinate-plane polygons, was already covered by The Coordinate Plane above)
+* Filled out 6.SP (Statistics) to near-full coverage: identifying statistical questions, interquartile range (IQR), and mean absolute deviation (MAD). Visual data displays (dot plots/histograms/box plots, 6.SP.B.4) remain a deliberately unbuilt gap — it needs a real charting component, not just a new generator
 
 ## License
 

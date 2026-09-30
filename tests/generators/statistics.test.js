@@ -80,4 +80,54 @@ QUnit.module('generators/grade6/statistics', () => {
       }
     }
   });
+
+  QUnit.test('statisticalQuestion: the Yes/No answer always matches the question bank entry actually used', (assert) => {
+    const gen = byId['grade6.statistics.statisticalQuestion'];
+    for (let seed = 0; seed < 100; seed++) {
+      const rng = createRng(seed);
+      const problem = gen.generate({ difficulty: 'medium', rng });
+      assert.ok(problem.promptText.includes(problem.meta.text), `seed ${seed}: prompt quotes the bank question verbatim`);
+      assert.equal(problem.answerDisplay, problem.meta.isStatistical ? 'Yes' : 'No', `seed ${seed}: answer matches the bank entry's label`);
+      assert.ok(problem.checkAnswer(problem.answerDisplay.toLowerCase()), `seed ${seed}: checkAnswer is case-insensitive`);
+    }
+  });
+
+  QUnit.test('interquartileRange: Q1/Q3 are the median of the lower/upper half after excluding the overall median for odd counts', (assert) => {
+    const gen = byId['grade6.statistics.interquartileRange'];
+    for (const difficulty of gen.difficulties) {
+      for (let seed = 0; seed < 60; seed++) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        const { values, q1, q3 } = problem.meta;
+        const sorted = values.slice().sort((a, b) => a - b);
+        const n = sorted.length;
+        const mid = Math.floor(n / 2);
+        const lowerHalf = sorted.slice(0, mid);
+        const upperHalf = n % 2 === 0 ? sorted.slice(mid) : sorted.slice(mid + 1);
+        const medianOf = (arr) => {
+          const m = Math.floor(arr.length / 2);
+          return arr.length % 2 === 0 ? (arr[m - 1] + arr[m]) / 2 : arr[m];
+        };
+        assert.equal(q1, medianOf(lowerHalf), `[${difficulty}] seed ${seed}: Q1`);
+        assert.equal(q3, medianOf(upperHalf), `[${difficulty}] seed ${seed}: Q3`);
+        assert.ok(Math.abs(problem.answer - (q3 - q1)) < 1e-9, `[${difficulty}] seed ${seed}: IQR = Q3 - Q1`);
+        assert.ok(q1 <= q3, `[${difficulty}] seed ${seed}: Q1 never exceeds Q3`);
+      }
+    }
+  });
+
+  QUnit.test('meanAbsoluteDeviation: the answer is the average absolute distance from the mean, and is never negative', (assert) => {
+    const gen = byId['grade6.statistics.meanAbsoluteDeviation'];
+    for (const difficulty of gen.difficulties) {
+      for (let seed = 0; seed < 60; seed++) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        const { values } = problem.meta;
+        const dataMean = values.reduce((s, v) => s + v, 0) / values.length;
+        const expected = values.reduce((s, v) => s + Math.abs(v - dataMean), 0) / values.length;
+        assert.ok(Math.abs(problem.answer - expected) < 0.01, `[${difficulty}] seed ${seed}: MAD matches the direct calculation`);
+        assert.ok(problem.answer >= 0, `[${difficulty}] seed ${seed}: MAD is never negative`);
+      }
+    }
+  });
 });
