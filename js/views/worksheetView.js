@@ -7,6 +7,7 @@ import { randomSeed } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordWorksheetGenerated } from '../core/progressStore.js';
 import { renderVisual } from '../charts/renderVisual.js';
+import { linkifyGlossaryTerms } from '../app/glossary.js';
 
 const els = {};
 let currentSeed = null;
@@ -69,7 +70,7 @@ function renderWorksheet({ grade, topics, difficulty, problems }) {
   els.worksheetProblems.innerHTML = problems
     .map((p, i) => {
       const gridHtml = p.visual ? `<div class="coordinate-plane-grid" id="worksheet-grid-${i}"></div>` : '';
-      return `<li><span class="problem-text">${p.promptText}</span>${gridHtml}<span class="answer-blank"></span></li>`;
+      return `<li><span class="problem-text">${linkifyGlossaryTerms(p.promptText)}</span>${gridHtml}<span class="answer-blank"></span></li>`;
     })
     .join('');
 

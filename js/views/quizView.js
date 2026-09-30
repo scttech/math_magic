@@ -8,6 +8,7 @@ import { getActiveProfileId } from '../core/profileStore.js';
 import { recordQuizAttempt } from '../core/progressStore.js';
 import { hasHelp, buildHelpUrl } from '../core/helpRegistry.js';
 import { renderVisual } from '../charts/renderVisual.js';
+import { linkifyGlossaryTerms } from '../app/glossary.js';
 
 const els = {};
 let state = null;
@@ -93,7 +94,7 @@ function renderInteractiveGrid() {
 function renderQuestion() {
   const problem = state.problems[state.currentIndex];
   els.progressText.textContent = `Question ${state.currentIndex + 1} of ${state.problems.length}`;
-  els.promptText.textContent = problem.promptText;
+  els.promptText.innerHTML = linkifyGlossaryTerms(problem.promptText);
   if (hasHelp(problem.meta.generatorId)) {
     els.helpLink.href = buildHelpUrl(problem);
     els.helpLink.hidden = false;

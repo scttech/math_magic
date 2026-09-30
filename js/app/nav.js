@@ -5,6 +5,7 @@ import '../app/init.js';
 import { getActiveProfile } from '../core/profileStore.js';
 import { avatarIconUrl } from './avatars.js';
 import { mountCalculator } from './calculator.js';
+import { mountGlossaryPopover } from './glossaryPopover.js';
 
 const LINKS = [
   { href: 'index.html', label: 'Home' },
@@ -35,6 +36,7 @@ function profileHtml(profile) {
 
 export function renderNav(activeHref) {
   mountCalculator();
+  mountGlossaryPopover();
 
   const mount = document.getElementById('site-nav');
   if (!mount) return;

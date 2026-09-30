@@ -71,6 +71,7 @@ Feature-complete:
 * Filled out 6.G (Geometry) to full coverage: composite area (composing/decomposing shapes), trapezoid area, and rectangular-prism volume with fractional edge lengths (6.G.A.3, coordinate-plane polygons, was already covered by The Coordinate Plane above)
 * Filled out 6.SP (Statistics) to full Common Core coverage: identifying statistical questions, interquartile range (IQR), mean absolute deviation (MAD), and — closing the last gap — 6.SP.B.4's visual data displays: dot plots, histograms, and box plots, rendered with a new `js/charts/dataPlots.js` d3 component and dispatched (alongside the coordinate-plane grid) through `js/charts/renderVisual.js`
 * Closed remaining gaps in 6.NS, 6.EE, and 6.G: a new "Long Division & Number Theory" topic (`js/generators/grade6/numberTheory.js`) covering the standard long-division algorithm, GCF, LCM, and the distributive property with the GCF (6.NS.B.2/B.4); writing algebraic expressions from word phrases and identifying independent/dependent variables in a real-world rate relationship (6.EE.B.6/C.9); and surface area of triangular prisms and square pyramids via net decomposition (6.G.A.4)
+* A glossary system (`js/app/glossary.js`): math vocabulary like GCF, distributive property, or IQR is automatically turned into a clickable term wherever it appears — quiz prompts, worksheet problems (on screen only; it's plain text on the printed page), and the Help page's steps/worked solution — opening a small popover with a plain-language definition
 
 ## License
 

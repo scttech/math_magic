@@ -1,12 +1,9 @@
 import '../app/init.js';
 import { renderNav } from '../app/nav.js';
 import { getById } from '../core/registry.js';
+import { linkifyGlossaryTerms } from '../app/glossary.js';
 
 const els = {};
-
-function escapeHtml(str) {
-  return str.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-}
 
 function cacheElements() {
   els.content = document.getElementById('help-content');
@@ -54,18 +51,18 @@ function renderHelp(params) {
 
   const { strategy, workedSteps, finalAnswerDisplay } = generatorModule.explain(meta);
 
-  els.context.textContent = params.prompt ? `You were working on: "${params.prompt}"` : '';
+  els.context.innerHTML = params.prompt ? `You were working on: "${linkifyGlossaryTerms(params.prompt)}"` : '';
   els.label.textContent = generatorModule.label;
   if (generatorModule.description) {
-    els.description.textContent = generatorModule.description;
+    els.description.innerHTML = linkifyGlossaryTerms(generatorModule.description);
     els.description.hidden = false;
   } else {
     els.description.hidden = true;
   }
-  els.strategySteps.innerHTML = strategy.map((step) => `<li>${escapeHtml(step)}</li>`).join('');
+  els.strategySteps.innerHTML = strategy.map((step) => `<li>${linkifyGlossaryTerms(step)}</li>`).join('');
 
   els.showWorkedBtn.addEventListener('click', () => {
-    els.workedSteps.innerHTML = workedSteps.map((step) => `<li>${escapeHtml(step)}</li>`).join('');
+    els.workedSteps.innerHTML = workedSteps.map((step) => `<li>${linkifyGlossaryTerms(step)}</li>`).join('');
     els.workedAnswer.textContent = `Final answer: ${params.answer || finalAnswerDisplay}`;
     els.workedSolution.hidden = false;
     els.showWorkedBtn.hidden = true;
