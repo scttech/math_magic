@@ -30,7 +30,8 @@
     break-before: page;
   }
 
-  .worksheet-problems li {
+  .worksheet-problems li,
+  .worksheet-answers li {
     break-inside: avoid;
   }
 

@@ -9,6 +9,7 @@ import { generators as areaSurfaceVolumeGenerators } from './areaSurfaceVolume.j
 import { generators as statisticsGenerators } from './statistics.js';
 import { generators as wordProblemsGenerators } from './wordProblems.js';
 import { generators as rationalIrrationalGenerators } from './rationalIrrational.js';
+import { generators as coordinatePlaneGenerators } from './coordinatePlane.js';
 
 const allGrade6Generators = [
   ...fractionsDecimalsGenerators,
@@ -19,6 +20,7 @@ const allGrade6Generators = [
   ...statisticsGenerators,
   ...wordProblemsGenerators,
   ...rationalIrrationalGenerators,
+  ...coordinatePlaneGenerators,
 ];
 
 for (const mod of allGrade6Generators) {

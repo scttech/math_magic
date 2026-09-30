@@ -57,9 +57,10 @@
           <a id="help-link" class="help-link" href="#" target="_blank" rel="noopener" hidden>&#x2753; Need help with this one?</a>
         </div>
         <p id="prompt-text" style="font-size: 1.25rem"></p>
+        <div id="quiz-grid-container" class="coordinate-plane-grid" hidden></div>
 
         <form id="quiz-answer-form">
-          <div class="field-row">
+          <div id="answer-field-row" class="field-row">
             <label for="answer-input">Your Answer</label>
             <input id="answer-input" type="text" autocomplete="off" />
           </div>
@@ -79,6 +80,7 @@
       </section>
     </main>
 
+    <script src="js/vendor/d3.v7.min.js"></script>
     <script type="module">
       import { init } from './js/views/quizView.js';
       init();

@@ -41,7 +41,7 @@ Then open http://localhost:8080/tests/index.html.
 - `js/core/helpRegistry.js`, `help.html` — the per-question Help system. Any generator that defines an `explain(meta)` method automatically gets a help page (via the generator/topic registry) — no separate registration needed. Every grade-6 generator has one; `registerHelpProvider()` is an escape hatch for content outside that registry.
 - `js/app/` — shared bootstrap (registers content, ensures a profile exists), nav bar, and the avatar-icon manifest.
 - `js/views/` — the DOM-rendering code for the home, quiz, worksheet builder, dashboard, and profile screens.
-- `js/charts/` — d3.js chart modules for the progress dashboard.
+- `js/charts/` — d3.js chart modules for the progress dashboard, plus `coordinatePlane.js`, a reusable coordinate-grid renderer shared by the Quiz view, the Worksheet Builder, and its printed output. Problems carry an optional `visual` field describing what to draw (points, a polygon, a distance segment, or an interactive click-to-plot mode).
 - `assets/images/avatars/` — the selectable profile avatar icons.
 - `css/print.css` — the print stylesheet worksheets use for "Save as PDF" via the browser's print dialog.
 - `tests/` — QUnit test files, mirroring the `js/` structure.
@@ -65,6 +65,7 @@ Feature-complete:
 * A floating basic calculator, available on every page behind a toggle icon, for working through problems without leaving the page
 * 6th-grade Rational & Irrational Numbers: classifying numbers, simplifying perfect-square roots, estimating irrational square roots between two whole numbers, and comparing roots to decimals
 * Filled out 6.RP (Ratios & Proportions) to full Common Core coverage: percent problems (find the part, the whole, or the percent), equivalent ratio tables, and unit conversion via ratio reasoning
+* The Coordinate Plane (6.NS.C.6/C.8, 6.G.A.3): identifying coordinates, reflections, distance between points, quadrants, and polygon side lengths — rendered with a shared d3 grid component, plus an interactive click-to-plot problem type. Worksheets print a matching grid per problem (blank for click-to-plot, so it can be done by hand)
 
 ## License
 

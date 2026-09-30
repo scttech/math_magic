@@ -6,6 +6,7 @@ import { buildProblemSet } from '../core/problemSet.js';
 import { randomSeed } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordWorksheetGenerated } from '../core/progressStore.js';
+import { renderCoordinatePlane } from '../charts/coordinatePlane.js';
 
 const els = {};
 let currentSeed = null;
@@ -64,10 +65,29 @@ function renderWorksheet({ grade, topics, difficulty, problems }) {
   els.answerKeyTitle.textContent = `Answer Key — Worksheet #${currentSeed}`;
 
   els.worksheetProblems.innerHTML = problems
-    .map((p) => `<li><span class="problem-text">${p.promptText}</span><span class="answer-blank"></span></li>`)
+    .map((p, i) => {
+      const gridHtml = p.visual ? `<div class="coordinate-plane-grid" id="worksheet-grid-${i}"></div>` : '';
+      return `<li><span class="problem-text">${p.promptText}</span>${gridHtml}<span class="answer-blank"></span></li>`;
+    })
     .join('');
 
-  els.worksheetAnswers.innerHTML = problems.map((p) => `<li>${p.answerDisplay}</li>`).join('');
+  els.worksheetAnswers.innerHTML = problems
+    .map((p, i) => {
+      const answerGridHtml = p.visual && p.visual.answerVisual ? `<div class="coordinate-plane-grid" id="worksheet-answer-grid-${i}"></div>` : '';
+      return `<li>${p.answerDisplay}${answerGridHtml}</li>`;
+    })
+    .join('');
+
+  problems.forEach((p, i) => {
+    if (!p.visual) return;
+    // Interactive problems (e.g. plotting a point) print as a blank grid to fill in by hand; every other
+    // visual problem shows the same populated grid on paper as it does on screen, since it's read-only there too.
+    const problemVisual = p.visual.interactive ? { range: p.visual.range } : p.visual;
+    renderCoordinatePlane(document.getElementById(`worksheet-grid-${i}`), problemVisual);
+    if (p.visual.answerVisual) {
+      renderCoordinatePlane(document.getElementById(`worksheet-answer-grid-${i}`), p.visual.answerVisual);
+    }
+  });
 }
 
 function toggleAnswerKey() {

@@ -7,6 +7,7 @@ import { randomSeed } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordQuizAttempt } from '../core/progressStore.js';
 import { hasHelp, buildHelpUrl } from '../core/helpRegistry.js';
+import { renderCoordinatePlane } from '../charts/coordinatePlane.js';
 
 const els = {};
 let state = null;
@@ -23,6 +24,8 @@ function cacheElements() {
   els.progressText = document.getElementById('progress-text');
   els.promptText = document.getElementById('prompt-text');
   els.helpLink = document.getElementById('help-link');
+  els.gridContainer = document.getElementById('quiz-grid-container');
+  els.answerFieldRow = document.getElementById('answer-field-row');
   els.answerInput = document.getElementById('answer-input');
   els.submitBtn = document.getElementById('submit-answer-btn');
   els.nextBtn = document.getElementById('next-question-btn');
@@ -66,6 +69,20 @@ function startQuiz() {
   renderQuestion();
 }
 
+function renderInteractiveGrid() {
+  const problem = state.problems[state.currentIndex];
+  renderCoordinatePlane(els.gridContainer, {
+    ...problem.visual,
+    interactive: true,
+    marker: state.placedMarker,
+    onPlace: (x, y) => {
+      state.placedMarker = { x, y };
+      els.submitBtn.disabled = false;
+      renderInteractiveGrid();
+    },
+  });
+}
+
 function renderQuestion() {
   const problem = state.problems[state.currentIndex];
   els.progressText.textContent = `Question ${state.currentIndex + 1} of ${state.problems.length}`;
@@ -76,19 +93,43 @@ function renderQuestion() {
   } else {
     els.helpLink.hidden = true;
   }
+
+  state.placedMarker = null;
+  if (problem.visual) {
+    els.gridContainer.hidden = false;
+    if (problem.visual.interactive) {
+      els.answerFieldRow.hidden = true;
+      els.submitBtn.disabled = true;
+      renderInteractiveGrid();
+    } else {
+      els.answerFieldRow.hidden = false;
+      els.submitBtn.disabled = false;
+      renderCoordinatePlane(els.gridContainer, problem.visual);
+    }
+  } else {
+    els.gridContainer.hidden = true;
+    els.answerFieldRow.hidden = false;
+    els.submitBtn.disabled = false;
+  }
+
   els.answerInput.value = '';
   els.answerInput.disabled = false;
   els.submitBtn.hidden = false;
   els.nextBtn.hidden = true;
   els.feedback.hidden = true;
   els.feedback.className = 'feedback';
-  els.answerInput.focus();
+  if (!problem.visual || !problem.visual.interactive) els.answerInput.focus();
   state.questionStartedAt = Date.now();
 }
 
 function submitAnswer() {
   const problem = state.problems[state.currentIndex];
-  const userInput = els.answerInput.value.trim();
+  const userInput =
+    problem.visual && problem.visual.interactive
+      ? state.placedMarker
+        ? `(${state.placedMarker.x}, ${state.placedMarker.y})`
+        : ''
+      : els.answerInput.value.trim();
   const isCorrect = userInput.length > 0 && problem.checkAnswer(userInput);
   const timeMs = Date.now() - state.questionStartedAt;
 
@@ -105,6 +146,16 @@ function submitAnswer() {
   els.feedback.hidden = false;
   els.feedback.classList.add(isCorrect ? 'correct' : 'incorrect');
   els.feedback.textContent = isCorrect ? 'Correct! Great job.' : `Not quite. The correct answer was: ${problem.answerDisplay}`;
+
+  if (problem.visual && problem.visual.interactive) {
+    // Freeze the grid and, if wrong, show the correct point alongside the student's own marker.
+    renderCoordinatePlane(els.gridContainer, {
+      ...problem.visual,
+      interactive: false,
+      marker: state.placedMarker,
+      points: isCorrect ? [] : [{ x: problem.meta.x, y: problem.meta.y, label: 'Correct' }],
+    });
+  }
 
   els.answerInput.disabled = true;
   els.submitBtn.hidden = true;

@@ -10,6 +10,7 @@ export const TOPIC_LABELS = {
   statistics: 'Statistics',
   wordProblems: 'Word Problems',
   rationalIrrational: 'Rational & Irrational Numbers',
+  coordinatePlane: 'The Coordinate Plane',
   multiplicationTables: 'Multiplication Tables',
 };
 
