@@ -268,5 +268,288 @@ const solveEquation = {
   },
 };
 
-export const generators = [evaluateExpression, simplifyExpression, solveEquation];
+// --- Evaluating whole-number exponents ---------------------------------------
+
+const SUPERSCRIPTS = { 2: '²', 3: '³' };
+
+function formatPower(base, exponent) {
+  return `${base}${SUPERSCRIPTS[exponent]}`;
+}
+
+const evaluateExponent = {
+  id: 'grade6.expressionsEquations.evaluateExponent',
+  grade: GRADE,
+  topic: TOPIC,
+  label: 'Evaluating Exponents',
+  difficulties: ['easy', 'medium', 'hard'],
+  generate({ difficulty, rng }) {
+    const base = randomInt(rng, 2, difficulty === 'medium' ? 8 : 6);
+    const exponent = difficulty === 'easy' ? 2 : randomChoice(rng, [2, 3]);
+    const power = base ** exponent;
+    const powerDisplay = formatPower(base, exponent);
+
+    if (difficulty !== 'hard') {
+      const answerDisplay = `${power}`;
+      return {
+        promptText: `What is ${powerDisplay}?`,
+        answer: power,
+        answerDisplay,
+        checkAnswer: numericCheckAnswer(power, 1e-9),
+        meta: { generatorId: evaluateExponent.id, difficulty, base, exponent, answerDisplay },
+      };
+    }
+
+    const op = randomChoice(rng, ['add', 'multiply']);
+    const extra = randomInt(rng, 2, 10);
+    const answer = op === 'add' ? power + extra : power * extra;
+    const symbol = op === 'add' ? '+' : '×';
+    const answerDisplay = `${answer}`;
+    return {
+      promptText: `What is ${powerDisplay} ${symbol} ${extra}?`,
+      answer,
+      answerDisplay,
+      checkAnswer: numericCheckAnswer(answer, 1e-9),
+      meta: { generatorId: evaluateExponent.id, difficulty, base, exponent, op, extra, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { difficulty, base, exponent, answerDisplay } = meta;
+    const powerDisplay = formatPower(base, exponent);
+    const expanded = Array(exponent).fill(base).join(' × ');
+    const power = base ** exponent;
+    if (difficulty !== 'hard') {
+      return {
+        strategy: [`${powerDisplay} means ${base} multiplied by itself ${exponent} times.`],
+        workedSteps: [`${powerDisplay} = ${expanded} = ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    const { op, extra } = meta;
+    const symbol = op === 'add' ? '+' : '×';
+    return {
+      strategy: ['Evaluate the exponent first (order of operations).', `Then ${op === 'add' ? 'add' : 'multiply by'} the remaining number.`],
+      workedSteps: [`${powerDisplay} = ${expanded} = ${power}.`, `${power} ${symbol} ${extra} = ${answerDisplay}.`],
+      finalAnswerDisplay: answerDisplay,
+    };
+  },
+};
+
+// --- Identifying parts of an expression --------------------------------------
+
+const identifyExpressionParts = {
+  id: 'grade6.expressionsEquations.identifyExpressionParts',
+  grade: GRADE,
+  topic: TOPIC,
+  label: 'Identifying Parts of an Expression',
+  difficulties: ['easy', 'medium', 'hard'],
+  generate({ difficulty, rng }) {
+    const range = difficulty === 'easy' ? 10 : difficulty === 'medium' ? 15 : 20;
+    const coeff = randomNonZeroInt(rng, -range, range);
+    const constant = difficulty === 'easy' ? randomNonZeroInt(rng, -range, range) : randomInt(rng, -range, range);
+    const expr = formatLinearExpression({ coeff, constant });
+    const termCount = constant === 0 ? 1 : 2;
+    const askable = constant !== 0 ? ['coefficient', 'constant', 'termCount'] : ['coefficient', 'termCount'];
+    const ask = randomChoice(rng, askable);
+
+    if (ask === 'coefficient') {
+      const answerDisplay = `${coeff}`;
+      return {
+        promptText: `What is the coefficient of ${VARIABLE} in the expression ${expr}?`,
+        answer: coeff,
+        answerDisplay,
+        checkAnswer: numericCheckAnswer(coeff, 1e-9),
+        meta: { generatorId: identifyExpressionParts.id, difficulty, ask, coeff, constant, expr, answerDisplay },
+      };
+    }
+    if (ask === 'constant') {
+      const answerDisplay = `${constant}`;
+      return {
+        promptText: `What is the constant term in the expression ${expr}?`,
+        answer: constant,
+        answerDisplay,
+        checkAnswer: numericCheckAnswer(constant, 1e-9),
+        meta: { generatorId: identifyExpressionParts.id, difficulty, ask, coeff, constant, expr, answerDisplay },
+      };
+    }
+    const answerDisplay = `${termCount}`;
+    return {
+      promptText: `How many terms are in the expression ${expr}?`,
+      answer: termCount,
+      answerDisplay,
+      checkAnswer: numericCheckAnswer(termCount, 1e-9),
+      meta: { generatorId: identifyExpressionParts.id, difficulty, ask, coeff, constant, expr, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { ask, coeff, constant, expr, answerDisplay } = meta;
+    if (ask === 'coefficient') {
+      return {
+        strategy: [`The coefficient is the number multiplied by ${VARIABLE}, even when it's just an unwritten 1 or -1.`],
+        workedSteps: [`In ${expr}, the number attached to ${VARIABLE} is ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    if (ask === 'constant') {
+      return {
+        strategy: ['The constant term is the part of the expression with no variable attached.'],
+        workedSteps: [`In ${expr}, the number by itself (no ${VARIABLE}) is ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    return {
+      strategy: ['A term is a number, a variable, or a number and variable multiplied together, separated from other terms by + or -.'],
+      workedSteps: [
+        `${expr} has ${answerDisplay} term(s)${constant !== 0 ? `: ${formatLinearExpression({ coeff, constant: 0 })} and ${constant}` : `: ${expr}`}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
+    };
+  },
+};
+
+// --- Checking whether a value is a solution ----------------------------------
+
+function yesNoCheckAnswer(expectedYes) {
+  return (userInput) => {
+    if (typeof userInput !== 'string') return false;
+    const cleaned = userInput.trim().toLowerCase();
+    const isYes = cleaned === 'yes' || cleaned === 'y' || cleaned === 'true';
+    const isNo = cleaned === 'no' || cleaned === 'n' || cleaned === 'false';
+    if (!isYes && !isNo) return false;
+    return isYes === expectedYes;
+  };
+}
+
+const isASolution = {
+  id: 'grade6.expressionsEquations.isASolution',
+  grade: GRADE,
+  topic: TOPIC,
+  label: 'Checking Solutions',
+  difficulties: ['easy', 'medium', 'hard'],
+  generate({ difficulty, rng }) {
+    const range = difficulty === 'easy' ? 10 : difficulty === 'medium' ? 12 : 15;
+    const kind = randomChoice(rng, ['equation', 'inequality']);
+
+    if (kind === 'equation') {
+      const maxA = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 7 : 9;
+      const a = randomNonZeroInt(rng, -maxA, maxA);
+      const b = randomInt(rng, -range, range);
+      const solution = randomInt(rng, -range, range);
+      const c = a * solution + b;
+      const useSolution = randomChoice(rng, [true, false]);
+      const candidate = useSolution ? solution : solution + randomNonZeroInt(rng, -5, 5);
+      const isTrue = a * candidate + b === c;
+      const bDisplay = b === 0 ? '' : b < 0 ? ` - ${Math.abs(b)}` : ` + ${b}`;
+      const answerDisplay = isTrue ? 'Yes' : 'No';
+      return {
+        promptText: `Is ${VARIABLE} = ${candidate} a solution to the equation ${a}${VARIABLE}${bDisplay} = ${c}?`,
+        answer: isTrue,
+        answerDisplay,
+        checkAnswer: yesNoCheckAnswer(isTrue),
+        meta: { generatorId: isASolution.id, difficulty, kind, a, b, c, candidate, answerDisplay },
+      };
+    }
+
+    const threshold = randomInt(rng, -range, range);
+    const symbol = randomChoice(rng, ['>', '<', '≥', '≤']);
+    const candidate = randomChoice(rng, [true, false]) ? threshold : threshold + randomNonZeroInt(rng, -6, 6);
+    const isTrue =
+      symbol === '>' ? candidate > threshold : symbol === '<' ? candidate < threshold : symbol === '≥' ? candidate >= threshold : candidate <= threshold;
+    const answerDisplay = isTrue ? 'Yes' : 'No';
+    return {
+      promptText: `Does ${VARIABLE} = ${candidate} satisfy the inequality ${VARIABLE} ${symbol} ${threshold}?`,
+      answer: isTrue,
+      answerDisplay,
+      checkAnswer: yesNoCheckAnswer(isTrue),
+      meta: { generatorId: isASolution.id, difficulty, kind, threshold, symbol, candidate, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { kind, candidate, answerDisplay } = meta;
+    if (kind === 'equation') {
+      const { a, b, c } = meta;
+      const bDisplay = b === 0 ? '' : b < 0 ? ` − ${Math.abs(b)}` : ` + ${b}`;
+      const substituted = a * candidate + b;
+      return {
+        strategy: ['Substitute the given value into the equation.', 'If both sides come out equal, it is a solution — otherwise it is not.'],
+        workedSteps: [
+          `Substitute ${VARIABLE} = ${candidate}: ${a}(${candidate})${bDisplay} = ${substituted}.`,
+          substituted === c ? `${substituted} = ${c}, so it checks out.` : `${substituted} ≠ ${c}, so it does not check out.`,
+          `Answer: ${answerDisplay}.`,
+        ],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    const { threshold, symbol } = meta;
+    return {
+      strategy: ['Substitute the given value in place of the variable.', 'Check whether the resulting statement is true.'],
+      workedSteps: [`Substitute ${VARIABLE} = ${candidate}: is ${candidate} ${symbol} ${threshold}?`, `Answer: ${answerDisplay}.`],
+      finalAnswerDisplay: answerDisplay,
+    };
+  },
+};
+
+// --- Writing an inequality from a phrase -------------------------------------
+
+const INEQUALITY_PHRASES = [
+  { phrase: 'at least', symbol: '≥' },
+  { phrase: 'more than', symbol: '>' },
+  { phrase: 'at most', symbol: '≤' },
+  { phrase: 'less than', symbol: '<' },
+];
+
+function normalizeInequalitySymbol(raw) {
+  if (raw === '>=' || raw === '≥') return '≥';
+  if (raw === '<=' || raw === '≤') return '≤';
+  return raw;
+}
+
+function inequalityCheckAnswer(symbol, threshold) {
+  return (userInput) => {
+    if (typeof userInput !== 'string') return false;
+    const cleaned = userInput.trim().replace(/\s+/g, '');
+    const withoutVar = /^[a-zA-Z]/.test(cleaned) ? cleaned.slice(1) : cleaned;
+    const match = /^(>=|<=|≥|≤|>|<)(-?\d+(?:\.\d+)?)$/.exec(withoutVar);
+    if (!match) return false;
+    return normalizeInequalitySymbol(match[1]) === symbol && Number(match[2]) === threshold;
+  };
+}
+
+const writeInequality = {
+  id: 'grade6.expressionsEquations.writeInequality',
+  grade: GRADE,
+  topic: TOPIC,
+  label: 'Writing Inequalities',
+  difficulties: ['easy', 'medium', 'hard'],
+  generate({ difficulty, rng }) {
+    const range = difficulty === 'easy' ? 12 : difficulty === 'medium' ? 25 : 50;
+    const threshold = randomInt(rng, 1, range);
+    const { phrase, symbol } = randomChoice(rng, INEQUALITY_PHRASES);
+    const answerDisplay = `${VARIABLE} ${symbol} ${threshold}`;
+    return {
+      promptText: `Write an inequality for: "The value of ${VARIABLE} is ${phrase} ${threshold}."`,
+      answer: { symbol, threshold },
+      answerDisplay,
+      checkAnswer: inequalityCheckAnswer(symbol, threshold),
+      meta: { generatorId: writeInequality.id, difficulty, phrase, symbol, threshold, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { phrase, symbol, threshold, answerDisplay } = meta;
+    return {
+      strategy: ['"At least" means ≥, "at most" means ≤.', '"More than" means >, "less than" means <.'],
+      workedSteps: [`"${phrase}" translates to the symbol ${symbol}.`, `Write the variable, the symbol, and the number: ${answerDisplay}.`],
+      finalAnswerDisplay: answerDisplay,
+    };
+  },
+};
+
+export const generators = [
+  evaluateExpression,
+  simplifyExpression,
+  solveEquation,
+  evaluateExponent,
+  identifyExpressionParts,
+  isASolution,
+  writeInequality,
+];
 export { formatLinearExpression, parseLinearExpression };

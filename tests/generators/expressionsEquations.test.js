@@ -66,4 +66,75 @@ QUnit.module('generators/grade6/expressionsEquations', () => {
       });
     }
   }
+
+  QUnit.test('evaluateExponent: the answer always equals base^exponent, adjusted by the extra operation at hard difficulty', (assert) => {
+    const gen = byId['grade6.expressionsEquations.evaluateExponent'];
+    for (const difficulty of gen.difficulties) {
+      for (let seed = 0; seed < 60; seed++) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        const { base, exponent } = problem.meta;
+        const power = base ** exponent;
+        if (difficulty !== 'hard') {
+          assert.equal(problem.answer, power, `[${difficulty}] seed ${seed}: ${base}^${exponent} = ${power}`);
+        } else {
+          const { op, extra } = problem.meta;
+          const expected = op === 'add' ? power + extra : power * extra;
+          assert.equal(problem.answer, expected, `[${difficulty}] seed ${seed}: ${base}^${exponent} ${op} ${extra} = ${expected}`);
+        }
+      }
+    }
+  });
+
+  QUnit.test('identifyExpressionParts: the asked-for part always matches the expression that was actually built', (assert) => {
+    const gen = byId['grade6.expressionsEquations.identifyExpressionParts'];
+    for (let seed = 0; seed < 150; seed++) {
+      const rng = createRng(seed);
+      const problem = gen.generate({ difficulty: 'medium', rng });
+      const { ask, coeff, constant } = problem.meta;
+      if (ask === 'coefficient') assert.equal(problem.answer, coeff, `seed ${seed}: coefficient`);
+      else if (ask === 'constant') assert.equal(problem.answer, constant, `seed ${seed}: constant`);
+      else assert.equal(problem.answer, constant === 0 ? 1 : 2, `seed ${seed}: term count`);
+    }
+  });
+
+  QUnit.test('isASolution: equation kind agrees with direct substitution, inequality kind agrees with the actual comparison', (assert) => {
+    const gen = byId['grade6.expressionsEquations.isASolution'];
+    for (const difficulty of gen.difficulties) {
+      for (let seed = 0; seed < 100; seed++) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        if (problem.meta.kind === 'equation') {
+          const { a, b, c, candidate } = problem.meta;
+          const expected = a * candidate + b === c;
+          assert.equal(problem.answer, expected, `[${difficulty}] seed ${seed}: equation substitution`);
+        } else {
+          const { threshold, symbol, candidate } = problem.meta;
+          const expected =
+            symbol === '>' ? candidate > threshold : symbol === '<' ? candidate < threshold : symbol === '≥' ? candidate >= threshold : candidate <= threshold;
+          assert.equal(problem.answer, expected, `[${difficulty}] seed ${seed}: inequality comparison`);
+        }
+        assert.notOk(problem.checkAnswer(problem.answer ? 'no' : 'yes'), `[${difficulty}] seed ${seed}: rejects the opposite yes/no answer`);
+      }
+    }
+  });
+
+  QUnit.test('writeInequality: checkAnswer is flexible about spacing, the variable letter, and >=/<= vs ≥/≤, but strict about the direction', (assert) => {
+    const gen = byId['grade6.expressionsEquations.writeInequality'];
+    for (let seed = 0; seed < 40; seed++) {
+      const rng = createRng(seed);
+      const problem = gen.generate({ difficulty: 'medium', rng });
+      const { symbol, threshold } = problem.meta;
+      const asciiSymbol = symbol === '≥' ? '>=' : symbol === '≤' ? '<=' : symbol;
+
+      assert.ok(problem.checkAnswer(`x${symbol}${threshold}`), `seed ${seed}: accepts no spaces`);
+      assert.ok(problem.checkAnswer(`x ${asciiSymbol} ${threshold}`), `seed ${seed}: accepts the ASCII form with spaces`);
+      assert.ok(problem.checkAnswer(`${symbol} ${threshold}`), `seed ${seed}: accepts no variable at all`);
+      assert.ok(problem.checkAnswer(`n ${symbol} ${threshold}`), `seed ${seed}: accepts a different variable letter`);
+      assert.notOk(problem.checkAnswer(`x ${symbol} ${threshold + 1}`), `seed ${seed}: rejects the wrong number`);
+
+      const oppositeStrict = symbol === '>' || symbol === '≥' ? '<' : '>';
+      assert.notOk(problem.checkAnswer(`x ${oppositeStrict} ${threshold}`), `seed ${seed}: rejects the opposite direction`);
+    }
+  });
 });

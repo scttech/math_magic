@@ -66,6 +66,8 @@ Feature-complete:
 * 6th-grade Rational & Irrational Numbers: classifying numbers, simplifying perfect-square roots, estimating irrational square roots between two whole numbers, and comparing roots to decimals
 * Filled out 6.RP (Ratios & Proportions) to full Common Core coverage: percent problems (find the part, the whole, or the percent), equivalent ratio tables, and unit conversion via ratio reasoning
 * The Coordinate Plane (6.NS.C.6/C.8, 6.G.A.3): identifying coordinates, reflections, distance between points, quadrants, and polygon side lengths — rendered with a shared d3 grid component, plus an interactive click-to-plot problem type. Worksheets print a matching grid per problem (blank for click-to-plot, so it can be done by hand)
+* "Select All" on the Quiz/Worksheet topic checkboxes, with a proper indeterminate state for a partial selection
+* Filled out 6.EE (Expressions & Equations) to full Common Core coverage: whole-number exponents, identifying the parts of an expression (coefficient/constant/term count), checking whether a value is a solution to an equation or inequality, and writing an inequality from a phrase like "at least" or "more than"
 
 ## License
 
