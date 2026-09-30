@@ -62,6 +62,65 @@ QUnit.module('generators/grade6/ratiosProportions', () => {
     }
   }
 
+  QUnit.test('equivalentRatioTable: every row is truly equivalent to the base ratio, and the missing value is exact', (assert) => {
+    const gen = byId['grade6.ratiosProportions.equivalentRatioTable'];
+    for (const difficulty of gen.difficulties) {
+      for (let seed = 0; seed < 80; seed++) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        const { a, b, rows } = problem.meta;
+        for (const [x, y] of rows) {
+          assert.equal(x * b, y * a, `[${difficulty}] seed ${seed}: row ${x}:${y} is equivalent to base ${a}:${b}`);
+        }
+        assert.ok(problem.checkAnswer(problem.answerDisplay), `[${difficulty}] seed ${seed}: checkAnswer accepts the missing value`);
+      }
+    }
+  });
+
+  QUnit.test('percentProblems: part/whole/percent always agree exactly, regardless of which one is asked for', (assert) => {
+    const gen = byId['grade6.ratiosProportions.percentProblems'];
+    for (const difficulty of gen.difficulties) {
+      for (let seed = 0; seed < 90; seed++) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        const { percent, whole, part } = problem.meta;
+        assert.ok(Math.abs(((whole * percent) / 100) - part) < 1e-6, `[${difficulty}] seed ${seed}: ${percent}% of ${whole} is exactly ${part}`);
+        assert.ok(problem.checkAnswer(problem.answerDisplay), `[${difficulty}] seed ${seed}: checkAnswer accepts "${problem.answerDisplay}"`);
+      }
+    }
+  });
+
+  QUnit.test('percentProblems findPercent: checkAnswer accepts both a bare number and a value with a % sign', (assert) => {
+    const gen = byId['grade6.ratiosProportions.percentProblems'];
+    let sawFindPercent = false;
+    for (let seed = 0; seed < 200; seed++) {
+      const rng = createRng(seed);
+      const problem = gen.generate({ difficulty: 'medium', rng });
+      if (problem.meta.direction !== 'findPercent') continue;
+      sawFindPercent = true;
+      assert.ok(problem.checkAnswer(`${problem.meta.percent}`), `seed ${seed}: accepts a bare number`);
+      assert.ok(problem.checkAnswer(`${problem.meta.percent}%`), `seed ${seed}: accepts a value with a % sign`);
+    }
+    assert.ok(sawFindPercent, 'the findPercent direction was exercised at least once across 200 seeds');
+  });
+
+  QUnit.test('unitConversion: the amount/answer pair always satisfies amount = answer * factor', (assert) => {
+    const gen = byId['grade6.ratiosProportions.unitConversion'];
+    for (const difficulty of gen.difficulties) {
+      for (let seed = 0; seed < 80; seed++) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        const { op, amount, factor } = problem.meta;
+        if (op === 'multiply') {
+          assert.equal(amount * factor, problem.answer, `[${difficulty}] seed ${seed}: multiply direction`);
+        } else {
+          assert.equal(amount, problem.answer * factor, `[${difficulty}] seed ${seed}: divide direction`);
+        }
+        assert.ok(problem.checkAnswer(problem.answerDisplay), `[${difficulty}] seed ${seed}: checkAnswer accepts its own answer`);
+      }
+    }
+  });
+
   QUnit.test('unitRateWordProblem never produces a singular-looking count', (assert) => {
     const gen = byId['grade6.ratiosProportions.unitRateWordProblem'];
     for (let seed = 0; seed < 200; seed++) {

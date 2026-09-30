@@ -64,6 +64,7 @@ Feature-complete:
 * A per-question Help system across all 6th-grade topics: general steps to solve, plus an optional worked solution with the problem's actual numbers, opened in a new tab so quiz progress isn't lost
 * A floating basic calculator, available on every page behind a toggle icon, for working through problems without leaving the page
 * 6th-grade Rational & Irrational Numbers: classifying numbers, simplifying perfect-square roots, estimating irrational square roots between two whole numbers, and comparing roots to decimals
+* Filled out 6.RP (Ratios & Proportions) to full Common Core coverage: percent problems (find the part, the whole, or the percent), equivalent ratio tables, and unit conversion via ratio reasoning
 
 ## License
 
