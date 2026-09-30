@@ -56,7 +56,7 @@ const identifyCoordinates = {
   label: 'Identifying Coordinates',
   difficulties: ['easy', 'medium', 'hard'],
   generate({ difficulty, rng }) {
-    const range = difficulty === 'easy' ? 6 : difficulty === 'medium' ? 10 : 15;
+    const range = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 7 : 10;
     const x = randomNonZeroInt(rng, -range, range);
     const y = randomNonZeroInt(rng, -range, range);
     const answerDisplay = `(${x}, ${y})`;
@@ -95,7 +95,7 @@ const reflectPoint = {
   label: 'Reflecting Points',
   difficulties: ['easy', 'medium', 'hard'],
   generate({ difficulty, rng }) {
-    const range = difficulty === 'easy' ? 6 : difficulty === 'medium' ? 10 : 15;
+    const range = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 7 : 10;
     const x = randomNonZeroInt(rng, -range, range);
     const y = randomNonZeroInt(rng, -range, range);
     const axis = randomChoice(rng, ['x-axis', 'y-axis']);
@@ -137,7 +137,7 @@ const distanceBetweenPoints = {
   label: 'Distance Between Points',
   difficulties: ['easy', 'medium', 'hard'],
   generate({ difficulty, rng }) {
-    const range = difficulty === 'easy' ? 8 : difficulty === 'medium' ? 12 : 15;
+    const range = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 7 : 10;
     const sameAxis = randomChoice(rng, ['x', 'y']);
 
     let ax;
@@ -204,7 +204,7 @@ const identifyQuadrant = {
   label: 'Identifying Quadrants',
   difficulties: ['easy', 'medium', 'hard'],
   generate({ difficulty, rng }) {
-    const range = difficulty === 'easy' ? 6 : difficulty === 'medium' ? 10 : 15;
+    const range = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 7 : 10;
     const x = randomNonZeroInt(rng, -range, range);
     const y = randomNonZeroInt(rng, -range, range);
     const quadrant = quadrantOf(x, y);
@@ -242,8 +242,8 @@ const polygonSideLength = {
   label: 'Polygon Side Lengths on the Coordinate Plane',
   difficulties: ['easy', 'medium', 'hard'],
   generate({ difficulty, rng }) {
-    const range = difficulty === 'easy' ? 7 : difficulty === 'medium' ? 10 : 15;
-    const maxSide = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 8 : 12;
+    const range = difficulty === 'easy' ? 6 : difficulty === 'medium' ? 8 : 11;
+    const maxSide = difficulty === 'easy' ? 3 : difficulty === 'medium' ? 5 : 7;
     const width = randomInt(rng, 2, maxSide);
     const height = randomInt(rng, 2, maxSide);
     const x0 = randomInt(rng, -range, range - width);
@@ -295,7 +295,7 @@ const plotPoint = {
   label: 'Plotting Points',
   difficulties: ['easy', 'medium', 'hard'],
   generate({ difficulty, rng }) {
-    const range = difficulty === 'easy' ? 6 : difficulty === 'medium' ? 10 : 15;
+    const range = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 7 : 10;
     const x = randomNonZeroInt(rng, -range, range);
     const y = randomNonZeroInt(rng, -range, range);
     const answerDisplay = `(${x}, ${y})`;

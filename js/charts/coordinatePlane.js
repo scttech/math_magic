@@ -8,13 +8,13 @@
 // element it's given.
 import { CHART_COLORS } from './chartTheme.js';
 
-const POINT_RADIUS = 5;
+const POINT_RADIUS = 6;
 
 /**
  * @param {HTMLElement} containerEl
  * @param {object} config
  * @param {number} [config.range=10] - grid spans [-range, range] on both axes
- * @param {number} [config.size=240] - pixel width/height (square)
+ * @param {number} [config.size=280] - pixel width/height (square)
  * @param {{x:number,y:number,label?:string}[]} [config.points]
  * @param {{x:number,y:number,label?:string}[]} [config.polygon] - connected in order and closed; drawn instead of `points`
  * @param {[{x,y},{x,y}]} [config.segment] - dashed line between two points
@@ -24,9 +24,9 @@ const POINT_RADIUS = 5;
  */
 export function renderCoordinatePlane(containerEl, config) {
   containerEl.innerHTML = '';
-  const { range = 10, size = 240, points = [], polygon = null, segment = null, interactive = false, marker = null, onPlace = null } = config;
+  const { range = 10, size = 280, points = [], polygon = null, segment = null, interactive = false, marker = null, onPlace = null } = config;
 
-  const margin = 20;
+  const margin = 22;
   const plotSize = size - margin * 2;
   const scaleX = d3.scaleLinear().domain([-range, range]).range([margin, margin + plotSize]);
   const scaleY = d3.scaleLinear().domain([-range, range]).range([margin + plotSize, margin]);
@@ -149,12 +149,17 @@ export function renderCoordinatePlane(containerEl, config) {
     .attr('fill', CHART_COLORS.line)
     .attr('stroke', '#fff')
     .attr('stroke-width', 1.5);
+  // Flip the label to the other side of its point when it would otherwise run
+  // past the grid's edge — labels like "Answer" are wide enough that this
+  // matters near the right edge in particular.
+  const LABEL_EDGE_BUFFER = 50;
   pointsGroup
     .selectAll('text')
     .data(shownPoints.filter((p) => p.label))
     .join('text')
-    .attr('x', (p) => scaleX(p.x) + 8)
-    .attr('y', (p) => scaleY(p.y) - 8)
+    .attr('x', (p) => (scaleX(p.x) > margin + plotSize - LABEL_EDGE_BUFFER ? scaleX(p.x) - 8 : scaleX(p.x) + 8))
+    .attr('y', (p) => (scaleY(p.y) < margin + 12 ? scaleY(p.y) + 16 : scaleY(p.y) - 8))
+    .attr('text-anchor', (p) => (scaleX(p.x) > margin + plotSize - LABEL_EDGE_BUFFER ? 'end' : 'start'))
     .attr('font-size', 12)
     .attr('font-weight', 700)
     .attr('fill', CHART_COLORS.textPrimary)

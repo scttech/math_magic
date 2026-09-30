@@ -1,7 +1,7 @@
 import '../app/init.js';
 import { renderNav } from '../app/nav.js';
 import { topicLabel } from '../app/topicLabels.js';
-import { populateGradeSelect, populateTopicCheckboxes, getSelectedTopics } from '../app/topicPicker.js';
+import { populateGradeSelect, populateTopicCheckboxes, getSelectedTopics, syncSelectAllCheckbox, wireSelectAllToggle } from '../app/topicPicker.js';
 import { buildProblemSet } from '../core/problemSet.js';
 import { randomSeed } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
@@ -15,6 +15,7 @@ function cacheElements() {
   els.setupSection = document.getElementById('worksheet-setup');
   els.outputSection = document.getElementById('worksheet-output');
   els.gradeSelect = document.getElementById('grade-select');
+  els.selectAllTopics = document.getElementById('select-all-topics');
   els.topicList = document.getElementById('topic-checkboxes');
   els.difficultySelect = document.getElementById('difficulty-select');
   els.countSelect = document.getElementById('count-select');
@@ -31,6 +32,7 @@ function cacheElements() {
 
 function populateTopics() {
   populateTopicCheckboxes(els.topicList, els.gradeSelect.value);
+  syncSelectAllCheckbox(els.selectAllTopics, els.topicList);
   updateGenerateEnabled();
 }
 
@@ -106,6 +108,7 @@ export function init() {
   populateGradeSelect(els.gradeSelect);
   populateTopics();
 
+  wireSelectAllToggle(els.selectAllTopics, els.topicList);
   els.gradeSelect.addEventListener('change', populateTopics);
   els.topicList.addEventListener('change', updateGenerateEnabled);
   els.generateBtn.addEventListener('click', generateWorksheet);

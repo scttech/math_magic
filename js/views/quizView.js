@@ -1,7 +1,7 @@
 import '../app/init.js';
 import { renderNav } from '../app/nav.js';
 import { topicLabel } from '../app/topicLabels.js';
-import { populateGradeSelect, populateTopicCheckboxes, getSelectedTopics } from '../app/topicPicker.js';
+import { populateGradeSelect, populateTopicCheckboxes, getSelectedTopics, syncSelectAllCheckbox, wireSelectAllToggle } from '../app/topicPicker.js';
 import { buildProblemSet } from '../core/problemSet.js';
 import { randomSeed } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
@@ -12,11 +12,16 @@ import { renderCoordinatePlane } from '../charts/coordinatePlane.js';
 const els = {};
 let state = null;
 
+// Bigger than the renderer's own default (280px) since the quiz page has more
+// room to spare than a printed worksheet column does.
+const QUIZ_GRID_SIZE = 340;
+
 function cacheElements() {
   els.setupSection = document.getElementById('quiz-setup');
   els.activeSection = document.getElementById('quiz-active');
   els.resultsSection = document.getElementById('quiz-results');
   els.gradeSelect = document.getElementById('grade-select');
+  els.selectAllTopics = document.getElementById('select-all-topics');
   els.topicList = document.getElementById('topic-checkboxes');
   els.difficultySelect = document.getElementById('difficulty-select');
   els.countSelect = document.getElementById('count-select');
@@ -39,6 +44,7 @@ function cacheElements() {
 
 function populateTopics() {
   populateTopicCheckboxes(els.topicList, els.gradeSelect.value);
+  syncSelectAllCheckbox(els.selectAllTopics, els.topicList);
   updateStartEnabled();
 }
 
@@ -72,6 +78,7 @@ function startQuiz() {
 function renderInteractiveGrid() {
   const problem = state.problems[state.currentIndex];
   renderCoordinatePlane(els.gridContainer, {
+    size: QUIZ_GRID_SIZE,
     ...problem.visual,
     interactive: true,
     marker: state.placedMarker,
@@ -104,7 +111,7 @@ function renderQuestion() {
     } else {
       els.answerFieldRow.hidden = false;
       els.submitBtn.disabled = false;
-      renderCoordinatePlane(els.gridContainer, problem.visual);
+      renderCoordinatePlane(els.gridContainer, { size: QUIZ_GRID_SIZE, ...problem.visual });
     }
   } else {
     els.gridContainer.hidden = true;
@@ -150,6 +157,7 @@ function submitAnswer() {
   if (problem.visual && problem.visual.interactive) {
     // Freeze the grid and, if wrong, show the correct point alongside the student's own marker.
     renderCoordinatePlane(els.gridContainer, {
+      size: QUIZ_GRID_SIZE,
       ...problem.visual,
       interactive: false,
       marker: state.placedMarker,
@@ -229,6 +237,7 @@ export function init() {
   populateGradeSelect(els.gradeSelect);
   populateTopics();
 
+  wireSelectAllToggle(els.selectAllTopics, els.topicList);
   els.gradeSelect.addEventListener('change', populateTopics);
   els.topicList.addEventListener('change', updateStartEnabled);
   els.startBtn.addEventListener('click', startQuiz);
