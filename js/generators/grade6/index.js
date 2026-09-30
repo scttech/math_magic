@@ -8,6 +8,7 @@ import { generators as expressionsEquationsGenerators } from './expressionsEquat
 import { generators as areaSurfaceVolumeGenerators } from './areaSurfaceVolume.js';
 import { generators as statisticsGenerators } from './statistics.js';
 import { generators as wordProblemsGenerators } from './wordProblems.js';
+import { generators as rationalIrrationalGenerators } from './rationalIrrational.js';
 
 const allGrade6Generators = [
   ...fractionsDecimalsGenerators,
@@ -17,6 +18,7 @@ const allGrade6Generators = [
   ...areaSurfaceVolumeGenerators,
   ...statisticsGenerators,
   ...wordProblemsGenerators,
+  ...rationalIrrationalGenerators,
 ];
 
 for (const mod of allGrade6Generators) {

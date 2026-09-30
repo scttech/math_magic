@@ -9,6 +9,7 @@ export const TOPIC_LABELS = {
   areaSurfaceVolume: 'Area, Surface Area & Volume',
   statistics: 'Statistics',
   wordProblems: 'Word Problems',
+  rationalIrrational: 'Rational & Irrational Numbers',
   multiplicationTables: 'Multiplication Tables',
 };
 
