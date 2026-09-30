@@ -5,6 +5,7 @@ export const TOPIC_LABELS = {
   fractionsDecimals: 'Fractions & Decimals',
   ratiosProportions: 'Ratios & Proportions',
   negativeNumbers: 'Negative Numbers',
+  numberTheory: 'Long Division & Number Theory',
   expressionsEquations: 'Expressions & Equations',
   areaSurfaceVolume: 'Area, Surface Area & Volume',
   statistics: 'Statistics',
@@ -12,6 +13,7 @@ export const TOPIC_LABELS = {
   rationalIrrational: 'Rational & Irrational Numbers',
   coordinatePlane: 'The Coordinate Plane',
   multiplicationTables: 'Multiplication Tables',
+  shapeIdentification: 'Identifying Shapes',
 };
 
 export function topicLabel(topicKey) {

@@ -543,6 +543,167 @@ const writeInequality = {
   },
 };
 
+// --- Writing an expression from a word phrase (6.EE.B.6) ----------------------
+
+const WORD_VAR = 'n';
+
+const EXPRESSION_PHRASES = [
+  { op: 'add', text: (k) => `${k} more than a number`, display: (k) => `${WORD_VAR} + ${k}` },
+  { op: 'add', text: (k) => `a number increased by ${k}`, display: (k) => `${WORD_VAR} + ${k}` },
+  { op: 'subtract', text: (k) => `a number decreased by ${k}`, display: (k) => `${WORD_VAR} - ${k}` },
+  { op: 'subtract', text: (k) => `${k} less than a number`, display: (k) => `${WORD_VAR} - ${k}` },
+  { op: 'multiply', text: (k) => `the product of ${k} and a number`, display: (k) => `${k}${WORD_VAR}` },
+  { op: 'multiply', text: (k) => `${k} times a number`, display: (k) => `${k}${WORD_VAR}` },
+  { op: 'divide', text: (k) => `the quotient of a number and ${k}`, display: (k) => `${WORD_VAR}/${k}` },
+  { op: 'divide', text: (k) => `a number divided by ${k}`, display: (k) => `${WORD_VAR}/${k}` },
+];
+
+const OP_WORDS = { add: 'addition (+)', subtract: 'subtraction (−)', multiply: 'multiplication (×)', divide: 'division (÷)' };
+
+function parseWrittenExpression(str) {
+  const cleaned = String(str).trim().toLowerCase().replace(/\s+/g, '');
+  let match;
+  if ((match = /^n\+(\d+)$/.exec(cleaned))) return { op: 'add', k: Number(match[1]) };
+  if ((match = /^(\d+)\+n$/.exec(cleaned))) return { op: 'add', k: Number(match[1]) };
+  if ((match = /^n-(\d+)$/.exec(cleaned))) return { op: 'subtract', k: Number(match[1]) };
+  if ((match = /^(\d+)n$/.exec(cleaned))) return { op: 'multiply', k: Number(match[1]) };
+  if ((match = /^n[*x](\d+)$/.exec(cleaned))) return { op: 'multiply', k: Number(match[1]) };
+  if ((match = /^(\d+)[*x]n$/.exec(cleaned))) return { op: 'multiply', k: Number(match[1]) };
+  if ((match = /^n\/(\d+)$/.exec(cleaned))) return { op: 'divide', k: Number(match[1]) };
+  if ((match = /^n÷(\d+)$/.exec(cleaned))) return { op: 'divide', k: Number(match[1]) };
+  return null;
+}
+
+function writeExpressionCheckAnswer(op, k) {
+  return (userInput) => {
+    if (typeof userInput !== 'string') return false;
+    const parsed = parseWrittenExpression(userInput);
+    return !!parsed && parsed.op === op && parsed.k === k;
+  };
+}
+
+const writeExpression = {
+  id: 'grade6.expressionsEquations.writeExpression',
+  grade: GRADE,
+  topic: TOPIC,
+  label: 'Writing Expressions',
+  difficulties: ['easy', 'medium', 'hard'],
+  generate({ difficulty, rng }) {
+    const range = difficulty === 'easy' ? 12 : difficulty === 'medium' ? 20 : 30;
+    const k = randomInt(rng, 2, range);
+    const entry = randomChoice(rng, EXPRESSION_PHRASES);
+    const phraseText = entry.text(k);
+    const answerDisplay = entry.display(k);
+    return {
+      promptText: `Write an algebraic expression for: "${phraseText}."`,
+      answer: { op: entry.op, k },
+      answerDisplay,
+      checkAnswer: writeExpressionCheckAnswer(entry.op, k),
+      meta: { generatorId: writeExpression.id, difficulty, op: entry.op, k, phraseText, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { op, phraseText, answerDisplay } = meta;
+    return {
+      strategy: [`Let ${WORD_VAR} stand for "a number."`, `The phrase describes ${OP_WORDS[op]}.`],
+      workedSteps: [`"${phraseText}" becomes ${answerDisplay}.`],
+      finalAnswerDisplay: answerDisplay,
+    };
+  },
+};
+
+// --- Independent & dependent variables (6.EE.C.9) ------------------------------
+
+const RATE_SCENARIOS = [
+  { indepLabel: 'hours worked', indepVar: 'h', depLabel: 'total pay', depVar: 'p', describeRate: (r) => `Each hour of work earns $${r}.` },
+  { indepLabel: 'tickets bought', indepVar: 't', depLabel: 'total cost', depVar: 'c', describeRate: (r) => `Each ticket costs $${r}.` },
+  { indepLabel: 'laps run', indepVar: 'l', depLabel: 'total distance run', depVar: 'd', describeRate: (r) => `Each lap is ${r} meters.` },
+  { indepLabel: 'bags of apples bought', indepVar: 'b', depLabel: 'total number of apples', depVar: 'a', describeRate: (r) => `Each bag has ${r} apples.` },
+];
+
+function dependentEquationCheckAnswer(depVar, rate, indepVar) {
+  return (userInput) => {
+    if (typeof userInput !== 'string') return false;
+    const cleaned = userInput.replace(/\s+/g, '').toLowerCase();
+    const match = new RegExp(`^${depVar}=(\\d+)\\*?${indepVar}$`).exec(cleaned);
+    if (!match) return false;
+    return Number(match[1]) === rate;
+  };
+}
+
+const dependentIndependentVariable = {
+  id: 'grade6.expressionsEquations.dependentIndependentVariable',
+  grade: GRADE,
+  topic: TOPIC,
+  label: 'Independent & Dependent Variables',
+  difficulties: ['easy', 'medium', 'hard'],
+  generate({ difficulty, rng }) {
+    const maxRate = difficulty === 'easy' ? 8 : difficulty === 'medium' ? 12 : 20;
+    const rate = randomInt(rng, 2, maxRate);
+    const scenario = randomChoice(rng, RATE_SCENARIOS);
+    const ask = randomChoice(rng, ['independent', 'dependent', 'equation']);
+    const context = `${scenario.describeRate(rate)} Let ${scenario.indepVar} = ${scenario.indepLabel} and ${scenario.depVar} = ${scenario.depLabel}.`;
+    // scenario.describeRate is a function, so it can't survive JSON — meta only keeps the already-resolved fields.
+    const baseMeta = {
+      generatorId: dependentIndependentVariable.id,
+      difficulty,
+      ask,
+      indepLabel: scenario.indepLabel,
+      indepVar: scenario.indepVar,
+      depLabel: scenario.depLabel,
+      depVar: scenario.depVar,
+      rate,
+    };
+
+    if (ask === 'independent' || ask === 'dependent') {
+      const targetVar = ask === 'independent' ? scenario.indepVar : scenario.depVar;
+      const question =
+        ask === 'independent'
+          ? "Which variable is independent — the one that isn't affected by the other?"
+          : 'Which variable is dependent — the one that changes because of the other?';
+      const answerDisplay = targetVar;
+      return {
+        promptText: `${context} ${question}`,
+        answer: targetVar,
+        answerDisplay,
+        checkAnswer: (userInput) => typeof userInput === 'string' && userInput.trim().toLowerCase() === targetVar,
+        meta: { ...baseMeta, answerDisplay },
+      };
+    }
+
+    const answerDisplay = `${scenario.depVar} = ${rate}${scenario.indepVar}`;
+    return {
+      promptText: `${context} Write an equation for ${scenario.depLabel} (${scenario.depVar}) in terms of ${scenario.indepLabel} (${scenario.indepVar}).`,
+      answer: { rate, indepVar: scenario.indepVar, depVar: scenario.depVar },
+      answerDisplay,
+      checkAnswer: dependentEquationCheckAnswer(scenario.depVar, rate, scenario.indepVar),
+      meta: { ...baseMeta, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { ask, indepLabel, depLabel, indepVar, depVar, rate, answerDisplay } = meta;
+    if (ask === 'independent') {
+      return {
+        strategy: ["The independent variable is the one you choose or control — it doesn't depend on the other quantity."],
+        workedSteps: [`${indepLabel} is chosen first and ${depLabel} changes because of it, so the independent variable is ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    if (ask === 'dependent') {
+      return {
+        strategy: ['The dependent variable is the one that changes because of the other quantity.'],
+        workedSteps: [`${depLabel} changes based on ${indepLabel}, so the dependent variable is ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    return {
+      strategy: ['Multiply the rate by the independent variable to get the dependent variable.'],
+      workedSteps: [`Each unit of ${indepVar} contributes ${rate}, so ${depVar} = ${rate} × ${indepVar}.`],
+      finalAnswerDisplay: answerDisplay,
+    };
+  },
+};
+
 export const generators = [
   evaluateExpression,
   simplifyExpression,
@@ -551,5 +712,7 @@ export const generators = [
   identifyExpressionParts,
   isASolution,
   writeInequality,
+  writeExpression,
+  dependentIndependentVariable,
 ];
 export { formatLinearExpression, parseLinearExpression };

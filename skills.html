@@ -10,60 +10,29 @@
     <link rel="shortcut icon" href="assets/favicon.ico" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/components.css" />
-    <link rel="stylesheet" href="css/screen.css" />
   </head>
   <body>
     <nav id="site-nav"></nav>
 
     <main class="container">
-      <h1>Multiplication Tables</h1>
-      <p class="progress-text">Pick which factors to drill, then answer by clicking a choice or pressing 1, 2, 3, or 4.</p>
+      <h1>Skills Practice</h1>
+      <p class="progress-text">Quick, grade-agnostic drills — pick a skill below. Answer by clicking a choice or pressing 1, 2, 3, or 4.</p>
 
-      <section id="skill-setup" class="card">
-        <div class="field-row">
-          <label for="factor-a-input">First factor(s)</label>
-          <input id="factor-a-input" type="text" autocomplete="off" value="2" placeholder="e.g. 2 or 2,3 or 1-5" />
-        </div>
+      <div class="card">
+        <h2>Multiplication Tables</h2>
+        <p>Practice specific times tables, like the 2's or a custom range of factors.</p>
+        <a class="btn" href="skills-multiplication-tables.html">Practice Multiplication</a>
+      </div>
 
-        <div class="field-row">
-          <label for="factor-b-input">Second factor(s)</label>
-          <input id="factor-b-input" type="text" autocomplete="off" value="1-12" placeholder="e.g. 1-12" />
-        </div>
-
-        <div class="field-row">
-          <label for="skill-count-select">Number of Questions</label>
-          <select id="skill-count-select">
-            <option value="5">5</option>
-            <option value="10" selected>10</option>
-            <option value="15">15</option>
-            <option value="20">20</option>
-          </select>
-        </div>
-
-        <p id="skill-setup-error" class="feedback incorrect" hidden></p>
-
-        <button id="skill-start-btn" type="button" class="btn">Start Practice</button>
-      </section>
-
-      <section id="skill-active" class="card" hidden>
-        <p id="skill-progress-text" class="progress-text"></p>
-        <p id="skill-equation" class="equation-display"></p>
-
-        <div id="skill-choices" class="choice-grid"></div>
-
-        <div id="skill-feedback" class="feedback" hidden></div>
-      </section>
-
-      <section id="skill-results" class="card" hidden>
-        <h2>Practice Results</h2>
-        <p id="skill-score-summary"></p>
-        <button id="skill-retry-btn" type="button" class="btn">Practice Again</button>
-        <button id="skill-back-btn" type="button" class="btn secondary">Back to Setup</button>
-      </section>
+      <div class="card">
+        <h2>Identify Shapes</h2>
+        <p>See a shape — a triangle, an octagon, a cylinder — and pick its name.</p>
+        <a class="btn" href="skills-shape-identification.html">Practice Shapes</a>
+      </div>
     </main>
 
     <script type="module">
-      import { init } from './js/views/multiplicationTablesView.js';
+      import { init } from './js/views/skillsHubView.js';
       init();
     </script>
   </body>

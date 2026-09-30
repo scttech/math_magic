@@ -133,4 +133,28 @@ QUnit.module('generators/grade6/areaSurfaceVolume', () => {
       assert.ok(sawFractionalEdge, `[${difficulty}]: at least one seed used a fractional edge`);
     }
   });
+
+  QUnit.test('surfaceAreaNet: total surface area matches the sum of the net pieces for both shapes', (assert) => {
+    const gen = byId['grade6.areaSurfaceVolume.surfaceAreaNet'];
+    const seenShapes = new Set();
+    for (const difficulty of gen.difficulties) {
+      for (let seed = 0; seed < 80; seed++) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        const { shape } = problem.meta;
+        seenShapes.add(shape);
+        if (shape === 'triangularPrism') {
+          const { leg1, leg2, hyp, length } = problem.meta;
+          const expected = 2 * ((leg1 * leg2) / 2) + (leg1 + leg2 + hyp) * length;
+          assert.ok(Math.abs(problem.answer - expected) < 1e-9, `[${difficulty}] seed ${seed}: triangular prism net total`);
+        } else {
+          const { side, slantHeight } = problem.meta;
+          const expected = side * side + 4 * ((side * slantHeight) / 2);
+          assert.ok(Math.abs(problem.answer - expected) < 1e-9, `[${difficulty}] seed ${seed}: square pyramid net total`);
+        }
+      }
+    }
+    assert.ok(seenShapes.has('triangularPrism'), 'at least one triangular prism problem was generated');
+    assert.ok(seenShapes.has('squarePyramid'), 'at least one square pyramid problem was generated');
+  });
 });

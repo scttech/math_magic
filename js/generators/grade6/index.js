@@ -4,6 +4,7 @@ import { register } from '../../core/registry.js';
 import { generators as fractionsDecimalsGenerators } from './fractionsDecimals.js';
 import { generators as ratiosProportionsGenerators } from './ratiosProportions.js';
 import { generators as negativeNumbersGenerators } from './negativeNumbers.js';
+import { generators as numberTheoryGenerators } from './numberTheory.js';
 import { generators as expressionsEquationsGenerators } from './expressionsEquations.js';
 import { generators as areaSurfaceVolumeGenerators } from './areaSurfaceVolume.js';
 import { generators as statisticsGenerators } from './statistics.js';
@@ -15,6 +16,7 @@ const allGrade6Generators = [
   ...fractionsDecimalsGenerators,
   ...ratiosProportionsGenerators,
   ...negativeNumbersGenerators,
+  ...numberTheoryGenerators,
   ...expressionsEquationsGenerators,
   ...areaSurfaceVolumeGenerators,
   ...statisticsGenerators,

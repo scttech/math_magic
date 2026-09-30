@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Identify Shapes</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/screen.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <h1>Identify Shapes</h1>
+      <p class="progress-text">A shape is shown — pick its name by clicking a choice or pressing 1, 2, 3, or 4.</p>
+
+      <section id="skill-setup" class="card">
+        <fieldset>
+          <legend>Shape Categories</legend>
+          <div id="category-checkboxes" class="checkbox-grid">
+            <label><input type="checkbox" name="category" value="2D" checked /> 2D Shapes</label>
+            <label><input type="checkbox" name="category" value="3D" checked /> 3D Shapes</label>
+          </div>
+        </fieldset>
+
+        <div class="field-row">
+          <label for="skill-count-select">Number of Questions</label>
+          <select id="skill-count-select">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+
+        <p id="skill-setup-error" class="feedback incorrect" hidden></p>
+
+        <button id="skill-start-btn" type="button" class="btn">Start Practice</button>
+      </section>
+
+      <section id="skill-active" class="card" hidden>
+        <p id="skill-progress-text" class="progress-text"></p>
+        <div id="skill-shape-display" class="shape-display"></div>
+        <p class="progress-text">What is the name of this shape?</p>
+
+        <div id="skill-choices" class="choice-grid"></div>
+
+        <div id="skill-feedback" class="feedback" hidden></div>
+      </section>
+
+      <section id="skill-results" class="card" hidden>
+        <h2>Practice Results</h2>
+        <p id="skill-score-summary"></p>
+        <button id="skill-retry-btn" type="button" class="btn">Practice Again</button>
+        <button id="skill-back-btn" type="button" class="btn secondary">Back to Setup</button>
+      </section>
+    </main>
+
+    <script type="module">
+      import { init } from './js/views/shapeIdentificationView.js';
+      init();
+    </script>
+  </body>
+</html>

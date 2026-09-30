@@ -36,7 +36,7 @@ Then open http://localhost:8080/tests/index.html.
 
 - `js/core/` — the problem-generator contract, seeded RNG, topic/grade registry, scoring/aggregation, profile and progress storage, import/export.
 - `js/generators/<grade>/` — topic modules (e.g. `grade6/fractionsDecimals.js`) that plug into the registry. Adding a new grade or topic means adding a module here, not changing core code.
-- `js/skills/` — grade-agnostic skill drills (e.g. multiplication tables) that live outside the grade/topic registry, since they use their own multiple-choice UI instead of the free-text quiz flow.
+- `js/skills/` — grade-agnostic skill drills (multiplication tables, shape identification) that live outside the grade/topic registry, since they use their own multiple-choice UI instead of the free-text quiz flow. `skills.html` is a hub page linking to each skill's own page (`skills-multiplication-tables.html`, `skills-shape-identification.html`).
 - `js/core/wordProblemTemplateEngine.js`, `wordProblemPatterns.js`, `wordListStore.js`, `wordProblemTemplateStore.js` — the Word Problems feature: a fixed set of math "patterns" (each owning an answer formula and an `explain()` for the Help page) filled in by editable `<person>`/`<food>`/`<object>`/`<mixed_number>`/`<amount>`/`<random_number_MIN_to_MAX>` templates, managed from Settings.
 - `js/core/helpRegistry.js`, `help.html` — the per-question Help system. Any generator that defines an `explain(meta)` method automatically gets a help page (via the generator/topic registry) — no separate registration needed. Every grade-6 generator has one; `registerHelpProvider()` is an escape hatch for content outside that registry.
 - `js/app/` — shared bootstrap (registers content, ensures a profile exists), nav bar, and the avatar-icon manifest.
@@ -59,7 +59,7 @@ Feature-complete:
 * Multi-profile progress tracking with JSON export/import
 * Progress dashboard with charts
 * Profile avatar picker
-* Grade-agnostic skills practice (multiplication tables, with multiple-choice + keyboard answering)
+* Grade-agnostic skills practice, from a Skills hub page (multiplication tables; shape identification — 2D and 3D shapes drawn as SVG line art, name it from 4 multiple-choice options), all with multiple-choice + keyboard answering
 * 6th-grade Word Problems built from editable templates, with a Settings page to manage them and their word lists
 * A per-question Help system across all 6th-grade topics: general steps to solve, plus an optional worked solution with the problem's actual numbers, opened in a new tab so quiz progress isn't lost
 * A floating basic calculator, available on every page behind a toggle icon, for working through problems without leaving the page
@@ -70,6 +70,7 @@ Feature-complete:
 * Filled out 6.EE (Expressions & Equations) to full Common Core coverage: whole-number exponents, identifying the parts of an expression (coefficient/constant/term count), checking whether a value is a solution to an equation or inequality, and writing an inequality from a phrase like "at least" or "more than"
 * Filled out 6.G (Geometry) to full coverage: composite area (composing/decomposing shapes), trapezoid area, and rectangular-prism volume with fractional edge lengths (6.G.A.3, coordinate-plane polygons, was already covered by The Coordinate Plane above)
 * Filled out 6.SP (Statistics) to full Common Core coverage: identifying statistical questions, interquartile range (IQR), mean absolute deviation (MAD), and — closing the last gap — 6.SP.B.4's visual data displays: dot plots, histograms, and box plots, rendered with a new `js/charts/dataPlots.js` d3 component and dispatched (alongside the coordinate-plane grid) through `js/charts/renderVisual.js`
+* Closed remaining gaps in 6.NS, 6.EE, and 6.G: a new "Long Division & Number Theory" topic (`js/generators/grade6/numberTheory.js`) covering the standard long-division algorithm, GCF, LCM, and the distributive property with the GCF (6.NS.B.2/B.4); writing algebraic expressions from word phrases and identifying independent/dependent variables in a real-world rate relationship (6.EE.B.6/C.9); and surface area of triangular prisms and square pyramids via net decomposition (6.G.A.4)
 
 ## License
 

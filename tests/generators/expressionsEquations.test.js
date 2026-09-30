@@ -137,4 +137,37 @@ QUnit.module('generators/grade6/expressionsEquations', () => {
       assert.notOk(problem.checkAnswer(`x ${oppositeStrict} ${threshold}`), `seed ${seed}: rejects the opposite direction`);
     }
   });
+
+  QUnit.test('writeExpression: the generated phrase always matches its declared operation and number', (assert) => {
+    const gen = byId['grade6.expressionsEquations.writeExpression'];
+    for (const difficulty of gen.difficulties) {
+      for (let seed = 0; seed < 80; seed++) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        const { op, k } = problem.meta;
+        assert.ok(['add', 'subtract', 'multiply', 'divide'].includes(op), `[${difficulty}] seed ${seed}: known operation`);
+        assert.ok(problem.checkAnswer(problem.answerDisplay), `[${difficulty}] seed ${seed}: accepts its own canonical answer`);
+        assert.notOk(problem.checkAnswer(`n${op === 'add' ? '-' : '+'}${k}`), `[${difficulty}] seed ${seed}: rejects the opposite operation`);
+        assert.notOk(problem.checkAnswer(problem.answerDisplay.replace(String(k), String(k + 1))), `[${difficulty}] seed ${seed}: rejects the wrong number`);
+      }
+    }
+  });
+
+  QUnit.test('dependentIndependentVariable: independent/dependent answers and the equation always match the scenario', (assert) => {
+    const gen = byId['grade6.expressionsEquations.dependentIndependentVariable'];
+    const seenAsks = new Set();
+    for (const difficulty of gen.difficulties) {
+      for (let seed = 0; seed < 100; seed++) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        const { ask, indepVar, depVar, rate } = problem.meta;
+        seenAsks.add(ask);
+        if (ask === 'independent') assert.equal(problem.answer, indepVar, `[${difficulty}] seed ${seed}: independent variable`);
+        else if (ask === 'dependent') assert.equal(problem.answer, depVar, `[${difficulty}] seed ${seed}: dependent variable`);
+        else assert.equal(problem.answerDisplay, `${depVar} = ${rate}${indepVar}`, `[${difficulty}] seed ${seed}: equation`);
+        assert.ok(problem.checkAnswer(problem.answerDisplay), `[${difficulty}] seed ${seed}: accepts its own answer`);
+      }
+    }
+    assert.ok(seenAsks.has('independent') && seenAsks.has('dependent') && seenAsks.has('equation'), 'all three question types were generated');
+  });
 });

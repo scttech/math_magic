@@ -497,6 +497,20 @@ input[type='number'] {
   cursor: not-allowed;
 }
 
+/* Shape/word answers are longer than the numeric ones this component was
+   first built for, so they get a smaller size and can wrap onto two lines. */
+.choice-btn-text {
+  font-size: 1.05rem;
+  text-align: left;
+  white-space: normal;
+}
+
+.shape-display {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
 .choice-key {
   display: inline-flex;
   align-items: center;

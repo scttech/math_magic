@@ -329,6 +329,102 @@ const volumeFractionalEdges = {
   },
 };
 
+// --- Surface area via nets: triangular prisms & square pyramids (6.G.A.4) ----
+
+const PRIMITIVE_RIGHT_TRIANGLES = [
+  [3, 4, 5],
+  [6, 8, 10],
+  [5, 12, 13],
+  [8, 15, 17],
+];
+
+function randomRightTriangleSides(rng, difficulty) {
+  const scale = difficulty === 'easy' ? 1 : difficulty === 'medium' ? randomChoice(rng, [1, 2]) : randomChoice(rng, [1, 2, 3]);
+  const [leg1, leg2, hyp] = randomChoice(rng, PRIMITIVE_RIGHT_TRIANGLES);
+  return { leg1: leg1 * scale, leg2: leg2 * scale, hyp: hyp * scale };
+}
+
+const surfaceAreaNet = {
+  id: 'grade6.areaSurfaceVolume.surfaceAreaNet',
+  grade: GRADE,
+  topic: TOPIC,
+  label: 'Surface Area from Nets (Prisms & Pyramids)',
+  difficulties: ['easy', 'medium', 'hard'],
+  generate({ difficulty, rng }) {
+    const shape = randomChoice(rng, ['triangularPrism', 'squarePyramid']);
+
+    if (shape === 'triangularPrism') {
+      const { leg1, leg2, hyp } = randomRightTriangleSides(rng, difficulty);
+      const range = difficulty === 'easy' ? { min: 4, max: 12 } : difficulty === 'medium' ? { min: 5, max: 18 } : { min: 6, max: 24 };
+      const length = randomInt(rng, range.min, range.max);
+      const triangleArea = (leg1 * leg2) / 2;
+      const perimeter = leg1 + leg2 + hyp;
+      const answer = roundTo(2 * triangleArea + perimeter * length, 2);
+      const answerDisplay = `${answer} square units`;
+      return {
+        promptText: `A triangular prism has a right-triangle base with legs ${leg1} and ${leg2} (hypotenuse ${hyp}), and the prism is ${length} units long. Unfold it into a net — 2 triangles and 3 rectangles — and find the total surface area.`,
+        answer,
+        answerDisplay,
+        checkAnswer: numericCheckAnswer(answer, 0.01),
+        meta: { generatorId: surfaceAreaNet.id, difficulty, shape, leg1, leg2, hyp, length, answerDisplay },
+      };
+    }
+
+    const range = difficulty === 'easy' ? { min: 3, max: 8 } : difficulty === 'medium' ? { min: 4, max: 12 } : { min: 6, max: 16 };
+    const slantRange = difficulty === 'easy' ? { min: 4, max: 10 } : difficulty === 'medium' ? { min: 5, max: 14 } : { min: 8, max: 20 };
+    const side = randomInt(rng, range.min, range.max);
+    const slantHeight = randomInt(rng, slantRange.min, slantRange.max);
+    const baseArea = side * side;
+    const lateralArea = 2 * side * slantHeight;
+    const answer = roundTo(baseArea + lateralArea, 2);
+    const answerDisplay = `${answer} square units`;
+    return {
+      promptText: `A square pyramid has a square base with side length ${side} and each triangular face has a slant height of ${slantHeight}. Unfold it into a net — 1 square and 4 triangles — and find the total surface area.`,
+      answer,
+      answerDisplay,
+      checkAnswer: numericCheckAnswer(answer, 0.01),
+      meta: { generatorId: surfaceAreaNet.id, difficulty, shape, side, slantHeight, answerDisplay },
+    };
+  },
+  explain(meta) {
+    const { shape, answerDisplay } = meta;
+    if (shape === 'triangularPrism') {
+      const { leg1, leg2, hyp, length } = meta;
+      const triangleArea = roundTo((leg1 * leg2) / 2, 2);
+      const perimeter = leg1 + leg2 + hyp;
+      const lateralArea = roundTo(perimeter * length, 2);
+      return {
+        strategy: [
+          'A triangular prism unfolds into a net of 2 matching triangles (the bases) and 3 rectangles (the sides).',
+          'Find the area of the 2 triangles, find the area of the 3 rectangles, and add them together.',
+        ],
+        workedSteps: [
+          `The 2 triangular bases: 2 × (½ × ${leg1} × ${leg2}) = 2 × ${triangleArea} = ${roundTo(2 * triangleArea, 2)}.`,
+          `The 3 rectangles unroll into one long strip as wide as the prism's length: perimeter × length = (${leg1} + ${leg2} + ${hyp}) × ${length} = ${perimeter} × ${length} = ${lateralArea}.`,
+          `Add the pieces of the net: ${roundTo(2 * triangleArea, 2)} + ${lateralArea} = ${answerDisplay}.`,
+        ],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    const { side, slantHeight } = meta;
+    const baseArea = side * side;
+    const oneTriangle = roundTo((side * slantHeight) / 2, 2);
+    const lateralArea = roundTo(4 * oneTriangle, 2);
+    return {
+      strategy: [
+        'A square pyramid unfolds into a net of 1 square (the base) and 4 matching triangles (the sides).',
+        'Find the area of the square, find the area of the 4 triangles, and add them together.',
+      ],
+      workedSteps: [
+        `The square base: ${side} × ${side} = ${baseArea}.`,
+        `Each triangular face: ½ × ${side} × ${slantHeight} = ${oneTriangle}, and there are 4 of them: 4 × ${oneTriangle} = ${lateralArea}.`,
+        `Add the pieces of the net: ${baseArea} + ${lateralArea} = ${answerDisplay}.`,
+      ],
+      finalAnswerDisplay: answerDisplay,
+    };
+  },
+};
+
 export const generators = [
   areaRectangleTriangle,
   areaParallelogram,
@@ -337,4 +433,5 @@ export const generators = [
   compositeArea,
   trapezoidArea,
   volumeFractionalEdges,
+  surfaceAreaNet,
 ];
