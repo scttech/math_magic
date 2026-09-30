@@ -6,7 +6,7 @@ import { buildProblemSet } from '../core/problemSet.js';
 import { randomSeed } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordWorksheetGenerated } from '../core/progressStore.js';
-import { renderCoordinatePlane } from '../charts/coordinatePlane.js';
+import { renderVisual } from '../charts/renderVisual.js';
 
 const els = {};
 let currentSeed = null;
@@ -84,10 +84,10 @@ function renderWorksheet({ grade, topics, difficulty, problems }) {
     if (!p.visual) return;
     // Interactive problems (e.g. plotting a point) print as a blank grid to fill in by hand; every other
     // visual problem shows the same populated grid on paper as it does on screen, since it's read-only there too.
-    const problemVisual = p.visual.interactive ? { range: p.visual.range } : p.visual;
-    renderCoordinatePlane(document.getElementById(`worksheet-grid-${i}`), problemVisual);
+    const problemVisual = p.visual.interactive ? { type: p.visual.type, range: p.visual.range } : p.visual;
+    renderVisual(document.getElementById(`worksheet-grid-${i}`), problemVisual);
     if (p.visual.answerVisual) {
-      renderCoordinatePlane(document.getElementById(`worksheet-answer-grid-${i}`), p.visual.answerVisual);
+      renderVisual(document.getElementById(`worksheet-answer-grid-${i}`), p.visual.answerVisual);
     }
   });
 }

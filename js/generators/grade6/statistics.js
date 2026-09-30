@@ -425,6 +425,262 @@ const meanAbsoluteDeviation = {
   },
 };
 
+// --- Reading dot plots (6.SP.B.4) -----------------------------------------------
+
+const readDotPlot = {
+  id: 'grade6.statistics.readDotPlot',
+  grade: GRADE,
+  topic: TOPIC,
+  label: 'Reading Dot Plots',
+  difficulties: ['easy', 'medium', 'hard'],
+  generate({ difficulty, rng }) {
+    const n = difficulty === 'easy' ? 8 : difficulty === 'medium' ? 10 : 12;
+    const valueRange = difficulty === 'easy' ? { min: 1, max: 8 } : difficulty === 'medium' ? { min: 1, max: 10 } : { min: 1, max: 12 };
+    const values = Array.from({ length: n }, () => randomInt(rng, valueRange.min, valueRange.max));
+    const counts = new Map();
+    for (const v of values) counts.set(v, (counts.get(v) || 0) + 1);
+    const maxCount = Math.max(...counts.values());
+    const modeCandidates = Array.from(counts.entries()).filter(([, c]) => c === maxCount);
+
+    let question = randomChoice(rng, ['frequency', 'total', 'mode']);
+    if (question === 'mode' && modeCandidates.length !== 1) question = 'total';
+
+    let promptText;
+    let answer;
+    let targetValue = null;
+    if (question === 'frequency') {
+      targetValue = randomChoice(rng, values);
+      answer = counts.get(targetValue);
+      promptText = `How many data points on the dot plot have a value of ${targetValue}?`;
+    } else if (question === 'mode') {
+      answer = modeCandidates[0][0];
+      promptText = 'What value appears most often on the dot plot (the mode)?';
+    } else {
+      answer = n;
+      promptText = 'How many data points are shown on the dot plot in total?';
+    }
+
+    const answerDisplay = `${answer}`;
+    return {
+      promptText,
+      answer,
+      answerDisplay,
+      checkAnswer: numericCheckAnswer(answer, 1e-9),
+      meta: { generatorId: readDotPlot.id, difficulty, values, question, targetValue, answerDisplay },
+      visual: { type: 'dotPlot', values },
+    };
+  },
+  explain(meta) {
+    const { question, targetValue, answerDisplay } = meta;
+    if (question === 'frequency') {
+      return {
+        strategy: ['Count how many dots are stacked above the given value.'],
+        workedSteps: [`There are ${answerDisplay} dot(s) stacked above ${targetValue}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    if (question === 'mode') {
+      return {
+        strategy: ['The mode is the value with the tallest stack of dots.'],
+        workedSteps: [`The tallest stack is above ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    return {
+      strategy: ['Count every dot on the plot, across all values.'],
+      workedSteps: [`Counting every dot gives a total of ${answerDisplay}.`],
+      finalAnswerDisplay: answerDisplay,
+    };
+  },
+};
+
+// --- Reading histograms ----------------------------------------------------------
+
+function randomHistogramBins(rng, numBins, binWidth, startMin, maxCountPerBin) {
+  const bins = [];
+  for (let i = 0; i < numBins; i++) {
+    const min = startMin + i * binWidth;
+    bins.push({ min, max: min + binWidth, count: randomInt(rng, 1, maxCountPerBin) });
+  }
+  return bins;
+}
+
+function intervalCheckAnswer(min, max) {
+  return (userInput) => {
+    if (typeof userInput !== 'string') return false;
+    // Bin boundaries here are always non-negative, so a bare hyphen is a range
+    // separator, not a minus sign — matching only \d+ (no leading -?) avoids
+    // misreading "20-30" as the numbers 20 and -30.
+    const nums = (userInput.match(/\d+/g) || []).map(Number);
+    return nums.length >= 2 && nums[0] === min && nums[1] === max;
+  };
+}
+
+const readHistogram = {
+  id: 'grade6.statistics.readHistogram',
+  grade: GRADE,
+  topic: TOPIC,
+  label: 'Reading Histograms',
+  difficulties: ['easy', 'medium', 'hard'],
+  generate({ difficulty, rng }) {
+    const numBins = difficulty === 'easy' ? 4 : difficulty === 'medium' ? 5 : 6;
+    const binWidth = difficulty === 'hard' ? 5 : 10;
+    const startMin = randomInt(rng, 0, 3) * binWidth;
+    const maxCountPerBin = difficulty === 'easy' ? 8 : 12;
+    const bins = randomHistogramBins(rng, numBins, binWidth, startMin, maxCountPerBin);
+    const total = bins.reduce((sum, b) => sum + b.count, 0);
+    const maxCount = Math.max(...bins.map((b) => b.count));
+    const topBins = bins.filter((b) => b.count === maxCount);
+
+    let question = randomChoice(rng, ['binCount', 'mostFrequentBin', 'total']);
+    if (question === 'mostFrequentBin' && topBins.length !== 1) question = 'total';
+
+    let promptText;
+    let answer;
+    let answerDisplay;
+    let checkAnswer;
+    let targetBin = null;
+    if (question === 'binCount') {
+      targetBin = randomChoice(rng, bins);
+      answer = targetBin.count;
+      answerDisplay = `${answer}`;
+      checkAnswer = numericCheckAnswer(answer, 1e-9);
+      promptText = `How many data points fall in the interval ${targetBin.min}–${targetBin.max} on the histogram?`;
+    } else if (question === 'mostFrequentBin') {
+      targetBin = topBins[0];
+      answerDisplay = `${targetBin.min}-${targetBin.max}`;
+      answer = answerDisplay;
+      checkAnswer = intervalCheckAnswer(targetBin.min, targetBin.max);
+      promptText = 'Which interval on the histogram has the most data points?';
+    } else {
+      answer = total;
+      answerDisplay = `${total}`;
+      checkAnswer = numericCheckAnswer(total, 1e-9);
+      promptText = 'How many total data points are shown on the histogram?';
+    }
+
+    return {
+      promptText,
+      answer,
+      answerDisplay,
+      checkAnswer,
+      meta: { generatorId: readHistogram.id, difficulty, bins, question, targetBin, answerDisplay },
+      visual: { type: 'histogram', bins },
+    };
+  },
+  explain(meta) {
+    const { bins, question, targetBin, answerDisplay } = meta;
+    if (question === 'binCount') {
+      return {
+        strategy: ['Find the bar for the given interval and read its height.'],
+        workedSteps: [`The bar for ${targetBin.min}–${targetBin.max} has a height of ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    if (question === 'mostFrequentBin') {
+      return {
+        strategy: ['Find the tallest bar on the histogram.'],
+        workedSteps: [`The tallest bar covers the interval ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    return {
+      strategy: ['Add up the height of every bar.'],
+      workedSteps: [`Adding every bar's height: ${bins.map((b) => b.count).join(' + ')} = ${answerDisplay}.`],
+      finalAnswerDisplay: answerDisplay,
+    };
+  },
+};
+
+// --- Reading box plots -------------------------------------------------------------
+
+function randomFiveNumberSummary(rng, difficulty) {
+  const maxGap = difficulty === 'easy' ? 8 : difficulty === 'medium' ? 12 : 15;
+  const min = randomInt(rng, 1, 20);
+  const q1 = min + randomInt(rng, 2, maxGap);
+  const med = q1 + randomInt(rng, 2, maxGap);
+  const q3 = med + randomInt(rng, 2, maxGap);
+  const max = q3 + randomInt(rng, 2, maxGap);
+  return { min, q1, median: med, q3, max };
+}
+
+const readBoxPlot = {
+  id: 'grade6.statistics.readBoxPlot',
+  grade: GRADE,
+  topic: TOPIC,
+  label: 'Reading Box Plots',
+  difficulties: ['easy', 'medium', 'hard'],
+  generate({ difficulty, rng }) {
+    const { min, q1, median: med, q3, max } = randomFiveNumberSummary(rng, difficulty);
+    const question = randomChoice(rng, ['median', 'range', 'iqr', 'min', 'max']);
+
+    let promptText;
+    let answer;
+    if (question === 'median') {
+      answer = med;
+      promptText = 'What is the median shown on the box plot?';
+    } else if (question === 'range') {
+      answer = max - min;
+      promptText = 'What is the range of the data shown on the box plot (max minus min)?';
+    } else if (question === 'iqr') {
+      answer = q3 - q1;
+      promptText = 'What is the interquartile range (IQR) shown on the box plot?';
+    } else if (question === 'min') {
+      answer = min;
+      promptText = 'What is the minimum value shown on the box plot?';
+    } else {
+      answer = max;
+      promptText = 'What is the maximum value shown on the box plot?';
+    }
+
+    const answerDisplay = `${answer}`;
+    return {
+      promptText,
+      answer,
+      answerDisplay,
+      checkAnswer: numericCheckAnswer(answer, 1e-9),
+      meta: { generatorId: readBoxPlot.id, difficulty, min, q1, median: med, q3, max, question, answerDisplay },
+      visual: { type: 'boxPlot', min, q1, median: med, q3, max },
+    };
+  },
+  explain(meta) {
+    const { min, q1, median, q3, max, question, answerDisplay } = meta;
+    if (question === 'median') {
+      return {
+        strategy: ['The median is shown by the line inside the box.'],
+        workedSteps: [`The line inside the box is at ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    if (question === 'range') {
+      return {
+        strategy: ['The range is the distance from one end of the whiskers to the other: max − min.'],
+        workedSteps: [`${max} − ${min} = ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    if (question === 'iqr') {
+      return {
+        strategy: ['The interquartile range is the width of the box itself: Q3 − Q1.'],
+        workedSteps: [`${q3} − ${q1} = ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    if (question === 'min') {
+      return {
+        strategy: ['The minimum is the far left end of the left whisker.'],
+        workedSteps: [`The left whisker ends at ${answerDisplay}.`],
+        finalAnswerDisplay: answerDisplay,
+      };
+    }
+    return {
+      strategy: ['The maximum is the far right end of the right whisker.'],
+      workedSteps: [`The right whisker ends at ${answerDisplay}.`],
+      finalAnswerDisplay: answerDisplay,
+    };
+  },
+};
+
 export const generators = [
   measuresOfCenter,
   frequencyTableQuestions,
@@ -432,4 +688,7 @@ export const generators = [
   statisticalQuestion,
   interquartileRange,
   meanAbsoluteDeviation,
+  readDotPlot,
+  readHistogram,
+  readBoxPlot,
 ];

@@ -7,7 +7,7 @@ import { randomSeed } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordQuizAttempt } from '../core/progressStore.js';
 import { hasHelp, buildHelpUrl } from '../core/helpRegistry.js';
-import { renderCoordinatePlane } from '../charts/coordinatePlane.js';
+import { renderVisual } from '../charts/renderVisual.js';
 
 const els = {};
 let state = null;
@@ -77,7 +77,7 @@ function startQuiz() {
 
 function renderInteractiveGrid() {
   const problem = state.problems[state.currentIndex];
-  renderCoordinatePlane(els.gridContainer, {
+  renderVisual(els.gridContainer, {
     size: QUIZ_GRID_SIZE,
     ...problem.visual,
     interactive: true,
@@ -111,7 +111,7 @@ function renderQuestion() {
     } else {
       els.answerFieldRow.hidden = false;
       els.submitBtn.disabled = false;
-      renderCoordinatePlane(els.gridContainer, { size: QUIZ_GRID_SIZE, ...problem.visual });
+      renderVisual(els.gridContainer, { size: QUIZ_GRID_SIZE, ...problem.visual });
     }
   } else {
     els.gridContainer.hidden = true;
@@ -156,7 +156,7 @@ function submitAnswer() {
 
   if (problem.visual && problem.visual.interactive) {
     // Freeze the grid and, if wrong, show the correct point alongside the student's own marker.
-    renderCoordinatePlane(els.gridContainer, {
+    renderVisual(els.gridContainer, {
       size: QUIZ_GRID_SIZE,
       ...problem.visual,
       interactive: false,

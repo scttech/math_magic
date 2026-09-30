@@ -65,6 +65,7 @@ QUnit.module('generators/grade6/rationalIrrational', () => {
         assert.ok(problem.checkAnswer(`${lower} and ${upper}`), `[${difficulty}] seed ${seed}: accepts "lower and upper"`);
         assert.ok(problem.checkAnswer(`${upper}, ${lower}`), `[${difficulty}] seed ${seed}: accepts either order`);
         assert.ok(problem.checkAnswer(`between ${lower} and ${upper}`), `[${difficulty}] seed ${seed}: accepts extra words`);
+        assert.ok(problem.checkAnswer(`${lower}-${upper}`), `[${difficulty}] seed ${seed}: accepts a bare hyphen range like "4-5", not misread as a negative number`);
         assert.notOk(problem.checkAnswer(`${lower}`), `[${difficulty}] seed ${seed}: rejects a single number`);
         assert.notOk(problem.checkAnswer(`${lower - 1} and ${upper}`), `[${difficulty}] seed ${seed}: rejects the wrong bounds`);
       }

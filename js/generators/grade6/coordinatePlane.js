@@ -66,7 +66,7 @@ const identifyCoordinates = {
       answerDisplay,
       checkAnswer: coordinateCheckAnswer(x, y),
       meta: { generatorId: identifyCoordinates.id, difficulty, x, y, answerDisplay },
-      visual: { range, points: [{ x, y, label: 'A' }] },
+      visual: { type: 'coordinatePlane', range, points: [{ x, y, label: 'A' }] },
     };
   },
   explain(meta) {
@@ -108,7 +108,7 @@ const reflectPoint = {
       answerDisplay,
       checkAnswer: coordinateCheckAnswer(rx, ry),
       meta: { generatorId: reflectPoint.id, difficulty, x, y, axis, answerDisplay },
-      visual: { range, points: [{ x, y, label: 'A' }] },
+      visual: { type: 'coordinatePlane', range, points: [{ x, y, label: 'A' }] },
     };
   },
   explain(meta) {
@@ -166,6 +166,7 @@ const distanceBetweenPoints = {
       checkAnswer: numericCheckAnswer(distance, 1e-9),
       meta: { generatorId: distanceBetweenPoints.id, difficulty, ax, ay, bx, by, sameAxis, answerDisplay },
       visual: {
+        type: 'coordinatePlane',
         range,
         points: [
           { x: ax, y: ay, label: 'A' },
@@ -215,7 +216,7 @@ const identifyQuadrant = {
       answerDisplay,
       checkAnswer: quadrantCheckAnswer(quadrant),
       meta: { generatorId: identifyQuadrant.id, difficulty, x, y, quadrant, answerDisplay },
-      visual: { range, points: [{ x, y }] },
+      visual: { type: 'coordinatePlane', range, points: [{ x, y }] },
     };
   },
   explain(meta) {
@@ -263,7 +264,7 @@ const polygonSideLength = {
       answerDisplay,
       checkAnswer: numericCheckAnswer(answer, 1e-9),
       meta: { generatorId: polygonSideLength.id, difficulty, vertices, sideChoice, answerDisplay },
-      visual: { range, polygon: vertices },
+      visual: { type: 'coordinatePlane', range, polygon: vertices },
     };
   },
   explain(meta) {
@@ -305,7 +306,12 @@ const plotPoint = {
       answerDisplay,
       checkAnswer: coordinateCheckAnswer(x, y),
       meta: { generatorId: plotPoint.id, difficulty, x, y, answerDisplay },
-      visual: { range, interactive: true, answerVisual: { range, points: [{ x, y, label: 'Answer' }] } },
+      visual: {
+        type: 'coordinatePlane',
+        range,
+        interactive: true,
+        answerVisual: { type: 'coordinatePlane', range, points: [{ x, y, label: 'Answer' }] },
+      },
     };
   },
   explain(meta) {

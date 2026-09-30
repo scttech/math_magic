@@ -41,7 +41,7 @@ Then open http://localhost:8080/tests/index.html.
 - `js/core/helpRegistry.js`, `help.html` — the per-question Help system. Any generator that defines an `explain(meta)` method automatically gets a help page (via the generator/topic registry) — no separate registration needed. Every grade-6 generator has one; `registerHelpProvider()` is an escape hatch for content outside that registry.
 - `js/app/` — shared bootstrap (registers content, ensures a profile exists), nav bar, and the avatar-icon manifest.
 - `js/views/` — the DOM-rendering code for the home, quiz, worksheet builder, dashboard, and profile screens.
-- `js/charts/` — d3.js chart modules for the progress dashboard, plus `coordinatePlane.js`, a reusable coordinate-grid renderer shared by the Quiz view, the Worksheet Builder, and its printed output. Problems carry an optional `visual` field describing what to draw (points, a polygon, a distance segment, or an interactive click-to-plot mode).
+- `js/charts/` — d3.js chart modules for the progress dashboard, plus the problem-visual renderers shared by the Quiz view, the Worksheet Builder, and its printed output: `coordinatePlane.js` (points, polygons, distance segments, and an interactive click-to-plot mode) and `dataPlots.js` (dot plots, histograms, box plots). A problem carries an optional `visual` field (`{ type, ...config }`); `renderVisual.js` dispatches it to the right renderer, so adding a new visual type later is one new case there, not a change everywhere a chart gets mounted.
 - `assets/images/avatars/` — the selectable profile avatar icons.
 - `css/print.css` — the print stylesheet worksheets use for "Save as PDF" via the browser's print dialog.
 - `tests/` — QUnit test files, mirroring the `js/` structure.
@@ -69,7 +69,7 @@ Feature-complete:
 * "Select All" on the Quiz/Worksheet topic checkboxes, with a proper indeterminate state for a partial selection
 * Filled out 6.EE (Expressions & Equations) to full Common Core coverage: whole-number exponents, identifying the parts of an expression (coefficient/constant/term count), checking whether a value is a solution to an equation or inequality, and writing an inequality from a phrase like "at least" or "more than"
 * Filled out 6.G (Geometry) to full coverage: composite area (composing/decomposing shapes), trapezoid area, and rectangular-prism volume with fractional edge lengths (6.G.A.3, coordinate-plane polygons, was already covered by The Coordinate Plane above)
-* Filled out 6.SP (Statistics) to near-full coverage: identifying statistical questions, interquartile range (IQR), and mean absolute deviation (MAD). Visual data displays (dot plots/histograms/box plots, 6.SP.B.4) remain a deliberately unbuilt gap — it needs a real charting component, not just a new generator
+* Filled out 6.SP (Statistics) to full Common Core coverage: identifying statistical questions, interquartile range (IQR), mean absolute deviation (MAD), and — closing the last gap — 6.SP.B.4's visual data displays: dot plots, histograms, and box plots, rendered with a new `js/charts/dataPlots.js` d3 component and dispatched (alongside the coordinate-plane grid) through `js/charts/renderVisual.js`
 
 ## License
 

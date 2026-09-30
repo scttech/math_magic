@@ -130,4 +130,72 @@ QUnit.module('generators/grade6/statistics', () => {
       }
     }
   });
+
+  QUnit.test('readDotPlot: the answer always matches a direct count over the underlying values, and carries a dotPlot visual', (assert) => {
+    const gen = byId['grade6.statistics.readDotPlot'];
+    for (const difficulty of gen.difficulties) {
+      for (let seed = 0; seed < 100; seed++) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        const { values, question, targetValue } = problem.meta;
+        assert.equal(problem.visual.type, 'dotPlot', `[${difficulty}] seed ${seed}: visual type`);
+        assert.deepEqual(problem.visual.values, values, `[${difficulty}] seed ${seed}: visual shows the actual data`);
+        if (question === 'frequency') {
+          const expected = values.filter((v) => v === targetValue).length;
+          assert.equal(problem.answer, expected, `[${difficulty}] seed ${seed}: frequency count`);
+        } else if (question === 'total') {
+          assert.equal(problem.answer, values.length, `[${difficulty}] seed ${seed}: total count`);
+        } else {
+          const counts = new Map();
+          for (const v of values) counts.set(v, (counts.get(v) || 0) + 1);
+          const maxCount = Math.max(...counts.values());
+          const modeCandidates = Array.from(counts.entries()).filter(([, c]) => c === maxCount);
+          assert.equal(modeCandidates.length, 1, `[${difficulty}] seed ${seed}: mode is only asked when unambiguous`);
+          assert.equal(problem.answer, modeCandidates[0][0], `[${difficulty}] seed ${seed}: mode value`);
+        }
+      }
+    }
+  });
+
+  QUnit.test('readHistogram: the answer always matches the actual bins, and "most frequent" is only asked when unambiguous', (assert) => {
+    const gen = byId['grade6.statistics.readHistogram'];
+    for (const difficulty of gen.difficulties) {
+      for (let seed = 0; seed < 100; seed++) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        const { bins, question, targetBin } = problem.meta;
+        assert.equal(problem.visual.type, 'histogram', `[${difficulty}] seed ${seed}: visual type`);
+        if (question === 'binCount') {
+          assert.equal(problem.answer, targetBin.count, `[${difficulty}] seed ${seed}: bin count`);
+        } else if (question === 'total') {
+          assert.equal(
+            problem.answer,
+            bins.reduce((s, b) => s + b.count, 0),
+            `[${difficulty}] seed ${seed}: total count`
+          );
+        } else {
+          const maxCount = Math.max(...bins.map((b) => b.count));
+          const topBins = bins.filter((b) => b.count === maxCount);
+          assert.equal(topBins.length, 1, `[${difficulty}] seed ${seed}: most-frequent bin is only asked when unambiguous`);
+          assert.equal(problem.answerDisplay, `${topBins[0].min}-${topBins[0].max}`, `[${difficulty}] seed ${seed}: identifies the tallest bin`);
+          assert.ok(problem.checkAnswer(`${topBins[0].min} to ${topBins[0].max}`), `[${difficulty}] seed ${seed}: accepts alternate interval phrasing`);
+        }
+      }
+    }
+  });
+
+  QUnit.test('readBoxPlot: the five-number summary is strictly increasing, and every answer matches it exactly', (assert) => {
+    const gen = byId['grade6.statistics.readBoxPlot'];
+    for (const difficulty of gen.difficulties) {
+      for (let seed = 0; seed < 100; seed++) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        const { min, q1, median, q3, max, question } = problem.meta;
+        assert.ok(min < q1 && q1 < median && median < q3 && q3 < max, `[${difficulty}] seed ${seed}: strictly increasing five-number summary`);
+        assert.equal(problem.visual.type, 'boxPlot', `[${difficulty}] seed ${seed}: visual type`);
+        const expectedByQuestion = { median, range: max - min, iqr: q3 - q1, min, max };
+        assert.equal(problem.answer, expectedByQuestion[question], `[${difficulty}] seed ${seed}: ${question}`);
+      }
+    }
+  });
 });

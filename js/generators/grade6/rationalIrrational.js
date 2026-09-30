@@ -25,7 +25,10 @@ function randomNonPerfectSquare(rng, min, max) {
 function betweenCheckAnswer(lower, upper) {
   return (userInput) => {
     if (typeof userInput !== 'string') return false;
-    const nums = (userInput.match(/-?\d+/g) || []).map(Number);
+    // lower/upper are always non-negative here, so a bare hyphen (as in a
+    // natural "4-5" answer) is a range separator, not a minus sign — matching
+    // only \d+ (no leading -?) avoids misreading it as 4 and -5.
+    const nums = (userInput.match(/\d+/g) || []).map(Number);
     const set = new Set(nums);
     return set.size === 2 && set.has(lower) && set.has(upper);
   };
