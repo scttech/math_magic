@@ -13,7 +13,8 @@ const POINT_RADIUS = 6;
 /**
  * @param {HTMLElement} containerEl
  * @param {object} config
- * @param {number} [config.range=10] - grid spans [-range, range] on both axes
+ * @param {number} [config.range=10] - grid spans [-range, range] on both axes (or [0, range] if quadrant1 is set)
+ * @param {boolean} [config.quadrant1=false] - restrict the grid to the first quadrant only, for grade 5
  * @param {number} [config.size=280] - pixel width/height (square)
  * @param {{x:number,y:number,label?:string}[]} [config.points]
  * @param {{x:number,y:number,label?:string}[]} [config.polygon] - connected in order and closed; drawn instead of `points`
@@ -24,12 +25,13 @@ const POINT_RADIUS = 6;
  */
 export function renderCoordinatePlane(containerEl, config) {
   containerEl.innerHTML = '';
-  const { range = 10, size = 280, points = [], polygon = null, segment = null, interactive = false, marker = null, onPlace = null } = config;
+  const { range = 10, quadrant1 = false, size = 280, points = [], polygon = null, segment = null, interactive = false, marker = null, onPlace = null } = config;
+  const minVal = quadrant1 ? 0 : -range;
 
   const margin = 22;
   const plotSize = size - margin * 2;
-  const scaleX = d3.scaleLinear().domain([-range, range]).range([margin, margin + plotSize]);
-  const scaleY = d3.scaleLinear().domain([-range, range]).range([margin + plotSize, margin]);
+  const scaleX = d3.scaleLinear().domain([minVal, range]).range([margin, margin + plotSize]);
+  const scaleY = d3.scaleLinear().domain([minVal, range]).range([margin + plotSize, margin]);
 
   const svg = d3
     .create('svg')
@@ -41,7 +43,7 @@ export function renderCoordinatePlane(containerEl, config) {
     .style('print-color-adjust', 'exact')
     .style('-webkit-print-color-adjust', 'exact');
 
-  const ticks = d3.range(-range, range + 1);
+  const ticks = d3.range(minVal, range + 1);
 
   svg
     .append('g')
@@ -179,8 +181,8 @@ export function renderCoordinatePlane(containerEl, config) {
       .attr('aria-label', 'Click to plot a point on the grid')
       .on('click', (event) => {
         const [px, py] = d3.pointer(event);
-        const x = Math.max(-range, Math.min(range, Math.round(scaleX.invert(px))));
-        const y = Math.max(-range, Math.min(range, Math.round(scaleY.invert(py))));
+        const x = Math.max(minVal, Math.min(range, Math.round(scaleX.invert(px))));
+        const y = Math.max(minVal, Math.min(range, Math.round(scaleY.invert(py))));
         if (onPlace) onPlace(x, y);
       });
   }

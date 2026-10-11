@@ -85,7 +85,7 @@ function renderWorksheet({ grade, topics, difficulty, problems }) {
     if (!p.visual) return;
     // Interactive problems (e.g. plotting a point) print as a blank grid to fill in by hand; every other
     // visual problem shows the same populated grid on paper as it does on screen, since it's read-only there too.
-    const problemVisual = p.visual.interactive ? { type: p.visual.type, range: p.visual.range } : p.visual;
+    const problemVisual = p.visual.interactive ? { type: p.visual.type, range: p.visual.range, quadrant1: p.visual.quadrant1 } : p.visual;
     renderVisual(document.getElementById(`worksheet-grid-${i}`), problemVisual);
     if (p.visual.answerVisual) {
       renderVisual(document.getElementById(`worksheet-answer-grid-${i}`), p.visual.answerVisual);

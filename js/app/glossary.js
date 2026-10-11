@@ -40,6 +40,15 @@ export const GLOSSARY_TERMS = [
   { key: 'rationalNumber', match: ['rational number', 'rational numbers'], term: 'Rational Number', definition: 'A number that can be written as a fraction of two integers — this includes whole numbers, fractions, terminating decimals, and repeating decimals.' },
   { key: 'irrationalNumber', match: ['irrational number', 'irrational numbers'], term: 'Irrational Number', definition: 'A number that cannot be written as a fraction — its decimal form never terminates and never repeats, like π or √2.' },
   { key: 'perfectSquare', match: ['perfect square', 'perfect squares'], term: 'Perfect Square', definition: 'A number you get by squaring a whole number, like 25 (5 × 5) or 36 (6 × 6). Its square root is a whole number.' },
+  { key: 'quadrilateral', match: ['quadrilateral', 'quadrilaterals'], term: 'Quadrilateral', definition: 'Any closed shape with exactly four straight sides, like a square, rectangle, rhombus, or trapezoid.' },
+  { key: 'parallelogram', match: ['parallelogram', 'parallelograms'], term: 'Parallelogram', definition: 'A quadrilateral with two pairs of parallel sides. Rectangles, rhombuses, and squares are all special kinds of parallelograms.' },
+  { key: 'rhombus', match: ['rhombus', 'rhombuses'], term: 'Rhombus', definition: 'A quadrilateral with all four sides the same length. Its angles don’t have to be right angles.' },
+  { key: 'trapezoid', match: ['trapezoid', 'trapezoids'], term: 'Trapezoid', definition: 'A quadrilateral with exactly one pair of parallel sides.' },
+  { key: 'scaleneTriangle', match: ['scalene triangle', 'scalene'], term: 'Scalene Triangle', definition: 'A triangle where all three sides have different lengths.' },
+  { key: 'isoscelesTriangle', match: ['isosceles triangle', 'isosceles'], term: 'Isosceles Triangle', definition: 'A triangle with at least two sides the same length.' },
+  { key: 'equilateralTriangle', match: ['equilateral triangle', 'equilateral'], term: 'Equilateral Triangle', definition: 'A triangle with all three sides the same length (and all three angles equal, too).' },
+  { key: 'unitFraction', match: ['unit fraction', 'unit fractions'], term: 'Unit Fraction', definition: 'A fraction with 1 as the numerator, like 1/4 or 1/8 — it represents a single equal part of a whole.' },
+  { key: 'numericalExpression', match: ['numerical expression', 'numerical expressions'], term: 'Numerical Expression', definition: 'A combination of numbers and operation symbols (like +, −, ×, ÷, and parentheses) with no equals sign and no variable — it represents a calculation to do.' },
 ];
 
 const GLOSSARY_BY_KEY = new Map(GLOSSARY_TERMS.map((entry) => [entry.key, entry]));

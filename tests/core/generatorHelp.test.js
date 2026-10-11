@@ -2,6 +2,7 @@
 // source) uniformly, rather than one bespoke test per generator: for each one
 // that defines explain(), across every difficulty and many seeds, its worked
 // solution must agree with the actual generated answer and return real steps.
+import '../../js/generators/grade5/index.js';
 import '../../js/generators/grade6/index.js';
 import { createRng } from '../../js/core/rng.js';
 import { getAll } from '../../js/core/registry.js';
@@ -9,7 +10,7 @@ import { getAll } from '../../js/core/registry.js';
 QUnit.module('generators/help (explain coverage)', () => {
   const generatorsWithHelp = getAll().filter((g) => typeof g.explain === 'function');
 
-  QUnit.test('grade-6 content has broad help coverage', (assert) => {
+  QUnit.test('grade content has broad help coverage', (assert) => {
     assert.ok(generatorsWithHelp.length >= 20, `expected help on most generators, found ${generatorsWithHelp.length}`);
   });
 

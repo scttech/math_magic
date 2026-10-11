@@ -68,6 +68,46 @@ QUnit.module('core/wordProblemPatterns', () => {
     }
   });
 
+  QUnit.test('wholeNumberProduct: the answer always equals groups × perGroup', (assert) => {
+    const pattern = getPatternById('wholeNumberProduct');
+    for (let seed = 0; seed < 100; seed++) {
+      const rng = createRng(seed);
+      const { answer, answerDisplay, checkAnswer, values } = renderTemplate({ text: pattern.defaultTemplates[0], pattern, rng, difficulty: 'medium', wordLists });
+      assert.equal(answer, values.groups * values.perGroup, `seed ${seed}: ${values.groups} × ${values.perGroup}`);
+      assert.ok(checkAnswer(answerDisplay), `seed ${seed}: checkAnswer accepts its own answer`);
+    }
+  });
+
+  QUnit.test('boxVolume: the answer always equals length × width × height', (assert) => {
+    const pattern = getPatternById('boxVolume');
+    for (let seed = 0; seed < 100; seed++) {
+      const rng = createRng(seed);
+      const { answer, answerDisplay, checkAnswer, values } = renderTemplate({ text: pattern.defaultTemplates[0], pattern, rng, difficulty: 'medium', wordLists });
+      assert.equal(answer, values.length * values.width * values.height, `seed ${seed}: volume`);
+      assert.ok(checkAnswer(answerDisplay), `seed ${seed}: checkAnswer accepts its own answer`);
+    }
+  });
+
+  QUnit.test('decimalDifference: the remaining amount is always non-negative, and checkAnswer round-trips', (assert) => {
+    const pattern = getPatternById('decimalDifference');
+    for (let seed = 0; seed < 150; seed++) {
+      const rng = createRng(seed);
+      const { answer, answerDisplay, checkAnswer } = renderTemplate({ text: pattern.defaultTemplates[0], pattern, rng, difficulty: 'medium', wordLists });
+      assert.ok(answer >= 0, `seed ${seed}: non-negative remaining amount (${answerDisplay})`);
+      assert.ok(checkAnswer(answerDisplay), `seed ${seed}: checkAnswer accepts its own answer`);
+    }
+  });
+
+  QUnit.test('convertMetersCentimeters: the answer is always meters × 100', (assert) => {
+    const pattern = getPatternById('convertMetersCentimeters');
+    for (let seed = 0; seed < 100; seed++) {
+      const rng = createRng(seed);
+      const { answer, answerDisplay, checkAnswer, values } = renderTemplate({ text: pattern.defaultTemplates[0], pattern, rng, difficulty: 'medium', wordLists });
+      assert.equal(answer, values.meters * 100, `seed ${seed}: ${values.meters} m in cm`);
+      assert.ok(checkAnswer(answerDisplay), `seed ${seed}: checkAnswer accepts its own answer`);
+    }
+  });
+
   QUnit.test("every pattern's explain() agrees with compute() on the final answer, and returns non-empty steps", (assert) => {
     for (const pattern of WORD_PROBLEM_PATTERNS) {
       for (let seed = 0; seed < 50; seed++) {

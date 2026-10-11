@@ -1,6 +1,7 @@
 // Registers all currently available content packs with the registry, and
 // ensures a profile exists and is active. Every page imports this (for its
 // side effects) before using the registry or the active profile.
+import '../generators/grade5/index.js';
 import '../generators/grade6/index.js';
 import { listProfiles, createProfile, getActiveProfile, setActiveProfileId } from '../core/profileStore.js';
 

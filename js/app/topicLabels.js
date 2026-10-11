@@ -2,6 +2,12 @@
 // The registry only knows topic *keys* (e.g. "fractionsDecimals"); this is
 // the one place that maps a key to display text.
 export const TOPIC_LABELS = {
+  placeValueDecimals: 'Place Value & Decimals',
+  multiDigitArithmetic: 'Multi-Digit Arithmetic',
+  orderOfOperations: 'Order of Operations & Patterns',
+  fractionsOperations: 'Fractions',
+  measurementVolume: 'Measurement & Volume',
+  classifyShapes: 'Classifying Shapes',
   fractionsDecimals: 'Fractions & Decimals',
   ratiosProportions: 'Ratios & Proportions',
   negativeNumbers: 'Negative Numbers',
