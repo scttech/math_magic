@@ -7,6 +7,9 @@ import { linkifyGlossaryTerms, escapeHtml } from '../app/glossary.js';
 import { topicLabel } from '../app/topicLabels.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordCheckpointCorrect } from '../core/lessonProgress.js';
+import { renderVisual } from '../charts/renderVisual.js';
+
+const CHECKPOINT_GRID_SIZE = 300;
 
 const els = {};
 
@@ -42,8 +45,9 @@ function renderCheckpointBlock(lesson, block, blockIndex) {
   section.innerHTML = `
     <p class="lesson-checkpoint-intro">${escapeHtml(block.intro)}</p>
     <p class="checkpoint-prompt" style="font-size: 1.1rem"></p>
+    <div class="checkpoint-grid-container coordinate-plane-grid" hidden></div>
     <form class="checkpoint-form">
-      <div class="field-row">
+      <div class="field-row checkpoint-answer-row">
         <label>Your Answer</label>
         <input type="text" class="checkpoint-input" autocomplete="off" />
       </div>
@@ -56,7 +60,9 @@ function renderCheckpointBlock(lesson, block, blockIndex) {
 
   const generatorModule = getById(lesson.generatorId);
   const promptEl = section.querySelector('.checkpoint-prompt');
+  const gridContainer = section.querySelector('.checkpoint-grid-container');
   const form = section.querySelector('.checkpoint-form');
+  const answerRow = section.querySelector('.checkpoint-answer-row');
   const input = section.querySelector('.checkpoint-input');
   const submitBtn = form.querySelector('button[type="submit"]');
   const feedbackEl = section.querySelector('.checkpoint-feedback');
@@ -65,10 +71,44 @@ function renderCheckpointBlock(lesson, block, blockIndex) {
   const retryBtn = section.querySelector('.checkpoint-retry-btn');
 
   let currentProblem = null;
+  let placedMarker = null;
+
+  function renderInteractiveGrid() {
+    renderVisual(gridContainer, {
+      size: CHECKPOINT_GRID_SIZE,
+      ...currentProblem.visual,
+      interactive: true,
+      marker: placedMarker,
+      onPlace: (x, y) => {
+        placedMarker = { x, y };
+        submitBtn.disabled = false;
+        renderInteractiveGrid();
+      },
+    });
+  }
 
   function newProblem() {
     currentProblem = generatorModule.generate({ difficulty: block.difficulty, rng: createRng(randomSeed()) });
+    placedMarker = null;
     promptEl.innerHTML = linkifyGlossaryTerms(currentProblem.promptText);
+
+    if (currentProblem.visual) {
+      gridContainer.hidden = false;
+      if (currentProblem.visual.interactive) {
+        answerRow.hidden = true;
+        submitBtn.disabled = true;
+        renderInteractiveGrid();
+      } else {
+        answerRow.hidden = false;
+        submitBtn.disabled = false;
+        renderVisual(gridContainer, { size: CHECKPOINT_GRID_SIZE, ...currentProblem.visual });
+      }
+    } else {
+      gridContainer.hidden = true;
+      answerRow.hidden = false;
+      submitBtn.disabled = false;
+    }
+
     input.value = '';
     input.disabled = false;
     submitBtn.hidden = false;
@@ -78,15 +118,27 @@ function renderCheckpointBlock(lesson, block, blockIndex) {
     explanationEl.hidden = true;
     explanationEl.innerHTML = '';
     retryBtn.hidden = true;
-    input.focus({ preventScroll: true });
+    if (!currentProblem.visual || !currentProblem.visual.interactive) input.focus({ preventScroll: true });
   }
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    const userInput = input.value.trim();
+    const isInteractive = currentProblem.visual && currentProblem.visual.interactive;
+    const userInput = isInteractive ? (placedMarker ? `(${placedMarker.x}, ${placedMarker.y})` : '') : input.value.trim();
     if (!userInput) return;
     const isCorrect = currentProblem.checkAnswer(userInput);
     if (isCorrect) recordCheckpointCorrect(getActiveProfileId(), lesson.id, blockIndex);
+
+    if (isInteractive) {
+      renderVisual(gridContainer, {
+        size: CHECKPOINT_GRID_SIZE,
+        ...currentProblem.visual,
+        interactive: false,
+        marker: placedMarker,
+        points: isCorrect ? [] : [{ x: currentProblem.meta.x, y: currentProblem.meta.y, label: 'Correct' }],
+      });
+    }
+
     feedbackEl.hidden = false;
     feedbackEl.classList.add(isCorrect ? 'correct' : 'incorrect');
     feedbackEl.textContent = isCorrect ? 'Correct! Nice work.' : `Not quite. The correct answer was: ${currentProblem.answerDisplay}`;
