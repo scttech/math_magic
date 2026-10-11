@@ -1,9 +1,11 @@
-// Renders a winding "roadmap" path for a sequence of lessons — a Duolingo-style
-// trail of nodes a student can see progress on and click to jump to any lesson
-// (there's no locking; the path is a status map, not a gate). The winding line
-// itself is a plain SVG (no library, same approach as the chart/shape
-// renderers); the nodes are real HTML elements layered on top so they stay
-// properly clickable, accessible, and able to wrap a lesson title across lines.
+// Renders a winding "roadmap" path for a sequence of nodes — a Duolingo-style
+// trail a student can see progress on and click through (there's no locking;
+// the path is a status map, not a gate). Generic over what a node represents:
+// the Learn hub uses it for a grade's topics, and the topic page uses the
+// exact same renderer for that topic's lessons — only the node data differs.
+// The winding line itself is a plain SVG (no library, same approach as the
+// chart/shape renderers); the nodes are real HTML elements layered on top so
+// they stay properly clickable, accessible, and able to wrap a title across lines.
 const NODE_SPACING = 180;
 const TOP_PADDING = 70;
 const BOTTOM_PADDING = 70;
@@ -52,16 +54,16 @@ function segmentPath(x1, y1, x2, y2) {
 
 /**
  * @param {HTMLElement} containerEl
- * @param {{ lesson: object, status: 'not-started'|'in-progress'|'completed' }[]} entries - in path order
+ * @param {{ title: string, status: 'not-started'|'in-progress'|'completed', href: string }[]} nodes - in path order
  */
-export function renderLessonRoadmap(containerEl, entries) {
+export function renderRoadmap(containerEl, nodes) {
   containerEl.innerHTML = '';
-  if (entries.length === 0) return;
+  if (nodes.length === 0) return;
 
   roadmapInstanceCounter += 1;
   const instanceId = roadmapInstanceCounter;
 
-  const totalHeight = TOP_PADDING + (entries.length - 1) * NODE_SPACING + BOTTOM_PADDING;
+  const totalHeight = TOP_PADDING + (nodes.length - 1) * NODE_SPACING + BOTTOM_PADDING;
 
   const root = document.createElement('div');
   root.className = 'lesson-roadmap';
@@ -72,7 +74,7 @@ export function renderLessonRoadmap(containerEl, entries) {
   // blends into whatever circle it's heading toward, never an unrelated hue.
   let defs = '';
   let paths = '';
-  for (let i = 1; i < entries.length; i++) {
+  for (let i = 1; i < nodes.length; i++) {
     const x1 = nodeX(i - 1);
     const y1 = nodeY(i - 1);
     const x2 = nodeX(i);
@@ -90,17 +92,17 @@ export function renderLessonRoadmap(containerEl, entries) {
       ${paths}
     </svg>`;
 
-  entries.forEach(({ lesson, status }, index) => {
+  nodes.forEach(({ title, status, href }, index) => {
     const node = document.createElement('a');
     node.className = `lesson-roadmap-node status-${status}`;
-    node.href = `lesson.html?id=${encodeURIComponent(lesson.id)}`;
+    node.href = href;
     node.style.left = `${nodeX(index)}%`;
     node.style.top = `${nodeY(index)}px`;
     node.style.setProperty('--node-color', nodeColor(index));
-    node.setAttribute('aria-label', `${lesson.title} — ${STATUS_LABEL[status]}`);
+    node.setAttribute('aria-label', `${title} — ${STATUS_LABEL[status]}`);
     node.innerHTML = `
       <span class="lesson-roadmap-node-circle">${status === 'completed' ? '★' : index + 1}</span>
-      <span class="lesson-roadmap-node-label">${escapeHtml(lesson.title)}</span>
+      <span class="lesson-roadmap-node-label">${escapeHtml(title)}</span>
       <span class="lesson-roadmap-node-status">${STATUS_LABEL[status]}</span>`;
     root.appendChild(node);
   });

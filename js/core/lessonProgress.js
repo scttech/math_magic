@@ -34,3 +34,12 @@ export function getLessonStatus(profileId, lesson) {
   if (correctCount >= totalCheckpoints) return 'completed';
   return 'in-progress';
 }
+
+/** A topic's status rolls up from its lessons: completed only once every lesson is, not-started only if none have begun. */
+export function getTopicStatus(profileId, lessonsInTopic) {
+  if (lessonsInTopic.length === 0) return 'not-started';
+  const statuses = lessonsInTopic.map((lesson) => getLessonStatus(profileId, lesson));
+  if (statuses.every((s) => s === 'completed')) return 'completed';
+  if (statuses.some((s) => s === 'completed' || s === 'in-progress')) return 'in-progress';
+  return 'not-started';
+}

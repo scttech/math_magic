@@ -11,6 +11,7 @@ import { recordCheckpointCorrect } from '../core/lessonProgress.js';
 const els = {};
 
 function cacheElements() {
+  els.backLink = document.getElementById('lesson-back-link');
   els.title = document.getElementById('lesson-title');
   els.summary = document.getElementById('lesson-summary');
   els.blocksContainer = document.getElementById('lesson-blocks');
@@ -115,6 +116,7 @@ function renderCheckpointBlock(lesson, block, blockIndex) {
 }
 
 function renderLesson(lesson) {
+  els.backLink.href = `learn-topic.html?grade=${encodeURIComponent(lesson.grade)}&topic=${encodeURIComponent(lesson.topic)}`;
   els.title.textContent = lesson.title;
   els.summary.textContent = lesson.summary;
   document.title = `Math Magic — ${lesson.title}`;

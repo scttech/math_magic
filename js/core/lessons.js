@@ -337,6 +337,292 @@ export const LESSONS = [
       },
     ],
   },
+  {
+    id: 'grade6-longDivision',
+    grade: '6',
+    topic: 'numberTheory',
+    generatorId: 'grade6.numberTheory.longDivision',
+    title: 'Long Division',
+    summary: 'The divide–multiply–subtract–bring down rhythm that works no matter how big the numbers get.',
+    blocks: [
+      {
+        type: 'text',
+        heading: 'A Rhythm You Repeat',
+        body: [
+          'Long division breaks a big division problem into small, repeatable steps: divide, multiply, subtract, then bring down the next digit and repeat. Once you know the rhythm, the size of the numbers stops mattering.',
+        ],
+      },
+      {
+        type: 'example',
+        heading: 'Dividing Without a Remainder',
+        prompt: '84 ÷ 6',
+        steps: [
+          'Look at the first digit of 84: 8. How many times does 6 go into 8? 1 time (6 × 1 = 6, with 2 left over).',
+          'Bring down the next digit (4) to make 24.',
+          'How many times does 6 go into 24? 4 times (6 × 4 = 24, with 0 left over).',
+          'No digits are left to bring down, so the answer is 14.',
+        ],
+        answerDisplay: '14',
+      },
+      {
+        type: 'checkpoint',
+        difficulty: 'easy',
+        intro: 'Give it a try.',
+      },
+      {
+        type: 'text',
+        heading: 'Bigger Numbers, Same Rhythm',
+        body: ['A bigger dividend just means repeating the rhythm more times — divide, multiply, subtract, bring down — one digit at a time, left to right.'],
+      },
+      {
+        type: 'example',
+        heading: 'A Three-Digit Dividend',
+        prompt: '372 ÷ 4',
+        steps: [
+          '4 doesn’t go into 3, so start with the first two digits: 37. How many times does 4 go into 37? 9 times (4 × 9 = 36, with 1 left over).',
+          'Bring down the next digit (2) to make 12.',
+          'How many times does 4 go into 12? 3 times (4 × 3 = 12, with 0 left over).',
+          'No digits are left, so the answer is 93.',
+        ],
+        answerDisplay: '93',
+      },
+      {
+        type: 'checkpoint',
+        difficulty: 'medium',
+        intro: 'Try a bigger one.',
+      },
+      {
+        type: 'text',
+        heading: "When It Doesn't Divide Evenly",
+        body: [
+          'Sometimes there’s a leftover amount too small to divide by the divisor again — that’s the remainder. Write it after the quotient, like "23 R 3".',
+        ],
+      },
+      {
+        type: 'example',
+        heading: 'A Division with a Remainder',
+        prompt: '95 ÷ 4',
+        steps: [
+          'How many times does 4 go into 9? 2 times (4 × 2 = 8, with 1 left over).',
+          'Bring down the next digit (5) to make 15.',
+          'How many times does 4 go into 15? 3 times (4 × 3 = 12, with 3 left over).',
+          'No digits are left to bring down, and 3 is less than the divisor, so 3 is the remainder: 23 R 3.',
+        ],
+        answerDisplay: '23 R 3',
+      },
+      {
+        type: 'checkpoint',
+        difficulty: 'hard',
+        intro: 'This one might have a remainder — write it like "23 R 4" if it does.',
+      },
+      {
+        type: 'text',
+        heading: "You've Got It",
+        body: ['Divide, multiply, subtract, bring down — repeat until there are no digits left. That’s long division, no matter how big the numbers get.'],
+      },
+    ],
+  },
+  {
+    id: 'grade6-greatestCommonFactor',
+    grade: '6',
+    topic: 'numberTheory',
+    generatorId: 'grade6.numberTheory.greatestCommonFactor',
+    title: 'Greatest Common Factor',
+    summary: 'Find every factor two numbers share, and pick the biggest one.',
+    blocks: [
+      {
+        type: 'text',
+        heading: 'What Makes a Factor "Common"',
+        body: [
+          'A factor of a number divides into it evenly, with nothing left over. When two numbers share a factor, it’s called a common factor. The greatest common factor (GCF) is the largest number that divides evenly into both.',
+        ],
+      },
+      {
+        type: 'example',
+        heading: 'Finding the GCF',
+        prompt: 'GCF of 12 and 18',
+        steps: [
+          'List the factors of 12: 1, 2, 3, 4, 6, 12.',
+          'List the factors of 18: 1, 2, 3, 6, 9, 18.',
+          'The factors they share are 1, 2, 3, and 6.',
+          'The greatest one is 6.',
+        ],
+        answerDisplay: '6',
+      },
+      {
+        type: 'checkpoint',
+        difficulty: 'easy',
+        intro: 'Give it a try.',
+      },
+      {
+        type: 'text',
+        heading: 'Why the GCF Is Useful',
+        body: [
+          'The GCF is how you simplify a fraction in one step — divide the numerator and denominator by their GCF and you land straight on lowest terms. It also shows up any time you want to split things into the largest possible equal groups.',
+        ],
+      },
+      {
+        type: 'example',
+        heading: 'A Bigger Pair',
+        prompt: 'GCF of 24 and 36',
+        steps: [
+          'List the factors of 24: 1, 2, 3, 4, 6, 8, 12, 24.',
+          'List the factors of 36: 1, 2, 3, 4, 6, 9, 12, 18, 36.',
+          'The factors they share are 1, 2, 3, 4, 6, and 12.',
+          'The greatest one is 12.',
+        ],
+        answerDisplay: '12',
+      },
+      {
+        type: 'checkpoint',
+        difficulty: 'medium',
+        intro: 'Try a bigger pair.',
+      },
+      {
+        type: 'text',
+        heading: 'Even Bigger Numbers',
+        body: ['The same approach works for numbers up to 100 — just list every factor of each one. There are more of them, but the idea doesn’t change.'],
+      },
+      {
+        type: 'checkpoint',
+        difficulty: 'hard',
+        intro: 'One more, with bigger numbers.',
+      },
+      {
+        type: 'text',
+        heading: "You've Got It",
+        body: ['List the factors, find the ones in common, and pick the greatest. That’s the GCF — a tool you’ll keep using to simplify fractions and factor expressions.'],
+      },
+    ],
+  },
+  {
+    id: 'grade6-leastCommonMultiple',
+    grade: '6',
+    topic: 'numberTheory',
+    generatorId: 'grade6.numberTheory.leastCommonMultiple',
+    title: 'Least Common Multiple',
+    summary: 'Find the smallest number that shows up in both numbers’ multiplication tables.',
+    blocks: [
+      {
+        type: 'text',
+        heading: 'What Makes a Multiple "Common"',
+        body: [
+          'A multiple of a number is what you get multiplying it by 1, 2, 3, and so on — it’s basically that number’s times table. When two numbers share a multiple, it’s a common multiple. The least common multiple (LCM) is the smallest number that shows up in both times tables.',
+        ],
+      },
+      {
+        type: 'example',
+        heading: 'Finding the LCM',
+        prompt: 'LCM of 4 and 6',
+        steps: [
+          'List multiples of 4: 4, 8, 12, 16, 20, 24.',
+          'List multiples of 6: 6, 12, 18, 24.',
+          'The first number that appears in both lists is 12.',
+        ],
+        answerDisplay: '12',
+      },
+      {
+        type: 'checkpoint',
+        difficulty: 'easy',
+        intro: 'Give it a try.',
+      },
+      {
+        type: 'text',
+        heading: 'The LCM Shows Up With Fractions, Too',
+        body: [
+          'Remember finding a common denominator to add fractions like 1/4 + 1/6? That common denominator was the LCM of 4 and 6 — the same idea you just used above.',
+        ],
+      },
+      {
+        type: 'example',
+        heading: 'A Bigger Pair',
+        prompt: 'LCM of 8 and 10',
+        steps: ['List multiples of 8: 8, 16, 24, 32, 40.', 'List multiples of 10: 10, 20, 30, 40.', 'The first number that appears in both lists is 40.'],
+        answerDisplay: '40',
+      },
+      {
+        type: 'checkpoint',
+        difficulty: 'medium',
+        intro: 'Try a bigger pair.',
+      },
+      {
+        type: 'text',
+        heading: 'Even Bigger Numbers',
+        body: ['The same listing approach still works for bigger numbers — it just takes a few more multiples before one repeats in both lists.'],
+      },
+      {
+        type: 'checkpoint',
+        difficulty: 'hard',
+        intro: 'One more, with bigger numbers.',
+      },
+      {
+        type: 'text',
+        heading: "You've Got It",
+        body: ['List the multiples of each number, and find the smallest one they share. That’s the LCM.'],
+      },
+    ],
+  },
+  {
+    id: 'grade6-distributiveGcf',
+    grade: '6',
+    topic: 'numberTheory',
+    generatorId: 'grade6.numberTheory.distributiveGcf',
+    title: 'Distributive Property with the GCF',
+    summary: 'Rewrite a sum as the GCF times a smaller sum — the distributive property, run in reverse.',
+    blocks: [
+      {
+        type: 'text',
+        heading: 'Factoring a Sum',
+        body: [
+          'You’ve used the distributive property to expand something like 4(3 + 2) into 12 + 8. This lesson runs it the other way: starting from 12 + 8, you can pull out the GCF and rewrite it as a product.',
+        ],
+      },
+      {
+        type: 'example',
+        heading: 'Factoring Out the GCF',
+        prompt: '12 + 8',
+        steps: ['The GCF of 12 and 8 is 4.', '12 ÷ 4 = 3, and 8 ÷ 4 = 2.', 'So 12 + 8 = 4(3 + 2).'],
+        answerDisplay: '4(3+2)',
+      },
+      {
+        type: 'checkpoint',
+        difficulty: 'easy',
+        intro: 'Give it a try. Write your answer like "4(3+2)".',
+      },
+      {
+        type: 'text',
+        heading: 'A Bigger Example',
+        body: ['The steps are exactly the same for bigger numbers: find the GCF, divide each number by it, and write the GCF times the sum of those quotients.'],
+      },
+      {
+        type: 'example',
+        heading: 'A Bigger Pair',
+        prompt: '18 + 30',
+        steps: ['The GCF of 18 and 30 is 6.', '18 ÷ 6 = 3, and 30 ÷ 6 = 5.', 'So 18 + 30 = 6(3 + 5).'],
+        answerDisplay: '6(3+5)',
+      },
+      {
+        type: 'checkpoint',
+        difficulty: 'medium',
+        intro: 'Try a bigger pair.',
+      },
+      {
+        type: 'text',
+        heading: 'Even Bigger Numbers',
+        body: ['The same three steps work no matter how big the numbers get — find the GCF, divide, and write it as a product.'],
+      },
+      {
+        type: 'checkpoint',
+        difficulty: 'hard',
+        intro: 'One more, with bigger numbers.',
+      },
+      {
+        type: 'text',
+        heading: "You've Got It",
+        body: ['Find the GCF, divide each number by it, and write the GCF times the sum. That’s the distributive property working in reverse to factor a sum.'],
+      },
+    ],
+  },
 ];
 
 export function listLessons() {
@@ -345,4 +631,28 @@ export function listLessons() {
 
 export function getLessonById(id) {
   return LESSONS.find((lesson) => lesson.id === id) || null;
+}
+
+/** Every grade that has at least one lesson, in order — drives the Learn page's grade picker. */
+export function listGradesWithLessons() {
+  return Array.from(new Set(LESSONS.map((l) => l.grade))).sort();
+}
+
+/** Every topic within a grade that has at least one lesson, in the order those lessons were declared. */
+export function listTopicsForGrade(grade) {
+  const topics = [];
+  const seen = new Set();
+  for (const lesson of LESSONS) {
+    if (lesson.grade !== grade) continue;
+    if (!seen.has(lesson.topic)) {
+      seen.add(lesson.topic);
+      topics.push(lesson.topic);
+    }
+  }
+  return topics;
+}
+
+/** All lessons for one grade+topic, in the order they were declared (that order is the intended learning path). */
+export function getLessonsForTopic(grade, topic) {
+  return LESSONS.filter((l) => l.grade === grade && l.topic === topic);
 }

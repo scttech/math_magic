@@ -1,57 +1,45 @@
 import '../app/init.js';
 import { renderNav } from '../app/nav.js';
-import { listLessons } from '../core/lessons.js';
+import { listGradesWithLessons, listTopicsForGrade, getLessonsForTopic } from '../core/lessons.js';
 import { topicLabel } from '../app/topicLabels.js';
 import { getActiveProfileId } from '../core/profileStore.js';
-import { getLessonStatus } from '../core/lessonProgress.js';
-import { renderLessonRoadmap } from '../app/lessonRoadmap.js';
+import { getTopicStatus } from '../core/lessonProgress.js';
+import { renderRoadmap } from '../app/lessonRoadmap.js';
 
-function escapeHtml(str) {
-  return str.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const els = {};
+
+function cacheElements() {
+  els.gradeSelect = document.getElementById('grade-select');
+  els.container = document.getElementById('topic-roadmap-container');
 }
 
-/** Groups lessons by grade + topic, in the order they're declared (that order is the intended learning path). */
-function groupLessons(lessons) {
-  const groups = [];
-  const byKey = new Map();
-  for (const lesson of lessons) {
-    const key = `${lesson.grade}:${lesson.topic}`;
-    if (!byKey.has(key)) {
-      const group = { grade: lesson.grade, topic: lesson.topic, lessons: [] };
-      byKey.set(key, group);
-      groups.push(group);
-    }
-    byKey.get(key).lessons.push(lesson);
-  }
-  return groups;
+function populateGradeSelect() {
+  const grades = listGradesWithLessons();
+  els.gradeSelect.innerHTML = grades.map((g) => `<option value="${g}">Grade ${g}</option>`).join('');
 }
 
-function renderLessonGroups() {
-  const container = document.getElementById('lesson-groups');
-  const lessons = listLessons();
+function renderTopicRoadmap() {
+  const grade = els.gradeSelect.value;
+  const topics = listTopicsForGrade(grade);
 
-  if (lessons.length === 0) {
-    container.innerHTML = '<p class="progress-text">No lessons are available yet — check back soon.</p>';
+  if (topics.length === 0) {
+    els.container.innerHTML = `<p class="progress-text">No lessons yet for Grade ${grade} — check back soon.</p>`;
     return;
   }
 
   const profileId = getActiveProfileId();
-  container.innerHTML = '';
-
-  for (const group of groupLessons(lessons)) {
-    const section = document.createElement('section');
-    section.className = 'lesson-roadmap-group';
-    section.innerHTML = `<h2>Grade ${escapeHtml(group.grade)} — ${escapeHtml(topicLabel(group.topic))}</h2>`;
-    const roadmapContainer = document.createElement('div');
-    section.appendChild(roadmapContainer);
-    container.appendChild(section);
-
-    const entries = group.lessons.map((lesson) => ({ lesson, status: getLessonStatus(profileId, lesson) }));
-    renderLessonRoadmap(roadmapContainer, entries);
-  }
+  const nodes = topics.map((topic) => ({
+    title: topicLabel(topic),
+    status: getTopicStatus(profileId, getLessonsForTopic(grade, topic)),
+    href: `learn-topic.html?grade=${encodeURIComponent(grade)}&topic=${encodeURIComponent(topic)}`,
+  }));
+  renderRoadmap(els.container, nodes);
 }
 
 export function init() {
+  cacheElements();
   renderNav('learn.html');
-  renderLessonGroups();
+  populateGradeSelect();
+  renderTopicRoadmap();
+  els.gradeSelect.addEventListener('change', renderTopicRoadmap);
 }

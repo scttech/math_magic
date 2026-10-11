@@ -1,4 +1,4 @@
-import { recordCheckpointCorrect, getLessonStatus, checkpointBlockIndices } from '../../js/core/lessonProgress.js';
+import { recordCheckpointCorrect, getLessonStatus, getTopicStatus, checkpointBlockIndices } from '../../js/core/lessonProgress.js';
 import { getProgress } from '../../js/core/progressStore.js';
 
 const lesson = {
@@ -11,6 +11,8 @@ const lesson = {
     { type: 'checkpoint', difficulty: 'hard' },
   ],
 };
+
+const oneCheckpointLesson = { id: 'test-lesson-2', blocks: [{ type: 'checkpoint', difficulty: 'easy' }] };
 
 QUnit.module('core/lessonProgress', (hooks) => {
   hooks.beforeEach(() => localStorage.clear());
@@ -50,5 +52,31 @@ QUnit.module('core/lessonProgress', (hooks) => {
   QUnit.test('progress is isolated per lesson id', (assert) => {
     recordCheckpointCorrect('profile_x', 'other-lesson', 1);
     assert.equal(getLessonStatus('profile_x', lesson), 'not-started');
+  });
+
+  QUnit.test('getTopicStatus: not-started when no lesson in the topic has begun', (assert) => {
+    assert.equal(getTopicStatus('profile_x', [lesson, oneCheckpointLesson]), 'not-started');
+  });
+
+  QUnit.test('getTopicStatus: in-progress when at least one lesson has started but not every lesson is complete', (assert) => {
+    recordCheckpointCorrect('profile_x', oneCheckpointLesson.id, 0);
+    assert.equal(getTopicStatus('profile_x', [lesson, oneCheckpointLesson]), 'in-progress');
+  });
+
+  QUnit.test('getTopicStatus: in-progress when one lesson is fully completed but another has not started', (assert) => {
+    recordCheckpointCorrect('profile_x', oneCheckpointLesson.id, 0);
+    assert.equal(getTopicStatus('profile_x', [lesson, oneCheckpointLesson]), 'in-progress', 'completed + not-started is still in-progress overall');
+  });
+
+  QUnit.test('getTopicStatus: completed only once every lesson in the topic is completed', (assert) => {
+    recordCheckpointCorrect('profile_x', lesson.id, 1);
+    recordCheckpointCorrect('profile_x', lesson.id, 3);
+    recordCheckpointCorrect('profile_x', lesson.id, 4);
+    recordCheckpointCorrect('profile_x', oneCheckpointLesson.id, 0);
+    assert.equal(getTopicStatus('profile_x', [lesson, oneCheckpointLesson]), 'completed');
+  });
+
+  QUnit.test('getTopicStatus: not-started for a topic with no lessons', (assert) => {
+    assert.equal(getTopicStatus('profile_x', []), 'not-started');
   });
 });

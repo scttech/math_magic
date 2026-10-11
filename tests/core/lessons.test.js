@@ -2,8 +2,12 @@ import '../../js/generators/grade5/index.js';
 import '../../js/generators/grade6/index.js';
 import { createRng } from '../../js/core/rng.js';
 import { getById } from '../../js/core/registry.js';
-import { LESSONS, listLessons, getLessonById } from '../../js/core/lessons.js';
-import { addFractions, mulFractions, divFractions, reduceFraction, formatFraction, formatMixedNumber, roundTo } from '../../js/core/problemGenerator.js';
+import { LESSONS, listLessons, getLessonById, listGradesWithLessons, listTopicsForGrade, getLessonsForTopic } from '../../js/core/lessons.js';
+import { addFractions, mulFractions, divFractions, reduceFraction, formatFraction, formatMixedNumber, roundTo, gcd } from '../../js/core/problemGenerator.js';
+
+function lcm(a, b) {
+  return (a * b) / gcd(a, b);
+}
 
 QUnit.module('core/lessons', () => {
   QUnit.test('every lesson has a unique id, a title, a summary, and a non-empty block list', (assert) => {
@@ -23,6 +27,34 @@ QUnit.module('core/lessons', () => {
 
   QUnit.test('listLessons returns every lesson', (assert) => {
     assert.equal(listLessons().length, LESSONS.length);
+  });
+
+  QUnit.test('listGradesWithLessons returns each distinct grade that has at least one lesson', (assert) => {
+    const grades = listGradesWithLessons();
+    assert.ok(grades.includes('6'), 'grade 6 has lessons');
+    assert.equal(new Set(grades).size, grades.length, 'no duplicate grades');
+    for (const grade of grades) {
+      assert.ok(LESSONS.some((l) => l.grade === grade), `grade ${grade} genuinely has a lesson`);
+    }
+  });
+
+  QUnit.test('listTopicsForGrade returns each distinct topic for that grade, and none for a grade with no lessons', (assert) => {
+    const topics = listTopicsForGrade('6');
+    assert.ok(topics.includes('fractionsDecimals'));
+    assert.equal(new Set(topics).size, topics.length, 'no duplicate topics');
+    assert.deepEqual(listTopicsForGrade('nonexistent-grade'), []);
+  });
+
+  QUnit.test('getLessonsForTopic returns only lessons matching both grade and topic, in declared order', (assert) => {
+    const lessons = getLessonsForTopic('6', 'fractionsDecimals');
+    assert.ok(lessons.length > 0);
+    for (const lesson of lessons) {
+      assert.equal(lesson.grade, '6');
+      assert.equal(lesson.topic, 'fractionsDecimals');
+    }
+    const expectedOrder = LESSONS.filter((l) => l.grade === '6' && l.topic === 'fractionsDecimals').map((l) => l.id);
+    assert.deepEqual(lessons.map((l) => l.id), expectedOrder);
+    assert.deepEqual(getLessonsForTopic('6', 'nonexistent-topic'), []);
   });
 
   QUnit.test("every lesson's generatorId resolves to a real, registered generator matching its declared grade/topic", (assert) => {
@@ -127,6 +159,66 @@ QUnit.module('core/lessons', () => {
     assert.equal(examples.length, 2);
     assert.equal(roundTo(3 / 4, 4).toString(), examples[0].answerDisplay, `example 1 ("${examples[0].prompt}")`);
     assert.equal(formatFraction(reduceFraction(6, 10)), examples[1].answerDisplay, `example 2 ("${examples[1].prompt}")`);
+  });
+
+  QUnit.test("grade6-longDivision lesson: the hand-written example blocks' answers are actually correct", (assert) => {
+    const examples = getLessonById('grade6-longDivision').blocks.filter((b) => b.type === 'example');
+    const expected = [
+      { dividend: 84, divisor: 6, answerDisplay: '14' },
+      { dividend: 372, divisor: 4, answerDisplay: '93' },
+      { dividend: 95, divisor: 4, answerDisplay: '23 R 3' },
+    ];
+    assert.equal(examples.length, expected.length);
+    examples.forEach((example, i) => {
+      const { dividend, divisor, answerDisplay } = expected[i];
+      const quotient = Math.floor(dividend / divisor);
+      const remainder = dividend % divisor;
+      const computed = remainder === 0 ? `${quotient}` : `${quotient} R ${remainder}`;
+      assert.equal(computed, answerDisplay, `example ${i + 1} ("${example.prompt}"): hand check matches expected`);
+      assert.equal(example.answerDisplay, answerDisplay);
+    });
+  });
+
+  QUnit.test("grade6-greatestCommonFactor lesson: the hand-written example blocks' answers are actually correct", (assert) => {
+    const examples = getLessonById('grade6-greatestCommonFactor').blocks.filter((b) => b.type === 'example');
+    const expected = [
+      { a: 12, b: 18, answerDisplay: '6' },
+      { a: 24, b: 36, answerDisplay: '12' },
+    ];
+    assert.equal(examples.length, expected.length);
+    examples.forEach((example, i) => {
+      assert.equal(`${gcd(expected[i].a, expected[i].b)}`, expected[i].answerDisplay, `example ${i + 1} ("${example.prompt}")`);
+      assert.equal(example.answerDisplay, expected[i].answerDisplay);
+    });
+  });
+
+  QUnit.test("grade6-leastCommonMultiple lesson: the hand-written example blocks' answers are actually correct", (assert) => {
+    const examples = getLessonById('grade6-leastCommonMultiple').blocks.filter((b) => b.type === 'example');
+    const expected = [
+      { a: 4, b: 6, answerDisplay: '12' },
+      { a: 8, b: 10, answerDisplay: '40' },
+    ];
+    assert.equal(examples.length, expected.length);
+    examples.forEach((example, i) => {
+      assert.equal(`${lcm(expected[i].a, expected[i].b)}`, expected[i].answerDisplay, `example ${i + 1} ("${example.prompt}")`);
+      assert.equal(example.answerDisplay, expected[i].answerDisplay);
+    });
+  });
+
+  QUnit.test("grade6-distributiveGcf lesson: the hand-written example blocks' answers are actually correct", (assert) => {
+    const examples = getLessonById('grade6-distributiveGcf').blocks.filter((b) => b.type === 'example');
+    const expected = [
+      { a: 12, b: 8, answerDisplay: '4(3+2)' },
+      { a: 18, b: 30, answerDisplay: '6(3+5)' },
+    ];
+    assert.equal(examples.length, expected.length);
+    examples.forEach((example, i) => {
+      const { a, b, answerDisplay } = expected[i];
+      const g = gcd(a, b);
+      const computed = `${g}(${a / g}+${b / g})`;
+      assert.equal(computed, answerDisplay, `example ${i + 1} ("${example.prompt}"): hand check matches expected`);
+      assert.equal(example.answerDisplay, answerDisplay);
+    });
   });
 
   QUnit.test('each checkpoint generator produces a working, self-consistent problem across many seeds', (assert) => {

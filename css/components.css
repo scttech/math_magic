@@ -962,10 +962,6 @@ input[type='number'] {
 
 /* --- Learn hub & lessons ----------------------------------------------- */
 
-.lesson-roadmap-group {
-  margin-bottom: 2.5rem;
-}
-
 .lesson-roadmap {
   position: relative;
   max-width: 500px;
