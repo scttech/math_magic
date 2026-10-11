@@ -5,18 +5,18 @@ QUnit.module('core/progressStore', (hooks) => {
   hooks.beforeEach(() => localStorage.clear());
 
   QUnit.test('getProgress returns an empty document when nothing is stored', (assert) => {
-    assert.deepEqual(getProgress('profile_x'), { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [] });
+    assert.deepEqual(getProgress('profile_x'), { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [], lessons: {} });
   });
 
   QUnit.test('setProgress + getProgress round-trips (through migrate)', (assert) => {
-    const doc = { schemaVersion: 1, attempts: [{ attemptId: 'a1' }], worksheets: [] };
+    const doc = { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [{ attemptId: 'a1' }], worksheets: [], lessons: { lessonA: { checkpointsCorrect: [0] } } };
     setProgress('profile_x', doc);
     assert.deepEqual(getProgress('profile_x'), doc);
   });
 
   QUnit.test('getProgress recovers from corrupt JSON in storage', (assert) => {
     localStorage.setItem('mathmagic.progress.profile_x', 'not json{{{');
-    assert.deepEqual(getProgress('profile_x'), { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [] });
+    assert.deepEqual(getProgress('profile_x'), { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [], lessons: {} });
   });
 
   QUnit.test('recordQuizAttempt appends an attempt with a generated attemptId', (assert) => {

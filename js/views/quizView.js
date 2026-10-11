@@ -53,6 +53,27 @@ function updateStartEnabled() {
   els.startBtn.disabled = getSelectedTopics(els.topicList).length === 0;
 }
 
+/** Pre-selects a grade/topic from ?grade=&topic= (e.g. the "Practice This Topic" link at the end of a lesson). */
+function applyUrlPreselection() {
+  const params = new URLSearchParams(window.location.search);
+  const grade = params.get('grade');
+  const topic = params.get('topic');
+  if (!grade && !topic) return;
+
+  if (grade && Array.from(els.gradeSelect.options).some((opt) => opt.value === grade)) {
+    els.gradeSelect.value = grade;
+    populateTopics();
+  }
+  if (topic) {
+    const boxes = Array.from(els.topicList.querySelectorAll('input[name="topic"]'));
+    if (boxes.some((box) => box.value === topic)) {
+      for (const box of boxes) box.checked = box.value === topic;
+      syncSelectAllCheckbox(els.selectAllTopics, els.topicList);
+      updateStartEnabled();
+    }
+  }
+}
+
 function startQuiz() {
   const grade = els.gradeSelect.value;
   const topics = getSelectedTopics(els.topicList);
@@ -237,6 +258,7 @@ export function init() {
   renderNav('quiz.html');
   populateGradeSelect(els.gradeSelect);
   populateTopics();
+  applyUrlPreselection();
 
   wireSelectAllToggle(els.selectAllTopics, els.topicList);
   els.gradeSelect.addEventListener('change', populateTopics);

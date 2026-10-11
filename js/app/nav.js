@@ -9,6 +9,7 @@ import { mountGlossaryPopover } from './glossaryPopover.js';
 
 const LINKS = [
   { href: 'index.html', label: 'Home' },
+  { href: 'learn.html', label: 'Learn' },
   { href: 'quiz.html', label: 'Quiz' },
   { href: 'worksheet.html', label: 'Worksheets' },
   { href: 'skills.html', label: 'Skills' },

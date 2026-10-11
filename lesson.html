@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Lesson</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="assets/favicon.ico" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <a href="learn.html" class="lesson-back-link">&larr; All Lessons</a>
+      <h1 id="lesson-title"></h1>
+      <p id="lesson-summary" class="progress-text"></p>
+
+      <div id="lesson-blocks"></div>
+
+      <section id="lesson-not-found" class="card" hidden>
+        <p>Sorry, that lesson doesn't exist.</p>
+        <a class="btn" href="learn.html">Back to Lessons</a>
+      </section>
+    </main>
+
+    <script type="module">
+      import { init } from './js/views/lessonView.js';
+      init();
+    </script>
+  </body>
+</html>

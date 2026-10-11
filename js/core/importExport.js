@@ -23,6 +23,7 @@ export function buildExportDocument({ profileIds } = {}) {
         createdAt: p.createdAt,
         attempts: progress.attempts,
         worksheets: progress.worksheets,
+        lessons: progress.lessons,
       };
     }),
   };
@@ -55,15 +56,29 @@ export function parseImportText(jsonText) {
   return raw;
 }
 
+/** Merges two lessons maps by unioning each lesson's checkpointsCorrect indices — never loses progress either side already has. */
+function mergeLessonsMaps(existing, incoming) {
+  existing = existing || {};
+  incoming = incoming || {};
+  const merged = {};
+  for (const lessonId of new Set([...Object.keys(existing), ...Object.keys(incoming)])) {
+    const existingCorrect = existing[lessonId]?.checkpointsCorrect || [];
+    const incomingCorrect = incoming[lessonId]?.checkpointsCorrect || [];
+    merged[lessonId] = { checkpointsCorrect: Array.from(new Set([...existingCorrect, ...incomingCorrect])).sort((a, b) => a - b) };
+  }
+  return merged;
+}
+
 export function mergeImportedDocument(doc) {
   const docVersion = typeof doc.schemaVersion === 'number' ? doc.schemaVersion : 1;
-  const summary = { profilesCreated: 0, profilesUpdated: 0, attemptsAdded: 0, worksheetsAdded: 0 };
+  const summary = { profilesCreated: 0, profilesUpdated: 0, attemptsAdded: 0, worksheetsAdded: 0, lessonCheckpointsAdded: 0 };
 
   for (const importedProfile of doc.profiles) {
     const migratedProgress = migrate({
       schemaVersion: docVersion,
       attempts: importedProfile.attempts,
       worksheets: importedProfile.worksheets,
+      lessons: importedProfile.lessons,
     });
 
     let profile = getProfile(importedProfile.id);
@@ -86,15 +101,21 @@ export function mergeImportedDocument(doc) {
 
     const newAttempts = migratedProgress.attempts.filter((a) => !existingAttemptIds.has(a.attemptId));
     const newWorksheets = migratedProgress.worksheets.filter((w) => !existingWorksheetIds.has(w.worksheetId));
+    const mergedLessons = mergeLessonsMaps(existing.lessons, migratedProgress.lessons);
+    const existingCheckpointCount = Object.values(existing.lessons).reduce((n, l) => n + (l.checkpointsCorrect?.length || 0), 0);
+    const mergedCheckpointCount = Object.values(mergedLessons).reduce((n, l) => n + l.checkpointsCorrect.length, 0);
+    const newCheckpointCount = mergedCheckpointCount - existingCheckpointCount;
 
-    if (newAttempts.length || newWorksheets.length) {
+    if (newAttempts.length || newWorksheets.length || newCheckpointCount) {
       setProgress(profile.id, {
         schemaVersion: CURRENT_SCHEMA_VERSION,
         attempts: [...existing.attempts, ...newAttempts],
         worksheets: [...existing.worksheets, ...newWorksheets],
+        lessons: mergedLessons,
       });
       summary.attemptsAdded += newAttempts.length;
       summary.worksheetsAdded += newWorksheets.length;
+      summary.lessonCheckpointsAdded += newCheckpointCount;
     }
   }
 

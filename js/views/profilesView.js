@@ -153,7 +153,7 @@ async function handleImportChange() {
     const doc = parseImportText(text);
     const summary = mergeImportedDocument(doc);
     showImportStatus(
-      `Imported: ${summary.profilesCreated} new profile(s), ${summary.profilesUpdated} updated, ${summary.attemptsAdded} quiz attempt(s) and ${summary.worksheetsAdded} worksheet(s) added.`,
+      `Imported: ${summary.profilesCreated} new profile(s), ${summary.profilesUpdated} updated, ${summary.attemptsAdded} quiz attempt(s), ${summary.worksheetsAdded} worksheet(s), and ${summary.lessonCheckpointsAdded} lesson checkpoint(s) added.`,
       'correct'
     );
     renderProfiles();
