@@ -65,6 +65,31 @@ export function removeWord(category, word) {
   return lists;
 }
 
+/**
+ * Replace a category's entire word list at once (e.g. a teacher pasting a
+ * class roster in for "person"). Trims each entry, drops blanks, de-dupes
+ * case-insensitively (keeping the first casing seen), and refuses to leave
+ * the category empty — same safety rule as removeWord.
+ */
+export function setWordList(category, words) {
+  if (!CATEGORIES.includes(category) || !Array.isArray(words)) return getWordLists();
+  const seen = new Set();
+  const cleaned = [];
+  for (const raw of words) {
+    const trimmed = typeof raw === 'string' ? raw.trim() : '';
+    if (!trimmed) continue;
+    const key = trimmed.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cleaned.push(trimmed);
+  }
+  if (cleaned.length === 0) return getWordLists();
+  const lists = getWordLists();
+  lists[category] = cleaned;
+  writeLists(lists);
+  return lists;
+}
+
 export function resetCategoryToDefaults(category) {
   if (!CATEGORIES.includes(category)) return getWordLists();
   const lists = getWordLists();

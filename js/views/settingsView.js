@@ -1,6 +1,6 @@
 import '../app/init.js';
 import { renderNav } from '../app/nav.js';
-import { getWordLists, addWord, removeWord, resetCategoryToDefaults, WORD_LIST_CATEGORIES } from '../core/wordListStore.js';
+import { getWordLists, addWord, removeWord, setWordList, resetCategoryToDefaults, WORD_LIST_CATEGORIES } from '../core/wordListStore.js';
 import { WORD_PROBLEM_PATTERNS, getPatternById } from '../core/wordProblemPatterns.js';
 import { listUserTemplatesForPattern, addUserTemplate, deleteUserTemplate } from '../core/wordProblemTemplateStore.js';
 import { validateTemplateText, renderTemplate } from '../core/wordProblemTemplateEngine.js';
@@ -8,6 +8,24 @@ import { createRng, randomSeed } from '../core/rng.js';
 
 const CATEGORY_LABELS = { person: 'People', food: 'Foods', object: 'Objects' };
 const CATEGORY_SINGULAR = { person: 'person', food: 'food', object: 'object' };
+const PASTE_PLACEHOLDER = {
+  person: 'e.g. Ava, Liam, Noah, Mia, Diego, ...',
+  food: 'e.g. apples, carrots, pretzels, ...',
+  object: 'e.g. sticker, pencil, eraser, ...',
+};
+const PASTE_HINT = {
+  person: 'Separate names with commas or one per line — great for pasting in a class roster of first names.',
+  food: 'Separate entries with commas or one per line.',
+  object: 'Separate entries with commas or one per line.',
+};
+
+/** Splits pasted text into individual words on commas and/or newlines. */
+function parsePastedList(text) {
+  return (text || '')
+    .split(/[,\n]+/)
+    .map((w) => w.trim())
+    .filter(Boolean);
+}
 
 const els = {};
 
@@ -50,6 +68,14 @@ function renderWordLists() {
           <button type="submit" class="btn secondary">Add</button>
           <button type="button" class="btn secondary reset-category-btn" data-category="${category}">Reset to Defaults</button>
         </form>
+        <details class="paste-list-details">
+          <summary>Paste a list to replace this one</summary>
+          <form class="paste-list-form" data-category="${category}">
+            <p class="progress-text">${PASTE_HINT[category]}</p>
+            <textarea class="paste-list-input" rows="3" placeholder="${PASTE_PLACEHOLDER[category]}"></textarea>
+            <button type="submit" class="btn secondary">Replace List</button>
+          </form>
+        </details>
       </fieldset>`;
   }).join('');
 }
@@ -72,13 +98,29 @@ function handleWordListGroupsClick(event) {
 }
 
 function handleWordListGroupsSubmit(event) {
-  const form = event.target.closest('.add-word-form');
-  if (!form) return;
-  event.preventDefault();
-  const input = form.querySelector('.add-word-input');
-  if (!input.value.trim()) return;
-  addWord(form.dataset.category, input.value);
-  renderWordLists();
+  const addForm = event.target.closest('.add-word-form');
+  if (addForm) {
+    event.preventDefault();
+    const input = addForm.querySelector('.add-word-input');
+    if (!input.value.trim()) return;
+    addWord(addForm.dataset.category, input.value);
+    renderWordLists();
+    return;
+  }
+
+  const pasteForm = event.target.closest('.paste-list-form');
+  if (pasteForm) {
+    event.preventDefault();
+    const textarea = pasteForm.querySelector('.paste-list-input');
+    const words = parsePastedList(textarea.value);
+    if (words.length === 0) return;
+    const category = pasteForm.dataset.category;
+    const label = CATEGORY_LABELS[category];
+    if (window.confirm(`Replace the entire "${label}" list with what you just pasted? This removes everything currently in the list.`)) {
+      setWordList(category, words);
+      renderWordLists();
+    }
+  }
 }
 
 // --- Templates ----------------------------------------------------------

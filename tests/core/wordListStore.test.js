@@ -1,4 +1,4 @@
-import { getWordLists, addWord, removeWord, resetCategoryToDefaults, DEFAULT_WORD_LISTS } from '../../js/core/wordListStore.js';
+import { getWordLists, addWord, removeWord, setWordList, resetCategoryToDefaults, DEFAULT_WORD_LISTS } from '../../js/core/wordListStore.js';
 
 QUnit.module('core/wordListStore', (hooks) => {
   hooks.beforeEach(() => localStorage.clear());
@@ -42,6 +42,40 @@ QUnit.module('core/wordListStore', (hooks) => {
     lists = removeWord('object', lastWord);
     assert.equal(lists.object.length, 1, 'the last word cannot be removed');
     assert.equal(lists.object[0], lastWord);
+  });
+
+  QUnit.test('setWordList replaces the entire category with the given list', (assert) => {
+    const lists = setWordList('person', ['Ava', 'Liam', 'Noah']);
+    assert.deepEqual(lists.person, ['Ava', 'Liam', 'Noah']);
+  });
+
+  QUnit.test('setWordList trims whitespace and drops blank entries', (assert) => {
+    const lists = setWordList('person', ['  Ava ', '', '  ', 'Liam']);
+    assert.deepEqual(lists.person, ['Ava', 'Liam']);
+  });
+
+  QUnit.test('setWordList de-dupes case-insensitively, keeping the first casing seen', (assert) => {
+    const lists = setWordList('person', ['Ava', 'ava', 'AVA', 'Liam']);
+    assert.deepEqual(lists.person, ['Ava', 'Liam']);
+  });
+
+  QUnit.test('setWordList leaves the category unchanged if the result would be empty', (assert) => {
+    const before = getWordLists();
+    const after = setWordList('person', ['', '   ', '\n']);
+    assert.deepEqual(after.person, before.person);
+  });
+
+  QUnit.test('setWordList only touches the given category, leaving the others alone', (assert) => {
+    const before = getWordLists();
+    const after = setWordList('person', ['Ava', 'Liam']);
+    assert.deepEqual(after.food, before.food);
+    assert.deepEqual(after.object, before.object);
+  });
+
+  QUnit.test('setWordList ignores an unknown category or non-array input', (assert) => {
+    const before = getWordLists();
+    assert.deepEqual(setWordList('color', ['red']), before);
+    assert.deepEqual(setWordList('person', 'Ava, Liam'), before);
   });
 
   QUnit.test('resetCategoryToDefaults restores a category after edits', (assert) => {

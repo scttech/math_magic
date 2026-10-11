@@ -598,6 +598,42 @@ input[type='number'] {
   flex: 1 1 200px;
 }
 
+.paste-list-details {
+  margin-top: 0.5rem;
+}
+
+.paste-list-details summary {
+  cursor: pointer;
+  color: var(--color-primary-dark);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.paste-list-details summary:hover {
+  color: var(--color-primary);
+}
+
+.paste-list-form {
+  margin-top: 0.5rem;
+}
+
+.paste-list-form .progress-text {
+  margin: 0 0 0.5rem;
+}
+
+.paste-list-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  resize: vertical;
+  margin-bottom: 0.5rem;
+}
+
 .template-group {
   margin-bottom: 1.25rem;
 }
