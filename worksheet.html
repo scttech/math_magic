@@ -54,6 +54,62 @@
         </div>
 
         <button id="generate-worksheet-btn" type="button" class="btn">Generate Worksheet</button>
+
+        <p class="progress-text worksheet-lookup-prompt">
+          Looking for the answer key to a worksheet you already printed?
+          <a href="#" id="show-lookup-link">Look it up by worksheet number</a>.
+        </p>
+      </section>
+
+      <section id="worksheet-lookup" class="card screen-only" hidden>
+        <h2>Look Up an Answer Key</h2>
+        <p class="progress-text">Enter the worksheet number printed on the page (for example, "Worksheet #408378565").</p>
+
+        <div class="field-row">
+          <label for="lookup-seed-input">Worksheet #</label>
+          <input type="text" id="lookup-seed-input" inputmode="numeric" autocomplete="off" />
+        </div>
+        <button id="lookup-find-btn" type="button" class="btn">Find Answer Key</button>
+        <p id="lookup-status" class="feedback" hidden></p>
+
+        <div id="lookup-manual-fields" hidden>
+          <div class="field-row">
+            <label for="lookup-grade-select">Grade</label>
+            <select id="lookup-grade-select"></select>
+          </div>
+
+          <fieldset>
+            <legend>Topics</legend>
+            <label class="select-all-row">
+              <input type="checkbox" id="lookup-select-all-topics" />
+              Select All
+            </label>
+            <div id="lookup-topic-checkboxes" class="checkbox-grid"></div>
+          </fieldset>
+
+          <div class="field-row">
+            <label for="lookup-difficulty-select">Difficulty</label>
+            <select id="lookup-difficulty-select">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+
+          <div class="field-row">
+            <label for="lookup-count-select">Number of Problems</label>
+            <select id="lookup-count-select">
+              <option value="10">10</option>
+              <option value="15" selected>15</option>
+              <option value="20">20</option>
+              <option value="25">25</option>
+            </select>
+          </div>
+
+          <button id="lookup-generate-btn" type="button" class="btn">Generate Answer Key</button>
+        </div>
+
+        <p class="worksheet-lookup-prompt"><a href="#" id="lookup-back-link">&larr; Back to Worksheet Builder</a></p>
       </section>
 
       <section id="worksheet-output" hidden>

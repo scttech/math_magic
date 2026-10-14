@@ -6,6 +6,7 @@ import { buildProblemSet } from '../core/problemSet.js';
 import { randomSeed } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordWorksheetGenerated } from '../core/progressStore.js';
+import { findWorksheetBySeed } from '../core/worksheetLookup.js';
 import { renderVisual } from '../charts/renderVisual.js';
 import { linkifyGlossaryTerms } from '../app/glossary.js';
 
@@ -14,6 +15,7 @@ let currentSeed = null;
 
 function cacheElements() {
   els.setupSection = document.getElementById('worksheet-setup');
+  els.lookupSection = document.getElementById('worksheet-lookup');
   els.outputSection = document.getElementById('worksheet-output');
   els.gradeSelect = document.getElementById('grade-select');
   els.selectAllTopics = document.getElementById('select-all-topics');
@@ -29,6 +31,19 @@ function cacheElements() {
   els.printBtn = document.getElementById('print-btn');
   els.toggleAnswerKeyBtn = document.getElementById('toggle-answer-key-btn');
   els.editSettingsBtn = document.getElementById('edit-settings-btn');
+
+  els.showLookupLink = document.getElementById('show-lookup-link');
+  els.lookupBackLink = document.getElementById('lookup-back-link');
+  els.lookupSeedInput = document.getElementById('lookup-seed-input');
+  els.lookupFindBtn = document.getElementById('lookup-find-btn');
+  els.lookupStatus = document.getElementById('lookup-status');
+  els.lookupManualFields = document.getElementById('lookup-manual-fields');
+  els.lookupGradeSelect = document.getElementById('lookup-grade-select');
+  els.lookupSelectAllTopics = document.getElementById('lookup-select-all-topics');
+  els.lookupTopicList = document.getElementById('lookup-topic-checkboxes');
+  els.lookupDifficultySelect = document.getElementById('lookup-difficulty-select');
+  els.lookupCountSelect = document.getElementById('lookup-count-select');
+  els.lookupGenerateBtn = document.getElementById('lookup-generate-btn');
 }
 
 function populateTopics() {
@@ -56,10 +71,7 @@ function generateWorksheet() {
   renderWorksheet({ grade, topics, difficulty, problems });
   recordWorksheetGenerated(getActiveProfileId(), { grade, topics, difficulty, problemCount: count, seed: currentSeed });
 
-  els.setupSection.hidden = true;
-  els.outputSection.hidden = false;
-  els.answerKeyOutput.classList.remove('show-on-screen');
-  els.toggleAnswerKeyBtn.textContent = 'Show Answer Key';
+  showOutput({ answerKeyVisible: false });
 }
 
 function renderWorksheet({ grade, topics, difficulty, problems }) {
@@ -93,6 +105,14 @@ function renderWorksheet({ grade, topics, difficulty, problems }) {
   });
 }
 
+function showOutput({ answerKeyVisible }) {
+  els.setupSection.hidden = true;
+  els.lookupSection.hidden = true;
+  els.outputSection.hidden = false;
+  els.answerKeyOutput.classList.toggle('show-on-screen', answerKeyVisible);
+  els.toggleAnswerKeyBtn.textContent = answerKeyVisible ? 'Hide Answer Key' : 'Show Answer Key';
+}
+
 function toggleAnswerKey() {
   const showing = els.answerKeyOutput.classList.toggle('show-on-screen');
   els.toggleAnswerKeyBtn.textContent = showing ? 'Hide Answer Key' : 'Show Answer Key';
@@ -103,11 +123,94 @@ function editSettings() {
   els.setupSection.hidden = false;
 }
 
+// --- Looking up a past worksheet's answer key --------------------------------
+
+/** Parses a worksheet-number input into the non-negative integer seed it represents, or null if invalid. */
+function parseSeedInput(raw) {
+  const trimmed = (raw || '').trim().replace(/^#/, '');
+  if (!/^\d+$/.test(trimmed)) return null;
+  const seed = Number(trimmed);
+  return Number.isSafeInteger(seed) ? seed : null;
+}
+
+function showLookupStatus(message, kind) {
+  els.lookupStatus.hidden = false;
+  els.lookupStatus.className = `feedback ${kind}`;
+  els.lookupStatus.textContent = message;
+}
+
+function showLookup() {
+  els.setupSection.hidden = true;
+  els.lookupSection.hidden = false;
+  els.lookupSeedInput.value = '';
+  els.lookupStatus.hidden = true;
+  els.lookupManualFields.hidden = true;
+  els.lookupSeedInput.focus();
+}
+
+function backToSetupFromLookup() {
+  els.lookupSection.hidden = true;
+  els.setupSection.hidden = false;
+}
+
+function populateLookupTopics() {
+  populateTopicCheckboxes(els.lookupTopicList, els.lookupGradeSelect.value);
+  syncSelectAllCheckbox(els.lookupSelectAllTopics, els.lookupTopicList);
+}
+
+function handleFindAnswerKey() {
+  const seed = parseSeedInput(els.lookupSeedInput.value);
+  if (seed === null) {
+    showLookupStatus('That doesn’t look like a worksheet number — it should be a number, like 408378565.', 'incorrect');
+    els.lookupManualFields.hidden = true;
+    return;
+  }
+
+  const found = findWorksheetBySeed(seed);
+  if (!found) {
+    showLookupStatus(
+      'Not found in this browser’s history. Enter the worksheet’s original settings below — they’re printed right on the worksheet itself, next to the worksheet number.',
+      'incorrect'
+    );
+    els.lookupManualFields.hidden = false;
+    return;
+  }
+
+  currentSeed = seed;
+  const problems = buildProblemSet({ grade: found.grade, topics: found.topics, difficulty: found.difficulty, count: found.problemCount, seed });
+  renderWorksheet({ grade: found.grade, topics: found.topics, difficulty: found.difficulty, problems });
+  showOutput({ answerKeyVisible: true });
+}
+
+function handleManualGenerate() {
+  const seed = parseSeedInput(els.lookupSeedInput.value);
+  if (seed === null) {
+    showLookupStatus('That doesn’t look like a worksheet number — it should be a number, like 408378565.', 'incorrect');
+    return;
+  }
+  const topics = getSelectedTopics(els.lookupTopicList);
+  if (topics.length === 0) {
+    showLookupStatus('Select at least one topic.', 'incorrect');
+    return;
+  }
+
+  const grade = els.lookupGradeSelect.value;
+  const difficulty = els.lookupDifficultySelect.value;
+  const count = Number(els.lookupCountSelect.value);
+
+  currentSeed = seed;
+  const problems = buildProblemSet({ grade, topics, difficulty, count, seed });
+  renderWorksheet({ grade, topics, difficulty, problems });
+  showOutput({ answerKeyVisible: true });
+}
+
 export function init() {
   cacheElements();
   renderNav('worksheet.html');
   populateGradeSelect(els.gradeSelect);
   populateTopics();
+  populateGradeSelect(els.lookupGradeSelect);
+  populateLookupTopics();
 
   wireSelectAllToggle(els.selectAllTopics, els.topicList);
   els.gradeSelect.addEventListener('change', populateTopics);
@@ -116,4 +219,17 @@ export function init() {
   els.printBtn.addEventListener('click', () => window.print());
   els.toggleAnswerKeyBtn.addEventListener('click', toggleAnswerKey);
   els.editSettingsBtn.addEventListener('click', editSettings);
+
+  wireSelectAllToggle(els.lookupSelectAllTopics, els.lookupTopicList);
+  els.lookupGradeSelect.addEventListener('change', populateLookupTopics);
+  els.showLookupLink.addEventListener('click', (event) => {
+    event.preventDefault();
+    showLookup();
+  });
+  els.lookupBackLink.addEventListener('click', (event) => {
+    event.preventDefault();
+    backToSetupFromLookup();
+  });
+  els.lookupFindBtn.addEventListener('click', handleFindAnswerKey);
+  els.lookupGenerateBtn.addEventListener('click', handleManualGenerate);
 }

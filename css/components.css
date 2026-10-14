@@ -1130,3 +1130,13 @@ input[type='number'] {
 .lesson-cta h2 {
   margin-top: 0;
 }
+
+.worksheet-lookup-prompt {
+  margin-top: 1.25rem;
+}
+
+#lookup-manual-fields {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
+}
