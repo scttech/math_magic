@@ -72,4 +72,12 @@
   .report-profile {
     break-inside: avoid;
   }
+
+  /* Wizard Certificate: the gold border already reads as a frame on screen,
+     but a box-shadow doesn't print — drop it and let the sheet fill the
+     printed page margin cleanly. */
+  .certificate-sheet {
+    box-shadow: none;
+    break-inside: avoid;
+  }
 }

@@ -146,7 +146,17 @@ export function initSkillRunner(config) {
     const isCorrect = chosen === problem.answerDisplay;
     const timeMs = Date.now() - state.questionStartedAt;
 
-    state.results.push({ generatorId, difficulty: null, seed: problem.seed, correct: isCorrect, userAnswer: chosen, timeMs });
+    state.results.push({
+      generatorId,
+      difficulty: null,
+      seed: problem.seed,
+      correct: isCorrect,
+      userAnswer: chosen,
+      timeMs,
+      promptText: problem.promptText,
+      answerDisplay: problem.answerDisplay,
+      choices: problem.choices,
+    });
 
     const buttons = Array.from(els.choices.querySelectorAll('.choice-btn'));
     let chosenBtn = null;

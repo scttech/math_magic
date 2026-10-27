@@ -1,11 +1,14 @@
 // Math Blaster: a canvas arcade game reusing the exact same generator
-// contract the skill drills use. Every topic's choices array (already
+// contract the skill drills use. Each topic's own choices array (already
 // shuffled, already exactly one correct answer) becomes the falling
-// asteroids — no new distractor logic needed. Each topic's renderPrompt
-// draws into the prompt container however suits it — plain text for the
-// numeric/fraction topics, or the existing SVG shape renderer for
-// shapeIdentification ("Shape Catch": name the falling asteroid that matches
-// the shape shown, reusing shapeIdentification's own choices array of names).
+// asteroids; if the Settings bubble-count is set above 4, blasterEngine.js's
+// buildBubbleChoices() tops it up with more distractors harvested from
+// further calls to the same generator, rather than a second "plausible wrong
+// answer" scheme living here. Each topic's renderPrompt draws into the
+// prompt container however suits it — plain text for the numeric/fraction
+// topics, or the existing SVG shape renderer for shapeIdentification ("Shape
+// Catch": name the falling asteroid that matches the shape shown, reusing
+// shapeIdentification's own choices array of names).
 import '../app/init.js';
 import { renderNav } from '../app/nav.js';
 import { createRng, randomSeed } from '../core/rng.js';
@@ -13,7 +16,8 @@ import { getActiveProfileId } from '../core/profileStore.js';
 import { recordQuizAttempt } from '../core/progressStore.js';
 import { playCorrectSound, playIncorrectSound, animateFeedback } from '../app/feedbackFx.js';
 import { pickCelebrationForAccuracy, showCelebration } from '../app/celebrations.js';
-import { createBlasterGame } from '../game/blasterEngine.js';
+import { createBlasterGame, buildBubbleChoices } from '../game/blasterEngine.js';
+import { getBubbleCount } from '../app/blasterSettings.js';
 import { parseNumberSpec } from '../skills/numberSpec.js';
 import { renderShape } from '../skills/shapeRenderer.js';
 import { generateProblem as generateAddition, GENERATOR_ID as ADD_ID, MIN_VALUE as ADD_MIN, MAX_VALUE as ADD_MAX } from '../skills/additionFacts.js';
@@ -136,6 +140,7 @@ function launchGame() {
 
   const topic = TOPICS.find((t) => t.key === els.topicSelect.value) || TOPICS[0];
   const lives = Number(els.livesSelect.value);
+  const bubbleCount = getBubbleCount();
   const baseSeed = randomSeed();
   const layoutRng = createRng(baseSeed + 1_000_000); // separate stream from problem seeds, used only for visual jitter
   const startedAt = new Date().toISOString();
@@ -145,8 +150,14 @@ function launchGame() {
   function getNextProblem() {
     const seed = baseSeed + roundIndex;
     roundIndex += 1;
-    const problem = topic.generate(createRng(seed), ...topic.args);
+    const rng = createRng(seed);
+    const problem = topic.generate(rng, ...topic.args);
     problem.seed = seed;
+    // Extra bubbles beyond the generator's own 4 choices are harvested from
+    // further calls to the same generator (same rng stream, so still fully
+    // deterministic for a given seed) rather than inventing a second
+    // "plausible wrong answer" scheme here.
+    problem.choices = buildBubbleChoices(rng, problem, bubbleCount, () => topic.generate(rng, ...topic.args));
     topic.renderPrompt(els.prompt, problem);
     return problem;
   }
@@ -166,7 +177,18 @@ function launchGame() {
       els.livesText.textContent = '❤️'.repeat(Math.max(0, remaining));
     },
     onHit: ({ problem, isCorrect, label }) => {
-      results.push({ generatorId: topic.generatorId, difficulty: null, seed: problem.seed, correct: isCorrect, userAnswer: label, timeMs: 0 });
+      results.push({
+        generatorId: topic.generatorId,
+        difficulty: null,
+        seed: problem.seed,
+        correct: isCorrect,
+        userAnswer: label,
+        timeMs: 0,
+        promptText: problem.promptText,
+        answerDisplay: problem.answerDisplay,
+        choices: problem.choices,
+        shapeId: problem.shapeId,
+      });
       if (isCorrect) playCorrectSound();
       else playIncorrectSound();
       animateFeedback(els.canvasContainer, isCorrect);

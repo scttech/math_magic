@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Wizard Certificate</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="../assets/favicon.ico" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/screen.css" />
+    <link rel="stylesheet" href="../css/print.css" media="print" />
+  </head>
+  <body>
+    <nav id="site-nav" class="screen-only"></nav>
+
+    <main class="container">
+      <h1 class="screen-only">Wizard Certificate</h1>
+      <p class="progress-text screen-only">Pick a profile and an achievement to print a certificate worth hanging on the fridge.</p>
+
+      <section id="certificate-setup" class="card screen-only">
+        <div class="field-row">
+          <label for="certificate-profile-select">Profile</label>
+          <select id="certificate-profile-select"></select>
+        </div>
+
+        <div id="certificate-no-achievements" hidden>
+          <p>No achievements yet — answer a few problems to earn your first certificate!</p>
+        </div>
+
+        <div id="certificate-achievement-row" class="field-row">
+          <label for="certificate-achievement-select">Achievement</label>
+          <select id="certificate-achievement-select"></select>
+        </div>
+
+        <div class="toolbar">
+          <button id="certificate-print-btn" type="button" class="btn">Print / Save as PDF</button>
+          <button id="certificate-shuffle-btn" type="button" class="btn secondary">🎲 New Artwork</button>
+        </div>
+      </section>
+
+      <div id="certificate-sheet" class="certificate-sheet card" hidden>
+        <p class="certificate-kicker">Math Magic — Order of the Wizards</p>
+        <h2>Certificate of Wizardry</h2>
+        <img id="certificate-image" class="celebration-image" alt="" />
+        <p class="certificate-presented-to">This certifies that</p>
+        <p id="certificate-name" class="certificate-name"></p>
+        <p class="certificate-presented-to">has achieved</p>
+        <p id="certificate-achievement" class="certificate-achievement"></p>
+        <p id="certificate-date" class="certificate-date"></p>
+        <div class="certificate-signature">
+          <span class="certificate-signature-line">The Head Wizards of Math Magic</span>
+        </div>
+      </div>
+    </main>
+
+    <script type="module">
+      import { init } from '../js/views/certificateView.js';
+      init();
+    </script>
+  </body>
+</html>

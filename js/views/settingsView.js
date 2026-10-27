@@ -6,6 +6,7 @@ import { listUserTemplatesForPattern, addUserTemplate, deleteUserTemplate } from
 import { validateTemplateText, renderTemplate } from '../core/wordProblemTemplateEngine.js';
 import { createRng, randomSeed } from '../core/rng.js';
 import { isSoundEnabled, setSoundEnabled } from '../app/feedbackFx.js';
+import { getBubbleCount, setBubbleCount } from '../app/blasterSettings.js';
 
 const CATEGORY_LABELS = { person: 'People', food: 'Foods', object: 'Objects' };
 const CATEGORY_SINGULAR = { person: 'person', food: 'food', object: 'object' };
@@ -36,6 +37,7 @@ function escapeHtml(str) {
 
 function cacheElements() {
   els.soundEnabledToggle = document.getElementById('sound-enabled-toggle');
+  els.blasterBubbleCountSelect = document.getElementById('blaster-bubble-count-select');
   els.wordListGroups = document.getElementById('word-list-groups');
   els.templateList = document.getElementById('template-list');
   els.patternSelect = document.getElementById('template-pattern-select');
@@ -228,11 +230,13 @@ export function init() {
   cacheElements();
   renderNav('settings.html');
   els.soundEnabledToggle.checked = isSoundEnabled();
+  els.blasterBubbleCountSelect.value = String(getBubbleCount());
   renderWordLists();
   populatePatternSelect();
   renderTemplateList();
 
   els.soundEnabledToggle.addEventListener('change', () => setSoundEnabled(els.soundEnabledToggle.checked));
+  els.blasterBubbleCountSelect.addEventListener('change', () => setBubbleCount(Number(els.blasterBubbleCountSelect.value)));
   els.wordListGroups.addEventListener('click', handleWordListGroupsClick);
   els.wordListGroups.addEventListener('submit', handleWordListGroupsSubmit);
   els.templateList.addEventListener('click', handleTemplateListClick);

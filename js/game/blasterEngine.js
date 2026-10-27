@@ -6,6 +6,8 @@
 // view supplies problems (getNextProblem) and is told about every outcome
 // via callbacks — the engine itself knows nothing about generators, seeds,
 // or profiles.
+import { shuffle } from '../core/rng.js';
+
 export const BASE_FALL_SPEED = 40; // px/sec
 export const SPEED_RAMP_PER_CORRECT = 4; // px/sec added per correct hit
 export const MAX_FALL_SPEED = 160;
@@ -101,6 +103,29 @@ export function fitLabelToCircle(label, radius, measureWidth, { minFontSize = 9,
   return { fontSize: minFontSize, lineHeight, lines };
 }
 
+/**
+ * Extends a problem's base choices (1 correct + a few distractors) up to
+ * `bubbleCount` total bubbles, by harvesting extra distinct wrong choices
+ * from repeatedly calling `generateMore()` — expected to return another
+ * `{choices, answerDisplay}` from the same topic/args, so this reuses each
+ * generator's own "plausible wrong answer" logic rather than inventing a
+ * second one here. Gives up after a fixed number of attempts, so a topic
+ * with a small answer universe (e.g. Shape Catch) degrades gracefully to
+ * however many distinct options actually exist rather than looping forever.
+ */
+export function buildBubbleChoices(rng, problem, bubbleCount, generateMore) {
+  const choices = new Set(problem.choices);
+  let attempts = 0;
+  while (choices.size < bubbleCount && attempts < 20) {
+    attempts += 1;
+    const extra = generateMore();
+    for (const choice of extra.choices) {
+      if (choice !== problem.answerDisplay) choices.add(choice);
+    }
+  }
+  return shuffle(rng, Array.from(choices).slice(0, bubbleCount));
+}
+
 /** Spreads `count` starting x positions evenly across [margin, width - margin], with a little random jitter so they don't look mechanically even. */
 export function layoutStartPositions(rng, count, width, margin = 40) {
   const usableWidth = Math.max(1, width - margin * 2);
@@ -121,7 +146,8 @@ export function layoutStartPositions(rng, count, width, margin = 40) {
  * @param {() => {choices: string[], answerDisplay: string}} config.getNextProblem
  * @param {(score: number) => void} [config.onScoreChange]
  * @param {(lives: number) => void} [config.onLivesChange]
- * @param {(outcome: {problem: Object, isCorrect: boolean, label: string}) => void} [config.onHit]
+ * @param {(outcome: {problem: Object, isCorrect: boolean, label: string}) => void} [config.onHit] - also fires with
+ *   isCorrect: false and label: '' when the correct bubble falls off-screen unclicked (a miss, not a click).
  * @param {(result: {score: number}) => void} [config.onGameOver]
  */
 export function createBlasterGame(config) {
@@ -235,8 +261,21 @@ export function createBlasterGame(config) {
 
     draw();
 
-    // Lenient v1: missing the correct answer costs no life, it just moves on.
-    if (correctFellOff) spawnProblem();
+    // Letting the correct bubble fall off-screen unclicked costs a life, same
+    // as clicking a wrong one — once it's gone there's no way to still get
+    // this round right, so the miss is final the moment it crosses the line.
+    if (correctFellOff) {
+      for (const a of asteroids) a.alive = false;
+      onHit?.({ problem, isCorrect: false, label: '' });
+      lives -= 1;
+      onLivesChange?.(lives);
+      if (lives <= 0) {
+        stop();
+        onGameOver?.({ score });
+        return;
+      }
+      spawnProblem();
+    }
 
     rafId = requestAnimationFrame(tick);
   }

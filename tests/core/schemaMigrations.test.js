@@ -2,11 +2,11 @@ import { migrate, CURRENT_SCHEMA_VERSION } from '../../js/core/schemaMigrations.
 
 QUnit.module('core/schemaMigrations', () => {
   QUnit.test('migrate(undefined) returns a well-formed empty document', (assert) => {
-    assert.deepEqual(migrate(undefined), { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [], lessons: {} });
+    assert.deepEqual(migrate(undefined), { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [], lessons: {}, resolvedMistakes: {} });
   });
 
   QUnit.test('migrate(null) returns a well-formed empty document', (assert) => {
-    assert.deepEqual(migrate(null), { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [], lessons: {} });
+    assert.deepEqual(migrate(null), { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [], lessons: {}, resolvedMistakes: {} });
   });
 
   QUnit.test('migrate leaves an already-current document unchanged', (assert) => {
@@ -15,6 +15,7 @@ QUnit.module('core/schemaMigrations', () => {
       attempts: [{ attemptId: 'a1' }],
       worksheets: [{ worksheetId: 'w1' }],
       lessons: { 'grade6-addSubtractFractions': { checkpointsCorrect: [2, 5] } },
+      resolvedMistakes: { 'skills.additionFacts::::123': true },
     };
     assert.deepEqual(migrate(doc), doc);
   });
@@ -31,6 +32,12 @@ QUnit.module('core/schemaMigrations', () => {
     assert.deepEqual(migrate({ schemaVersion: CURRENT_SCHEMA_VERSION, lessons: [1, 2] }).lessons, {});
   });
 
+  QUnit.test('migrate normalizes a missing or malformed resolvedMistakes field to an empty object', (assert) => {
+    assert.deepEqual(migrate({ schemaVersion: CURRENT_SCHEMA_VERSION }).resolvedMistakes, {});
+    assert.deepEqual(migrate({ schemaVersion: CURRENT_SCHEMA_VERSION, resolvedMistakes: 'nope' }).resolvedMistakes, {});
+    assert.deepEqual(migrate({ schemaVersion: CURRENT_SCHEMA_VERSION, resolvedMistakes: [1, 2] }).resolvedMistakes, {});
+  });
+
   QUnit.test('migrate defaults a document with no schemaVersion to the current version', (assert) => {
     const result = migrate({ attempts: [], worksheets: [] });
     assert.equal(result.schemaVersion, CURRENT_SCHEMA_VERSION);
@@ -42,5 +49,6 @@ QUnit.module('core/schemaMigrations', () => {
     assert.equal(result.schemaVersion, CURRENT_SCHEMA_VERSION);
     assert.deepEqual(result.attempts, v1Doc.attempts);
     assert.deepEqual(result.lessons, {});
+    assert.deepEqual(result.resolvedMistakes, {});
   });
 });

@@ -3,6 +3,7 @@ import {
   fallSpeedForScore,
   isPointInCircle,
   layoutStartPositions,
+  buildBubbleChoices,
   wrapWords,
   fitLabelToCircle,
   BASE_FALL_SPEED,
@@ -52,6 +53,44 @@ QUnit.module('game/blasterEngine', () => {
   QUnit.test('layoutStartPositions is deterministic for a given seed', (assert) => {
     const a = layoutStartPositions(createRng(7), 4, 640, 40);
     const b = layoutStartPositions(createRng(7), 4, 640, 40);
+    assert.deepEqual(a, b);
+  });
+
+  QUnit.test('buildBubbleChoices returns just the base choices (no generateMore calls) when bubbleCount is already met', (assert) => {
+    const problem = { choices: ['1', '2', '3', '4'], answerDisplay: '2' };
+    let calls = 0;
+    const result = buildBubbleChoices(createRng(1), problem, 4, () => {
+      calls += 1;
+      return { choices: ['nope'], answerDisplay: '2' };
+    });
+    assert.equal(calls, 0, 'generateMore is never called once the target count is already met');
+    assert.deepEqual([...result].sort(), ['1', '2', '3', '4']);
+  });
+
+  QUnit.test('buildBubbleChoices tops up to bubbleCount with distinct extra distractors, excluding the correct answer', (assert) => {
+    const problem = { choices: ['10', '11', '12', '13'], answerDisplay: '10' };
+    let n = 100;
+    const generateMore = () => ({ choices: [String(n++), '10'], answerDisplay: '10' }); // '10' re-offered each time but must never duplicate the real correct bubble
+    const result = buildBubbleChoices(createRng(1), problem, 7, generateMore);
+
+    assert.equal(result.length, 7);
+    assert.equal(new Set(result).size, 7, 'every bubble is distinct');
+    assert.equal(result.filter((c) => c === '10').length, 1, 'the correct answer appears exactly once');
+  });
+
+  QUnit.test('buildBubbleChoices degrades gracefully when the extra pool runs out, instead of looping forever', (assert) => {
+    const problem = { choices: ['a', 'b', 'c', 'd'], answerDisplay: 'a' };
+    // Only ever offers the same one new distractor, "e" - can never reach 8.
+    const result = buildBubbleChoices(createRng(1), problem, 8, () => ({ choices: ['e'], answerDisplay: 'a' }));
+    assert.equal(result.length, 5, 'stops at however many distinct bubbles actually exist (4 base + "e")');
+    assert.ok(result.includes('a'), 'the correct answer is still present');
+  });
+
+  QUnit.test('buildBubbleChoices is deterministic for a given seed', (assert) => {
+    const problem = { choices: ['1', '2', '3', '4'], answerDisplay: '1' };
+    const generateMore = () => ({ choices: ['5', '6'], answerDisplay: '1' });
+    const a = buildBubbleChoices(createRng(42), { ...problem }, 6, generateMore);
+    const b = buildBubbleChoices(createRng(42), { ...problem }, 6, generateMore);
     assert.deepEqual(a, b);
   });
 

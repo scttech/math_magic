@@ -105,7 +105,18 @@ function selectAnswer(index) {
   const isCorrect = chosen === problem.answerDisplay;
   const timeMs = Date.now() - state.questionStartedAt;
 
-  state.results.push({ generatorId: GENERATOR_ID, difficulty: null, seed: problem.seed, correct: isCorrect, userAnswer: chosen, timeMs });
+  state.results.push({
+    generatorId: GENERATOR_ID,
+    difficulty: null,
+    seed: problem.seed,
+    correct: isCorrect,
+    userAnswer: chosen,
+    timeMs,
+    promptText: problem.promptText,
+    answerDisplay: problem.answerDisplay,
+    choices: problem.choices,
+    shapeId: problem.shapeId,
+  });
 
   const buttons = Array.from(els.choices.querySelectorAll('.choice-btn'));
   for (const btn of buttons) {

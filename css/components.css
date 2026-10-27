@@ -1454,3 +1454,71 @@ input[type='number'] {
   padding-top: 1.25rem;
   border-top: 1px solid var(--color-border);
 }
+
+/* Printable wizard certificate — a decorative gold double border sets it
+   apart from a plain .card; print.css strips that framing for the print
+   stylesheet's own page border instead (a border on the page itself prints
+   more reliably across browsers than one on the content). */
+.certificate-sheet {
+  text-align: center;
+  border: 4px double #c9a227;
+  background: linear-gradient(#fffdf6, #fff8e6);
+  padding: 2.5rem 2rem;
+}
+
+.certificate-kicker {
+  margin: 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: #8a6d00;
+}
+
+.certificate-sheet h2 {
+  margin: 0.25rem 0 1rem;
+  font-size: 1.75rem;
+}
+
+.certificate-sheet .celebration-image {
+  max-width: 180px;
+}
+
+.certificate-presented-to {
+  margin: 1rem 0 0.25rem;
+  color: var(--color-text-muted);
+}
+
+.certificate-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.certificate-achievement {
+  margin: 0.25rem 0 1.25rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.certificate-date {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.certificate-signature {
+  margin-top: 2.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.certificate-signature-line {
+  border-top: 1px solid var(--color-text);
+  padding-top: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}

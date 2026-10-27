@@ -250,6 +250,9 @@ function handleGridClick(playerIndex, event) {
     correct: isCorrect,
     userAnswer: chosen,
     timeMs: 0,
+    promptText: state.currentProblem.promptText,
+    answerDisplay: state.currentProblem.answerDisplay,
+    choices: state.currentProblem.choices,
   });
 
   if (isCorrect) {

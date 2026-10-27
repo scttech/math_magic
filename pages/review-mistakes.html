@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Review Mistakes</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="../assets/favicon.ico" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/screen.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <h1>Review Mistakes</h1>
+      <p class="progress-text">Practice just the problems you've missed before — getting one right here clears it from this list.</p>
+
+      <section id="review-setup" class="card">
+        <div id="review-empty" hidden>
+          <p>🎉 Nothing to review right now — every missed problem has either been fixed or you haven't missed any yet!</p>
+        </div>
+        <div id="review-summary">
+          <p id="review-count-text"></p>
+          <div id="review-topic-chips" class="badges-row"></div>
+        </div>
+        <button id="review-start-btn" type="button" class="btn">Start Review</button>
+      </section>
+
+      <section id="review-active" class="card" hidden>
+        <div class="quiz-active-header">
+          <p id="review-progress-text" class="progress-text"></p>
+          <a id="review-help-link" class="help-link" href="#" target="_blank" rel="noopener" hidden>&#x2753; Need help with this one?</a>
+        </div>
+        <p id="review-prompt-text" style="font-size: 1.25rem"></p>
+        <div id="review-shape-display" hidden></div>
+        <div id="review-grid-container" class="coordinate-plane-grid" hidden></div>
+
+        <form id="review-answer-form">
+          <div id="review-answer-field-row" class="field-row">
+            <label for="review-answer-input">Your Answer</label>
+            <input id="review-answer-input" type="text" autocomplete="off" />
+          </div>
+          <button id="review-submit-btn" type="submit" class="btn">Submit</button>
+          <button id="review-next-btn" type="button" class="btn secondary" hidden>Next</button>
+        </form>
+
+        <div id="review-choices" class="choice-grid" hidden></div>
+
+        <div id="review-feedback" class="feedback" hidden></div>
+      </section>
+
+      <section id="review-results" class="card" hidden>
+        <h2>Review Complete</h2>
+        <img id="review-celebration-image" class="celebration-image" alt="" hidden />
+        <p id="review-score-summary"></p>
+        <button id="review-again-btn" type="button" class="btn">Review More</button>
+        <a href="dashboard.html" class="btn secondary">Back to Dashboard</a>
+        <a href="../index.html" class="btn secondary">Back to Home</a>
+      </section>
+    </main>
+
+    <script src="../js/vendor/d3.v7.min.js"></script>
+    <script type="module">
+      import { init } from '../js/views/reviewMistakesView.js';
+      init();
+    </script>
+  </body>
+</html>

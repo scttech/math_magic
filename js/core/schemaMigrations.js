@@ -6,13 +6,17 @@
 // To add a new shape: write migrations[N] = (doc) => transformed doc (N -> N+1),
 // then bump CURRENT_SCHEMA_VERSION. migrate() walks the chain from whatever
 // version a document declares up to CURRENT_SCHEMA_VERSION.
-export const CURRENT_SCHEMA_VERSION = 2;
+export const CURRENT_SCHEMA_VERSION = 3;
 
 const migrations = {
   // v1 -> v2: added `lessons` (per-lesson checkpoint-correctness tracking for
   // the Learn roadmap). Purely additive — the final shape step below already
   // defaults a missing `lessons` to {}, so this is just an explicit version bump.
   1: (doc) => doc,
+  // v2 -> v3: added `resolvedMistakes` (Review Mistakes: which missed
+  // problems have since been answered correctly, keyed by generatorId +
+  // difficulty + seed). Purely additive, same reasoning as v1 -> v2.
+  2: (doc) => doc,
 };
 
 export function migrate(doc) {
@@ -32,5 +36,7 @@ export function migrate(doc) {
     attempts: Array.isArray(result.attempts) ? result.attempts : [],
     worksheets: Array.isArray(result.worksheets) ? result.worksheets : [],
     lessons: result.lessons && typeof result.lessons === 'object' && !Array.isArray(result.lessons) ? result.lessons : {},
+    resolvedMistakes:
+      result.resolvedMistakes && typeof result.resolvedMistakes === 'object' && !Array.isArray(result.resolvedMistakes) ? result.resolvedMistakes : {},
   };
 }

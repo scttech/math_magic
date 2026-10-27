@@ -276,7 +276,18 @@ function handleAnswer(index, chosenBtn) {
   const chosen = problem.choices[index];
   const isCorrect = chosen === problem.answerDisplay;
 
-  state.results.push({ generatorId: state.topic.generatorId, difficulty: null, seed: problem.seed, correct: isCorrect, userAnswer: chosen, timeMs: 0 });
+  state.results.push({
+    generatorId: state.topic.generatorId,
+    difficulty: null,
+    seed: problem.seed,
+    correct: isCorrect,
+    userAnswer: chosen,
+    timeMs: 0,
+    promptText: problem.promptText,
+    answerDisplay: problem.answerDisplay,
+    choices: problem.choices,
+    shapeId: problem.shapeId,
+  });
 
   const buttons = Array.from(els.choices.querySelectorAll('.choice-btn'));
   for (const btn of buttons) {
