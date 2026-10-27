@@ -1,3 +1,14 @@
+/* Celebration art (js/app/celebrations.js) shown at the top of a results
+   screen — same markup/class everywhere it appears (quiz, lessons, skill
+   drills, every game), hidden by default until JS picks an image. */
+.celebration-image {
+  display: block;
+  max-width: 220px;
+  width: 100%;
+  height: auto;
+  margin: 0 auto 1rem;
+}
+
 /* A grid of same-purpose .card links (home page, hub pages) — sized down from
    a standalone .card (less padding, smaller heading, no bottom margin since
    the grid gap replaces it) so more fit per screen without a long vertical
@@ -631,6 +642,99 @@ input[type='number'] {
   border-radius: var(--radius);
   border: 2px solid var(--color-border);
   cursor: crosshair;
+}
+
+/* Maze Runner. .maze-hud mirrors .blaster-hud. The grid's own
+   grid-template-columns/rows and each cell's per-side borders are set inline
+   from JS (they vary with maze size and that cell's own walls), so there's
+   nothing to express here beyond the fixed per-cell chrome. */
+.maze-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.maze-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.maze-grid {
+  display: grid;
+  background: var(--color-surface);
+}
+
+.maze-cell {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: var(--color-text-muted);
+}
+
+.maze-cell.current {
+  background: #e8edfb;
+}
+
+.maze-cell.goal {
+  background: #fff4d6;
+}
+
+.maze-cell.enemy {
+  background: #fbe9e7;
+}
+
+.maze-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 3rem);
+  grid-template-rows: repeat(3, 3rem);
+  gap: 0.4rem;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.maze-dpad-btn {
+  font-family: inherit;
+  font-size: 1.3rem;
+  padding: 0;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
+}
+
+.maze-dpad-btn:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.maze-dpad-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.maze-dpad-up {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.maze-dpad-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.maze-dpad-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.maze-dpad-down {
+  grid-column: 2;
+  grid-row: 3;
 }
 
 /* Memory Match */

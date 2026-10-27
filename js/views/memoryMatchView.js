@@ -9,6 +9,7 @@ import { createRng, randomSeed, shuffle } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordQuizAttempt } from '../core/progressStore.js';
 import { playCorrectSound, playIncorrectSound, animateFeedback } from '../app/feedbackFx.js';
+import { pickCelebrationForAccuracy, showCelebration } from '../app/celebrations.js';
 import { buildDeck } from '../app/memoryDeck.js';
 import { parseNumberSpec } from '../skills/numberSpec.js';
 import { generateProblem as generateAddition, GENERATOR_ID as ADD_ID, MIN_VALUE as ADD_MIN, MAX_VALUE as ADD_MAX } from '../skills/additionFacts.js';
@@ -43,6 +44,7 @@ function cacheElements() {
   els.movesText = document.getElementById('memory-moves');
   els.matchedText = document.getElementById('memory-matched');
   els.board = document.getElementById('memory-board');
+  els.celebrationImage = document.getElementById('memory-celebration-image');
   els.finalMovesText = document.getElementById('memory-final-moves');
   els.finalAccuracyText = document.getElementById('memory-final-accuracy');
   els.retryBtn = document.getElementById('memory-retry-btn');
@@ -104,6 +106,7 @@ function finishGame() {
   const accuracy = total === 0 ? 0 : Math.round((correct / total) * 100);
   els.finalMovesText.textContent = `Completed in ${state.moves} move${state.moves === 1 ? '' : 's'}.`;
   els.finalAccuracyText.textContent = `${correct} of ${total} match attempt${total === 1 ? '' : 's'} correct (${accuracy}%).`;
+  showCelebration(els.celebrationImage, pickCelebrationForAccuracy(total === 0 ? 0 : correct / total));
 }
 
 function handleCardClick(index) {

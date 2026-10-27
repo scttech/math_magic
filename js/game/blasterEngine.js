@@ -9,7 +9,7 @@
 export const BASE_FALL_SPEED = 40; // px/sec
 export const SPEED_RAMP_PER_CORRECT = 4; // px/sec added per correct hit
 export const MAX_FALL_SPEED = 160;
-const ASTEROID_RADIUS = 28;
+const ASTEROID_RADIUS = 32;
 
 /** How fast asteroids fall, given how many correct answers have been scored so far. */
 export function fallSpeedForScore(score) {
@@ -21,6 +21,84 @@ export function isPointInCircle(px, py, cx, cy, radius) {
   const dx = px - cx;
   const dy = py - cy;
   return dx * dx + dy * dy <= radius * radius;
+}
+
+/**
+ * Greedily wraps `words` onto lines no wider than `maxWidth` (per
+ * `measureWidth`), breaking at word boundaries. With `allowCharSplit` (off by
+ * default), a single word that alone exceeds maxWidth is left as its own
+ * (overflowing) line rather than being broken mid-word; callers that want a
+ * last-resort character split for an extreme case can pass it explicitly.
+ */
+export function wrapWords(words, maxWidth, measureWidth, allowCharSplit = false) {
+  const lines = [];
+  let current = '';
+  const pushCurrent = () => {
+    if (current) {
+      lines.push(current);
+      current = '';
+    }
+  };
+
+  for (let word of words) {
+    if (allowCharSplit) {
+      while (measureWidth(word) > maxWidth && word.length > 1) {
+        let cut = word.length;
+        while (cut > 1 && measureWidth(word.slice(0, cut)) > maxWidth) cut -= 1;
+        pushCurrent();
+        lines.push(word.slice(0, cut));
+        word = word.slice(cut);
+      }
+    }
+    const candidate = current ? `${current} ${word}` : word;
+    if (!current || measureWidth(candidate) <= maxWidth) {
+      current = candidate;
+    } else {
+      pushCurrent();
+      current = word;
+    }
+  }
+  pushCurrent();
+  return lines;
+}
+
+/**
+ * Picks a font size and word wrap that fits `label` inside a circle of the
+ * given radius, so a long asteroid label (a multi-word shape name, not just a
+ * short number) never overflows its circle. `measureWidth(text, fontSize)` is
+ * injected so this stays pure/testable — production passes a canvas
+ * measureText wrapper.
+ *
+ * Shrinking the font to fit cleanly at word boundaries is always preferred
+ * over keeping a larger font and character-splitting a word mid-word (e.g.
+ * "Triangl"/"e") — the smallest font size is tried, without splitting, before
+ * splitting is allowed at all, so a split is only ever a last resort for a
+ * single word too long to read at any size in range.
+ */
+export function fitLabelToCircle(label, radius, measureWidth, { minFontSize = 9, maxFontSize = 15 } = {}) {
+  const maxWidth = radius * 1.7;
+  const maxHeight = radius * 1.8;
+  const words = label.split(' ');
+
+  function findFit(allowCharSplit) {
+    for (let fontSize = maxFontSize; fontSize >= minFontSize; fontSize -= 1) {
+      const measureAtSize = (text) => measureWidth(text, fontSize);
+      const lineHeight = fontSize * 1.15;
+      const lines = wrapWords(words, maxWidth, measureAtSize, allowCharSplit);
+      const widestLine = Math.max(...lines.map(measureAtSize));
+      const totalHeight = lines.length * lineHeight;
+      if (widestLine <= maxWidth && totalHeight <= maxHeight) return { fontSize, lineHeight, lines };
+    }
+    return null;
+  }
+
+  const fit = findFit(false) || findFit(true);
+  if (fit) return fit;
+
+  // Nothing fit even allowing a character split — best effort at the smallest size.
+  const lineHeight = minFontSize * 1.15;
+  const lines = wrapWords(words, maxWidth, (text) => measureWidth(text, minFontSize), true);
+  return { fontSize: minFontSize, lineHeight, lines };
 }
 
 /** Spreads `count` starting x positions evenly across [margin, width - margin], with a little random jitter so they don't look mechanically even. */
@@ -58,6 +136,11 @@ export function createBlasterGame(config) {
   let rafId = null;
   let lastTime = null;
 
+  function measureWidth(text, fontSize) {
+    ctx.font = `bold ${fontSize}px sans-serif`;
+    return ctx.measureText(text).width;
+  }
+
   function spawnProblem() {
     problem = getNextProblem();
     const speed = fallSpeedForScore(score);
@@ -68,6 +151,9 @@ export function createBlasterGame(config) {
       vy: speed * (0.85 + rng() * 0.3),
       radius: ASTEROID_RADIUS,
       label: choice,
+      // Computed once per spawn, not per frame — measureText is comparatively
+      // expensive and the label doesn't change between spawns.
+      labelLayout: fitLabelToCircle(choice, ASTEROID_RADIUS, measureWidth),
       isCorrect: choice === problem.answerDisplay,
       alive: true,
     }));
@@ -84,11 +170,14 @@ export function createBlasterGame(config) {
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 2;
       ctx.stroke();
+
       ctx.fillStyle = '#fff';
-      ctx.font = 'bold 16px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(a.label, a.x, a.y);
+      const { fontSize, lineHeight, lines } = a.labelLayout;
+      ctx.font = `bold ${fontSize}px sans-serif`;
+      const startY = a.y - ((lines.length - 1) * lineHeight) / 2;
+      lines.forEach((line, i) => ctx.fillText(line, a.x, startY + i * lineHeight));
     }
   }
 

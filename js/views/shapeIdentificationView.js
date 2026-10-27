@@ -3,6 +3,7 @@ import { renderNav } from '../app/nav.js';
 import { createRng, randomSeed } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordQuizAttempt } from '../core/progressStore.js';
+import { pickCelebrationForAccuracy, showCelebration } from '../app/celebrations.js';
 import { generateProblem, GENERATOR_ID } from '../skills/shapeIdentification.js';
 import { renderShape } from '../skills/shapeRenderer.js';
 
@@ -24,6 +25,7 @@ function cacheElements() {
   els.choices = document.getElementById('skill-choices');
   els.feedback = document.getElementById('skill-feedback');
   els.scoreSummary = document.getElementById('skill-score-summary');
+  els.celebrationImage = document.getElementById('skill-celebration-image');
   els.retryBtn = document.getElementById('skill-retry-btn');
   els.backBtn = document.getElementById('skill-back-btn');
 }
@@ -149,6 +151,7 @@ function showResults() {
   const correct = state.results.filter((r) => r.correct).length;
   const percent = total === 0 ? 0 : Math.round((correct / total) * 100);
   els.scoreSummary.textContent = `You got ${correct} out of ${total} correct (${percent}%).`;
+  showCelebration(els.celebrationImage, pickCelebrationForAccuracy(total === 0 ? 0 : correct / total));
 }
 
 function backToSetup() {

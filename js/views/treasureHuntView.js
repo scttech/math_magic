@@ -11,6 +11,7 @@ import { getActiveProfileId } from '../core/profileStore.js';
 import { recordQuizAttempt } from '../core/progressStore.js';
 import { renderVisual } from '../charts/renderVisual.js';
 import { playCorrectSound, playIncorrectSound, animateFeedback } from '../app/feedbackFx.js';
+import { pickCelebrationForAccuracy, showCelebration } from '../app/celebrations.js';
 
 const GRID_SIZE = 320;
 const ROUND_PAUSE_MS = 1200;
@@ -32,6 +33,7 @@ function cacheElements() {
   els.scoreText = document.getElementById('treasure-score');
   els.livesText = document.getElementById('treasure-lives');
   els.gridContainer = document.getElementById('treasure-grid-container');
+  els.celebrationImage = document.getElementById('treasure-celebration-image');
   els.finalScoreText = document.getElementById('treasure-final-score');
   els.finalAccuracyText = document.getElementById('treasure-final-accuracy');
   els.retryBtn = document.getElementById('treasure-retry-btn');
@@ -81,6 +83,7 @@ function finishGame() {
   const accuracy = total === 0 ? 0 : Math.round((correct / total) * 100);
   els.finalScoreText.textContent = `Treasures found: ${state.score} of ${state.totalRounds}`;
   els.finalAccuracyText.textContent = `${correct} of ${total} guess${total === 1 ? '' : 'es'} correct (${accuracy}%).`;
+  showCelebration(els.celebrationImage, pickCelebrationForAccuracy(total === 0 ? 0 : correct / total));
 }
 
 function nextRoundOrFinish() {

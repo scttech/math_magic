@@ -10,6 +10,7 @@ import { hasHelp, buildHelpUrl } from '../core/helpRegistry.js';
 import { renderVisual } from '../charts/renderVisual.js';
 import { linkifyGlossaryTerms } from '../app/glossary.js';
 import { playCorrectSound, playIncorrectSound, animateFeedback } from '../app/feedbackFx.js';
+import { pickCelebrationForAccuracy, showCelebration } from '../app/celebrations.js';
 
 const els = {};
 let state = null;
@@ -38,6 +39,7 @@ function cacheElements() {
   els.nextBtn = document.getElementById('next-question-btn');
   els.feedback = document.getElementById('feedback');
   els.scoreSummary = document.getElementById('score-summary');
+  els.celebrationImage = document.getElementById('quiz-celebration-image');
   els.topicBreakdown = document.getElementById('topic-breakdown');
   els.retryBtn = document.getElementById('retry-btn');
   els.backToSetupBtn = document.getElementById('back-to-setup-btn');
@@ -232,6 +234,7 @@ function showResults() {
   const correct = state.results.filter((r) => r.correct).length;
   const percent = total === 0 ? 0 : Math.round((correct / total) * 100);
   els.scoreSummary.textContent = `You got ${correct} out of ${total} correct (${percent}%).`;
+  showCelebration(els.celebrationImage, pickCelebrationForAccuracy(total === 0 ? 0 : correct / total));
 
   const byTopic = new Map();
   for (const result of state.results) {

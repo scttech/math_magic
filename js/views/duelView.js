@@ -10,6 +10,7 @@ import '../app/init.js';
 import { renderNav } from '../app/nav.js';
 import { createRng, randomSeed } from '../core/rng.js';
 import { playCorrectSound, playIncorrectSound, animateFeedback } from '../app/feedbackFx.js';
+import { pickGoodCelebration, showCelebration } from '../app/celebrations.js';
 import { determineWinner } from '../app/duelScoring.js';
 import { listProfiles, getProfile } from '../core/profileStore.js';
 import { getProgress, recordQuizAttempt } from '../core/progressStore.js';
@@ -116,6 +117,7 @@ function cacheElements() {
   els.choicesA = document.getElementById('duel-choices-a');
   els.choicesB = document.getElementById('duel-choices-b');
   els.winnerBanner = document.getElementById('duel-winner-banner');
+  els.celebrationImage = document.getElementById('duel-celebration-image');
   els.finalScoreA = document.getElementById('duel-final-score-a');
   els.finalScoreB = document.getElementById('duel-final-score-b');
   els.finalRecordA = document.getElementById('duel-final-record-a');
@@ -311,6 +313,10 @@ function showMatchResults() {
   els.winnerBanner.textContent = winner === 'tie' ? "🤝 It's a tie!" : `🏆 ${winner === 'a' ? nameA : nameB} wins!`;
   playCorrectSound();
   animateFeedback(els.winnerBanner, true);
+  // Both players share this one results screen, so (unlike a solo game) this
+  // always shows a "good" celebration — a win/tie for a fun 2-player match
+  // isn't a pass/fail result to encourage one side out of.
+  showCelebration(els.celebrationImage, pickGoodCelebration());
 
   const startedAt = state.startedAt;
   const completedAt = new Date().toISOString();

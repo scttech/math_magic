@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Maze Runner</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="../assets/favicon.ico" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <h1>🧩 Maze Runner</h1>
+      <p class="progress-text">Find your way to the door 🚪 — most steps are free, but about 3 in 10 ask a question, and monsters 👹 always do. Answer correctly to move (and defeat a monster), or take a hit and try again.</p>
+
+      <section id="maze-setup" class="card">
+        <div class="field-row">
+          <label for="maze-topic-select">Topic</label>
+          <select id="maze-topic-select"></select>
+        </div>
+
+        <div class="field-row">
+          <label for="maze-size-select">Maze Size</label>
+          <select id="maze-size-select">
+            <option value="6">Small (6×6)</option>
+            <option value="8" selected>Medium (8×8)</option>
+            <option value="10">Large (10×10)</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label for="maze-lives-select">Lives</label>
+          <select id="maze-lives-select">
+            <option value="3">3</option>
+            <option value="5" selected>5</option>
+            <option value="7">7</option>
+          </select>
+        </div>
+
+        <button id="maze-start-btn" type="button" class="btn">Enter the Maze</button>
+      </section>
+
+      <section id="maze-active" class="card" hidden>
+        <div class="maze-hud">
+          <p id="maze-moves" class="duel-score"></p>
+          <p id="maze-enemies"></p>
+          <p id="maze-lives"></p>
+        </div>
+
+        <div class="maze-wrap">
+          <div id="maze-grid" class="maze-grid"></div>
+        </div>
+
+        <div class="maze-controls">
+          <button id="maze-up-btn" type="button" class="maze-dpad-btn maze-dpad-up" aria-label="Move up">▲</button>
+          <button id="maze-left-btn" type="button" class="maze-dpad-btn maze-dpad-left" aria-label="Move left">◀</button>
+          <button id="maze-right-btn" type="button" class="maze-dpad-btn maze-dpad-right" aria-label="Move right">▶</button>
+          <button id="maze-down-btn" type="button" class="maze-dpad-btn maze-dpad-down" aria-label="Move down">▼</button>
+        </div>
+        <p class="duel-key-hint">⌨️ Arrow keys or WASD move. When a question appears, click a choice or press 1-4.</p>
+
+        <div id="maze-problem-panel" hidden>
+          <div id="maze-prompt" class="equation-display"></div>
+          <div id="maze-choices" class="choice-grid"></div>
+        </div>
+      </section>
+
+      <section id="maze-results" class="card" hidden>
+        <h2 id="maze-result-banner"></h2>
+        <img id="maze-celebration-image" class="celebration-image" alt="" hidden />
+        <p id="maze-final-moves"></p>
+        <p id="maze-final-accuracy"></p>
+        <button id="maze-retry-btn" type="button" class="btn">Play Again</button>
+        <button id="maze-back-btn" type="button" class="btn secondary">Back to Setup</button>
+        <a href="../index.html" class="btn secondary">Back to Home</a>
+      </section>
+    </main>
+
+    <script type="module">
+      import { init } from '../js/views/mazeView.js';
+      init();
+    </script>
+  </body>
+</html>

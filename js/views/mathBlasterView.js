@@ -12,6 +12,7 @@ import { createRng, randomSeed } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordQuizAttempt } from '../core/progressStore.js';
 import { playCorrectSound, playIncorrectSound, animateFeedback } from '../app/feedbackFx.js';
+import { pickCelebrationForAccuracy, showCelebration } from '../app/celebrations.js';
 import { createBlasterGame } from '../game/blasterEngine.js';
 import { parseNumberSpec } from '../skills/numberSpec.js';
 import { renderShape } from '../skills/shapeRenderer.js';
@@ -107,6 +108,7 @@ function cacheElements() {
   els.prompt = document.getElementById('blaster-prompt');
   els.scoreText = document.getElementById('blaster-score');
   els.livesText = document.getElementById('blaster-lives');
+  els.celebrationImage = document.getElementById('blaster-celebration-image');
   els.finalScoreText = document.getElementById('blaster-final-score');
   els.finalAccuracyText = document.getElementById('blaster-final-accuracy');
   els.retryBtn = document.getElementById('blaster-retry-btn');
@@ -126,6 +128,7 @@ function showResults(score, results) {
   const accuracy = total === 0 ? 0 : Math.round((correct / total) * 100);
   els.finalScoreText.textContent = `Score: ${score}`;
   els.finalAccuracyText.textContent = `${correct} of ${total} shots on target (${accuracy}%).`;
+  showCelebration(els.celebrationImage, pickCelebrationForAccuracy(total === 0 ? 0 : correct / total));
 }
 
 function launchGame() {

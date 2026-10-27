@@ -9,6 +9,7 @@ import { getActiveProfileId } from '../core/profileStore.js';
 import { recordCheckpointCorrect } from '../core/lessonProgress.js';
 import { renderVisual } from '../charts/renderVisual.js';
 import { playCorrectSound, playIncorrectSound, animateFeedback } from '../app/feedbackFx.js';
+import { pickGoodCelebration, showCelebration } from '../app/celebrations.js';
 
 const CHECKPOINT_GRID_SIZE = 300;
 
@@ -41,7 +42,7 @@ function renderExampleBlock(block) {
   return section;
 }
 
-function renderCheckpointBlock(lesson, block, blockIndex) {
+function renderCheckpointBlock(lesson, block, blockIndex, onCorrect) {
   const section = document.createElement('section');
   section.className = 'lesson-block lesson-checkpoint card';
   section.innerHTML = `
@@ -129,7 +130,10 @@ function renderCheckpointBlock(lesson, block, blockIndex) {
     const userInput = isInteractive ? (placedMarker ? `(${placedMarker.x}, ${placedMarker.y})` : '') : input.value.trim();
     if (!userInput) return;
     const isCorrect = currentProblem.checkAnswer(userInput);
-    if (isCorrect) recordCheckpointCorrect(getActiveProfileId(), lesson.id, blockIndex);
+    if (isCorrect) {
+      recordCheckpointCorrect(getActiveProfileId(), lesson.id, blockIndex);
+      onCorrect();
+    }
 
     if (isInteractive) {
       renderVisual(gridContainer, {
@@ -178,21 +182,38 @@ function renderLesson(lesson) {
   els.summary.textContent = lesson.summary;
   document.title = `Math Magic — ${lesson.title}`;
 
-  lesson.blocks.forEach((block, blockIndex) => {
-    let el;
-    if (block.type === 'text') el = renderTextBlock(block);
-    else if (block.type === 'example') el = renderExampleBlock(block);
-    else if (block.type === 'checkpoint') el = renderCheckpointBlock(lesson, block, blockIndex);
-    else return;
-    els.blocksContainer.appendChild(el);
-  });
+  // A lesson has no single "finished" moment the way a quiz does (checkpoints
+  // are interspersed with text/examples, and can be retried until correct),
+  // so the celebration image appears in the closing CTA once every checkpoint
+  // in the lesson has been answered correctly at least once this session.
+  const checkpointCount = lesson.blocks.filter((b) => b.type === 'checkpoint').length;
+  const correctlyAnswered = new Set();
 
   const cta = document.createElement('section');
   cta.className = 'lesson-block lesson-cta';
   cta.innerHTML = `
+    <img class="celebration-image" alt="" hidden />
     <h2>Ready to practice more?</h2>
     <p class="progress-text">Keep going with a full ${escapeHtml(topicLabel(lesson.topic))} quiz.</p>
     <a class="btn" href="quiz.html?grade=${encodeURIComponent(lesson.grade)}&topic=${encodeURIComponent(lesson.topic)}">Practice This Topic</a>`;
+  const ctaCelebrationImage = cta.querySelector('.celebration-image');
+
+  function maybeCelebrate(blockIndex) {
+    correctlyAnswered.add(blockIndex);
+    if (ctaCelebrationImage.hidden && correctlyAnswered.size >= checkpointCount) {
+      showCelebration(ctaCelebrationImage, pickGoodCelebration());
+    }
+  }
+
+  lesson.blocks.forEach((block, blockIndex) => {
+    let el;
+    if (block.type === 'text') el = renderTextBlock(block);
+    else if (block.type === 'example') el = renderExampleBlock(block);
+    else if (block.type === 'checkpoint') el = renderCheckpointBlock(lesson, block, blockIndex, () => maybeCelebrate(blockIndex));
+    else return;
+    els.blocksContainer.appendChild(el);
+  });
+
   els.blocksContainer.appendChild(cta);
 }
 

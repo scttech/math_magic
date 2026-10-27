@@ -30,6 +30,7 @@ export function init() {
       choices: 'skill-choices',
       feedback: 'skill-feedback',
       scoreSummary: 'skill-score-summary',
+      celebrationImage: 'skill-celebration-image',
       retryBtn: 'skill-retry-btn',
       backBtn: 'skill-back-btn',
       blitzToggle: 'blitz-toggle',

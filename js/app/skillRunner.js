@@ -9,6 +9,7 @@ import { createRng, randomSeed } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordQuizAttempt } from '../core/progressStore.js';
 import { playCorrectSound, playIncorrectSound, animateFeedback } from './feedbackFx.js';
+import { pickCelebrationForAccuracy, showCelebration } from './celebrations.js';
 
 const KEY_TO_INDEX = { 1: 0, 2: 1, 3: 2, 4: 3 };
 
@@ -23,8 +24,9 @@ const BLITZ_PROBLEM_BUFFER = 300;
  * @param {Object<string,string>} config.elementIds - DOM id for every element the flow touches, both the
  *   generic ones (setupSection, activeSection, resultsSection, countSelect, setupError, startBtn,
  *   progressText, promptContainer, choices, feedback, scoreSummary, retryBtn, backBtn) and any
- *   skill-specific setup inputs a skill's own validateSetup() needs to read. Two more are optional and
- *   enable Blitz Mode: blitzToggle (a setup checkbox) and timerText (shown/updated during a blitz run).
+ *   skill-specific setup inputs a skill's own validateSetup() needs to read. A few more are optional:
+ *   blitzToggle/timerText enable Blitz Mode (a setup checkbox, shown/updated during a blitz run), and
+ *   celebrationImage (an <img class="celebration-image">) shows a celebration picture on the results screen.
  * @param {string} config.navPage - page passed to renderNav().
  * @param {string} config.generatorId - recorded on each attempt for the dashboard.
  * @param {string[]} config.topics - recorded on each attempt for the dashboard.
@@ -203,6 +205,7 @@ export function initSkillRunner(config) {
     const correct = state.results.filter((r) => r.correct).length;
     const percent = total === 0 ? 0 : Math.round((correct / total) * 100);
     els.scoreSummary.textContent = `You got ${correct} out of ${total} correct (${percent}%).`;
+    showCelebration(els.celebrationImage, pickCelebrationForAccuracy(total === 0 ? 0 : correct / total));
   }
 
   function backToSetup() {
