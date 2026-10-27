@@ -39,7 +39,7 @@ QUnit.module('app/recommendation', () => {
     assert.equal(result.topic, 'negativeNumbers');
     assert.equal(result.total, 3);
     assert.ok(Math.abs(result.accuracy - 1 / 3) < 1e-9);
-    assert.equal(result.url, 'quiz.html?grade=6&topic=negativeNumbers');
+    assert.equal(result.url, 'pages/quiz.html?grade=6&topic=negativeNumbers');
   });
 
   QUnit.test('uses the grade of the most recent attempt that practiced the recommended topic', (assert) => {
@@ -51,7 +51,7 @@ QUnit.module('app/recommendation', () => {
     };
     const result = getRecommendedPractice(progress);
     assert.equal(result.topic, 'coordinatePlane');
-    assert.equal(result.url, 'quiz.html?grade=6&topic=coordinatePlane', 'uses the most recent attempt\'s grade, not the first');
+    assert.equal(result.url, 'pages/quiz.html?grade=6&topic=coordinatePlane', 'uses the most recent attempt\'s grade, not the first');
   });
 
   QUnit.test('recommends a skill drill\'s own page, since skills have no grade', (assert) => {
@@ -60,6 +60,6 @@ QUnit.module('app/recommendation', () => {
     };
     const result = getRecommendedPractice(progress);
     assert.equal(result.topic, 'additionFacts');
-    assert.equal(result.url, 'skills-addition-facts.html');
+    assert.equal(result.url, 'pages/skills-addition-facts.html');
   });
 });

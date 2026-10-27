@@ -18,6 +18,16 @@ const LINKS = [
   { href: 'settings.html', label: 'Settings' },
 ];
 
+// index.html is the only page at the site root (required for GitHub Pages);
+// every other page lives one level down in pages/. This nav is shared by
+// both, so hrefs are resolved relative to wherever it's currently mounted.
+const inPagesDir = /\/pages\//.test(location.pathname);
+
+function resolveHref(href) {
+  if (href === 'index.html') return inPagesDir ? '../index.html' : href;
+  return inPagesDir ? href : `pages/${href}`;
+}
+
 function escapeHtml(str) {
   return str.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 }
@@ -25,14 +35,14 @@ function escapeHtml(str) {
 function navLinksHtml(activeHref) {
   return LINKS.map((link) => {
     const isActive = link.href === activeHref;
-    return `<li><a href="${link.href}"${isActive ? ' class="active" aria-current="page"' : ''}>${link.label}</a></li>`;
+    return `<li><a href="${resolveHref(link.href)}"${isActive ? ' class="active" aria-current="page"' : ''}>${link.label}</a></li>`;
   }).join('');
 }
 
 function profileHtml(profile) {
   if (!profile) return '';
   const avatar = profile.avatarIcon ? `<img class="avatar-thumb" src="${avatarIconUrl(profile.avatarIcon)}" alt="" />` : '\u{1F464} ';
-  return `<a href="profiles.html" class="nav-profile">${avatar}${escapeHtml(profile.name)}</a>`;
+  return `<a href="${resolveHref('profiles.html')}" class="nav-profile">${avatar}${escapeHtml(profile.name)}</a>`;
 }
 
 export function renderNav(activeHref) {
@@ -42,7 +52,8 @@ export function renderNav(activeHref) {
   const mount = document.getElementById('site-nav');
   if (!mount) return;
   mount.setAttribute('aria-label', 'Main navigation');
-  mount.innerHTML = `<a href="index.html" class="nav-brand"><img class="nav-brand-icon" src="assets/images/favicon-32.png" alt="" width="28" height="28" />Math Magic</a>
+  const faviconSrc = inPagesDir ? '../assets/images/favicon-32.png' : 'assets/images/favicon-32.png';
+  mount.innerHTML = `<a href="${resolveHref('index.html')}" class="nav-brand"><img class="nav-brand-icon" src="${faviconSrc}" alt="" width="28" height="28" />Math Magic</a>
     <ul class="nav-links">${navLinksHtml(activeHref)}</ul>
     ${profileHtml(getActiveProfile())}`;
 }

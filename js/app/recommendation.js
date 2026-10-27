@@ -9,12 +9,13 @@ import { topicLabel } from './topicLabels.js';
 
 const MIN_SAMPLE_SIZE = 3;
 
+// Only ever rendered on index.html, so URLs are rooted under pages/.
 const SKILL_PAGES = {
-  multiplicationTables: 'skills-multiplication-tables.html',
-  shapeIdentification: 'skills-shape-identification.html',
-  additionFacts: 'skills-addition-facts.html',
-  subtractionFacts: 'skills-subtraction-facts.html',
-  divisionFacts: 'skills-division-facts.html',
+  multiplicationTables: 'pages/skills-multiplication-tables.html',
+  shapeIdentification: 'pages/skills-shape-identification.html',
+  additionFacts: 'pages/skills-addition-facts.html',
+  subtractionFacts: 'pages/skills-subtraction-facts.html',
+  divisionFacts: 'pages/skills-division-facts.html',
 };
 
 /** The grade of the most recent attempt that practiced this topic (null for a skill drill, which has no grade). */
@@ -39,7 +40,9 @@ export function getRecommendedPractice(progress) {
 
   const weakest = byTopic[0];
   const grade = findGradeForTopic(progress, weakest.topic);
-  const url = grade ? `quiz.html?grade=${encodeURIComponent(grade)}&topic=${encodeURIComponent(weakest.topic)}` : SKILL_PAGES[weakest.topic] || 'skills.html';
+  const url = grade
+    ? `pages/quiz.html?grade=${encodeURIComponent(grade)}&topic=${encodeURIComponent(weakest.topic)}`
+    : SKILL_PAGES[weakest.topic] || 'pages/skills.html';
 
   return { topic: weakest.topic, label: topicLabel(weakest.topic), accuracy: weakest.accuracy, total: weakest.total, url };
 }

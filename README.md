@@ -34,6 +34,7 @@ Then open http://localhost:8080/tests/index.html.
 
 ## Project structure
 
+- `index.html` — the only page at the site root (required for GitHub Pages); every other page (`quiz.html`, `worksheet.html`, `dashboard.html`, `learn.html`, `skills.html`, etc.) lives under `pages/`.
 - `js/core/` — the problem-generator contract, seeded RNG, topic/grade registry, scoring/aggregation, profile and progress storage, import/export.
 - `js/generators/<grade>/` — topic modules (e.g. `grade6/fractionsDecimals.js`) that plug into the registry. Adding a new grade or topic means adding a module here, not changing core code.
 - `js/skills/` — grade-agnostic skill drills (multiplication tables, shape identification, and addition/subtraction/division fact fluency) that live outside the grade/topic registry, since they use their own multiple-choice UI instead of the free-text quiz flow. `skills.html` is a hub page linking to each skill's own page. The fact-fluency drills share their "setup → multiple-choice questions → results" flow via `js/app/skillRunner.js`, so a new one is just a small skill module (problem generation) plus a thin view file (setup validation and prompt rendering).
