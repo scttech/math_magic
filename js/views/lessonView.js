@@ -19,6 +19,7 @@ function cacheElements() {
   els.summary = document.getElementById('lesson-summary');
   els.blocksContainer = document.getElementById('lesson-blocks');
   els.notFound = document.getElementById('lesson-not-found');
+  els.printBtn = document.getElementById('print-lesson-btn');
 }
 
 function renderTextBlock(block) {
@@ -195,11 +196,13 @@ function showNotFound() {
   els.blocksContainer.hidden = true;
   els.summary.hidden = true;
   els.notFound.hidden = false;
+  els.printBtn.hidden = true;
 }
 
 export function init() {
   cacheElements();
   renderNav('learn.html');
+  els.printBtn.addEventListener('click', () => window.print());
 
   const params = new URLSearchParams(window.location.search);
   const lesson = getLessonById(params.get('id'));

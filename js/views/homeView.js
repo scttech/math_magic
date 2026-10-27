@@ -4,6 +4,7 @@ import { getActiveProfile } from '../core/profileStore.js';
 import { getProgress } from '../core/progressStore.js';
 import { computeStreak, computeBadges } from '../core/scoring.js';
 import { getRecommendedPractice } from '../app/recommendation.js';
+import { getContinueLearning } from '../app/continueLearning.js';
 
 function renderProgressBanner() {
   const banner = document.getElementById('progress-banner');
@@ -58,8 +59,24 @@ function renderRecommendedPractice() {
   card.hidden = false;
 }
 
+function renderLearnCard() {
+  const textEl = document.getElementById('learn-card-text');
+  const linkEl = document.getElementById('learn-card-link');
+  if (!textEl || !linkEl) return;
+
+  const profile = getActiveProfile();
+  const continueLearning = profile ? getContinueLearning(profile.id) : null;
+  if (!continueLearning) return;
+
+  const verb = continueLearning.status === 'in-progress' ? 'Pick up where you left off' : 'Start your next lesson';
+  textEl.textContent = `${verb}: "${continueLearning.lesson.title}."`;
+  linkEl.textContent = continueLearning.status === 'in-progress' ? 'Continue Lesson' : 'Start Lesson';
+  linkEl.href = continueLearning.url;
+}
+
 export function init() {
   renderNav('index.html');
   renderProgressBanner();
   renderRecommendedPractice();
+  renderLearnCard();
 }

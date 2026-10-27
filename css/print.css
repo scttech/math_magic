@@ -48,4 +48,16 @@
     text-decoration: none;
     cursor: default;
   }
+
+  /* A printed lesson is a cheat sheet: the narrative text and worked examples,
+     with interactive checkpoints and the "practice more" call-to-action left
+     out since neither means anything on paper. */
+  .lesson-checkpoint,
+  .lesson-cta {
+    display: none !important;
+  }
+
+  .lesson-block {
+    break-inside: avoid;
+  }
 }

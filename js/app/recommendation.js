@@ -16,6 +16,8 @@ const SKILL_PAGES = {
   additionFacts: 'pages/skills-addition-facts.html',
   subtractionFacts: 'pages/skills-subtraction-facts.html',
   divisionFacts: 'pages/skills-division-facts.html',
+  fractionSimplification: 'pages/skills-fraction-simplification.html',
+  mixedNumbers: 'pages/skills-mixed-numbers.html',
 };
 
 /** The grade of the most recent attempt that practiced this topic (null for a skill drill, which has no grade). */

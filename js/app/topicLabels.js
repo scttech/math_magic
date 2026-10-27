@@ -23,6 +23,8 @@ export const TOPIC_LABELS = {
   additionFacts: 'Addition Facts',
   subtractionFacts: 'Subtraction Facts',
   divisionFacts: 'Division Facts',
+  fractionSimplification: 'Fraction Simplification',
+  mixedNumbers: 'Mixed Numbers & Improper Fractions',
 };
 
 export function topicLabel(topicKey) {
