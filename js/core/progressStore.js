@@ -29,9 +29,13 @@ export function setProgress(profileId, doc) {
   return migrated;
 }
 
-export function recordQuizAttempt(profileId, { type = 'quiz', grade, topics, difficulty, startedAt, completedAt, problems }) {
+// Extra fields beyond the common shape (e.g. Duel Mode's `outcome`,
+// `opponentName`, `score`/`opponentScore`) pass straight through, so a new
+// attempt type can carry its own data without this function growing another
+// named parameter every time.
+export function recordQuizAttempt(profileId, { type = 'quiz', ...fields }) {
   const doc = getProgress(profileId);
-  const attempt = { attemptId: generateId('atmp'), type, grade, topics, difficulty, startedAt, completedAt, problems };
+  const attempt = { attemptId: generateId('atmp'), type, ...fields };
   doc.attempts.push(attempt);
   setProgress(profileId, doc);
   return attempt;

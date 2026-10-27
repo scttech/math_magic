@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Math Blaster</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="../assets/favicon.ico" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <h1>🎮 Math Blaster</h1>
+      <p class="progress-text">Shoot the asteroid with the right answer before it reaches the bottom!</p>
+
+      <section id="blaster-setup" class="card">
+        <div class="field-row">
+          <label for="blaster-topic-select">Topic</label>
+          <select id="blaster-topic-select"></select>
+        </div>
+
+        <div class="field-row">
+          <label for="blaster-lives-select">Lives</label>
+          <select id="blaster-lives-select">
+            <option value="3" selected>3</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+
+        <button id="blaster-launch-btn" type="button" class="btn">Launch!</button>
+      </section>
+
+      <section id="blaster-active" class="card" hidden>
+        <div class="blaster-hud">
+          <p id="blaster-score" class="duel-score"></p>
+          <p id="blaster-lives"></p>
+        </div>
+        <div id="blaster-prompt" class="equation-display"></div>
+
+        <div id="blaster-canvas-container" class="blaster-canvas-container">
+          <canvas id="blaster-canvas" class="blaster-canvas" width="640" height="420"></canvas>
+        </div>
+      </section>
+
+      <section id="blaster-results" class="card" hidden>
+        <h2>Game Over</h2>
+        <p id="blaster-final-score"></p>
+        <p id="blaster-final-accuracy"></p>
+        <button id="blaster-retry-btn" type="button" class="btn">Play Again</button>
+        <button id="blaster-back-btn" type="button" class="btn secondary">Back to Setup</button>
+        <a href="../index.html" class="btn secondary">Back to Home</a>
+      </section>
+    </main>
+
+    <script type="module">
+      import { init } from '../js/views/mathBlasterView.js';
+      init();
+    </script>
+  </body>
+</html>

@@ -3,7 +3,7 @@ import { renderNav } from '../app/nav.js';
 import { topicLabel } from '../app/topicLabels.js';
 import { getActiveProfile } from '../core/profileStore.js';
 import { getProgress } from '../core/progressStore.js';
-import { computeAccuracyByTopic, computeAccuracyTrend, computeSummary } from '../core/scoring.js';
+import { computeAccuracyByTopic, computeAccuracyTrend, computeSummary, computeDuelStats } from '../core/scoring.js';
 import { renderAccuracyByTopicChart } from '../charts/accuracyByTopicChart.js';
 import { renderTrendChart } from '../charts/trendOverTimeChart.js';
 
@@ -23,12 +23,14 @@ function cacheElements() {
 
 function renderStatTiles(progress) {
   const summary = computeSummary(progress);
+  const duelStats = computeDuelStats(progress);
   const tiles = [
     { value: summary.totalAttempts, label: 'Quizzes Taken' },
     { value: summary.totalProblems, label: 'Problems Answered' },
     { value: `${Math.round(summary.overallAccuracy * 100)}%`, label: 'Overall Accuracy' },
     { value: summary.totalWorksheets, label: 'Worksheets Made' },
   ];
+  if (duelStats.total > 0) tiles.push({ value: `${duelStats.wins}W – ${duelStats.losses}L`, label: 'Duel Record' });
   els.statGrid.innerHTML = tiles
     .map((t) => `<div class="stat-tile"><span class="stat-value">${t.value}</span><span class="stat-label">${t.label}</span></div>`)
     .join('');

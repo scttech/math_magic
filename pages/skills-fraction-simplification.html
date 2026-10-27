@@ -35,6 +35,13 @@
           </select>
         </div>
 
+        <div class="field-row">
+          <label for="blitz-toggle">
+            <input type="checkbox" id="blitz-toggle" />
+            ⚡ Blitz Mode (60 seconds, unlimited questions)
+          </label>
+        </div>
+
         <p id="skill-setup-error" class="feedback incorrect" hidden></p>
 
         <button id="skill-start-btn" type="button" class="btn">Start Practice</button>
@@ -42,6 +49,7 @@
 
       <section id="skill-active" class="card" hidden>
         <p id="skill-progress-text" class="progress-text"></p>
+        <p id="skill-timer-text" class="progress-text" hidden></p>
         <p id="skill-equation" class="equation-display"></p>
 
         <div id="skill-choices" class="choice-grid"></div>
@@ -54,6 +62,7 @@
         <p id="skill-score-summary"></p>
         <button id="skill-retry-btn" type="button" class="btn">Practice Again</button>
         <button id="skill-back-btn" type="button" class="btn secondary">Back to Setup</button>
+        <a href="../index.html" class="btn secondary">Back to Home</a>
       </section>
     </main>
 

@@ -8,6 +8,7 @@ import { topicLabel } from '../app/topicLabels.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordCheckpointCorrect } from '../core/lessonProgress.js';
 import { renderVisual } from '../charts/renderVisual.js';
+import { playCorrectSound, playIncorrectSound, animateFeedback } from '../app/feedbackFx.js';
 
 const CHECKPOINT_GRID_SIZE = 300;
 
@@ -143,6 +144,9 @@ function renderCheckpointBlock(lesson, block, blockIndex) {
     feedbackEl.hidden = false;
     feedbackEl.classList.add(isCorrect ? 'correct' : 'incorrect');
     feedbackEl.textContent = isCorrect ? 'Correct! Nice work.' : `Not quite. The correct answer was: ${currentProblem.answerDisplay}`;
+    if (isCorrect) playCorrectSound();
+    else playIncorrectSound();
+    animateFeedback(feedbackEl, isCorrect);
     input.disabled = true;
     submitBtn.hidden = true;
     explainBtn.hidden = false;

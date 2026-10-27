@@ -8,15 +8,23 @@ import { renderNav } from './nav.js';
 import { createRng, randomSeed } from '../core/rng.js';
 import { getActiveProfileId } from '../core/profileStore.js';
 import { recordQuizAttempt } from '../core/progressStore.js';
+import { playCorrectSound, playIncorrectSound, animateFeedback } from './feedbackFx.js';
 
 const KEY_TO_INDEX = { 1: 0, 2: 1, 3: 2, 4: 3 };
+
+const BLITZ_SECONDS = 60;
+// A large pre-generated pool rather than true lazy generation — simpler, and
+// 300 questions is far more than anyone answers in 60 seconds, so it never
+// runs out before the clock does.
+const BLITZ_PROBLEM_BUFFER = 300;
 
 /**
  * @param {Object} config
  * @param {Object<string,string>} config.elementIds - DOM id for every element the flow touches, both the
  *   generic ones (setupSection, activeSection, resultsSection, countSelect, setupError, startBtn,
  *   progressText, promptContainer, choices, feedback, scoreSummary, retryBtn, backBtn) and any
- *   skill-specific setup inputs a skill's own validateSetup() needs to read.
+ *   skill-specific setup inputs a skill's own validateSetup() needs to read. Two more are optional and
+ *   enable Blitz Mode: blitzToggle (a setup checkbox) and timerText (shown/updated during a blitz run).
  * @param {string} config.navPage - page passed to renderNav().
  * @param {string} config.generatorId - recorded on each attempt for the dashboard.
  * @param {string[]} config.topics - recorded on each attempt for the dashboard.
@@ -31,11 +39,32 @@ export function initSkillRunner(config) {
 
   const els = {};
   let state = null;
+  let blitzIntervalId = null;
 
   function cacheElements() {
     for (const [key, id] of Object.entries(elementIds)) {
       els[key] = document.getElementById(id);
     }
+  }
+
+  function clearBlitzTimer() {
+    if (blitzIntervalId !== null) {
+      clearInterval(blitzIntervalId);
+      blitzIntervalId = null;
+    }
+  }
+
+  function updateTimerText() {
+    if (els.timerText) els.timerText.textContent = `⏱ ${state.timeRemaining}s left`;
+  }
+
+  function startBlitzTimer() {
+    updateTimerText();
+    blitzIntervalId = setInterval(() => {
+      state.timeRemaining -= 1;
+      updateTimerText();
+      if (state.timeRemaining <= 0) showResults();
+    }, 1000);
   }
 
   function startPractice() {
@@ -47,7 +76,8 @@ export function initSkillRunner(config) {
     }
     els.setupError.hidden = true;
 
-    const count = Number(els.countSelect.value);
+    const isBlitz = Boolean(els.blitzToggle && els.blitzToggle.checked);
+    const count = isBlitz ? BLITZ_PROBLEM_BUFFER : Number(els.countSelect.value);
     const baseSeed = randomSeed();
     const problems = [];
     for (let i = 0; i < count; i++) {
@@ -56,6 +86,7 @@ export function initSkillRunner(config) {
       problems.push({ ...generateProblem(rng, ...setup.args), seed });
     }
 
+    clearBlitzTimer();
     state = {
       label: setup.label,
       problems,
@@ -64,11 +95,15 @@ export function initSkillRunner(config) {
       startedAt: new Date().toISOString(),
       questionStartedAt: 0,
       locked: false,
+      timeRemaining: isBlitz ? BLITZ_SECONDS : null,
     };
+
+    if (els.timerText) els.timerText.hidden = !isBlitz;
 
     els.setupSection.hidden = true;
     els.resultsSection.hidden = true;
     els.activeSection.hidden = false;
+    if (isBlitz) startBlitzTimer();
     renderQuestion();
   }
 
@@ -112,9 +147,11 @@ export function initSkillRunner(config) {
     state.results.push({ generatorId, difficulty: null, seed: problem.seed, correct: isCorrect, userAnswer: chosen, timeMs });
 
     const buttons = Array.from(els.choices.querySelectorAll('.choice-btn'));
+    let chosenBtn = null;
     for (const btn of buttons) {
       btn.disabled = true;
       if (btn.dataset.index === String(index)) {
+        chosenBtn = btn;
         btn.classList.add(isCorrect ? 'correct' : 'incorrect');
       } else if (!isCorrect && problem.choices[Number(btn.dataset.index)] === problem.answerDisplay) {
         btn.classList.add('reveal-correct');
@@ -125,10 +162,20 @@ export function initSkillRunner(config) {
     els.feedback.classList.add(isCorrect ? 'correct' : 'incorrect');
     els.feedback.textContent = isCorrect ? 'Correct!' : notCorrectText(problem);
 
+    if (isCorrect) playCorrectSound();
+    else playIncorrectSound();
+    animateFeedback(chosenBtn, isCorrect);
+    animateFeedback(els.feedback, isCorrect);
+
     setTimeout(advance, answerPauseMs);
   }
 
   function advance() {
+    // In Blitz Mode, the timer can end the run (via showResults) while an
+    // answer-pause setTimeout from the just-answered question is still
+    // pending — when that stray call lands, results are already showing, so
+    // just ignore it rather than resurrecting a new question behind the scenes.
+    if (!state || !els.resultsSection.hidden) return;
     state.currentIndex += 1;
     if (state.currentIndex < state.problems.length) {
       renderQuestion();
@@ -138,6 +185,7 @@ export function initSkillRunner(config) {
   }
 
   function showResults() {
+    clearBlitzTimer();
     els.activeSection.hidden = true;
     els.resultsSection.hidden = false;
 
@@ -158,6 +206,7 @@ export function initSkillRunner(config) {
   }
 
   function backToSetup() {
+    clearBlitzTimer();
     state = null;
     els.resultsSection.hidden = true;
     els.activeSection.hidden = true;
@@ -186,4 +235,9 @@ export function initSkillRunner(config) {
   document.addEventListener('keydown', handleKeydown);
   els.retryBtn.addEventListener('click', startPractice);
   els.backBtn.addEventListener('click', backToSetup);
+  if (els.blitzToggle && els.countSelect) {
+    els.blitzToggle.addEventListener('change', () => {
+      els.countSelect.disabled = els.blitzToggle.checked;
+    });
+  }
 }

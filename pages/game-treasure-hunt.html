@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Coordinate Treasure Hunt</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="../assets/favicon.ico" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <h1>🏴‍☠️ Coordinate Treasure Hunt</h1>
+      <p class="progress-text">Click the grid where the treasure is buried — before you run out of lives!</p>
+
+      <section id="treasure-setup" class="card">
+        <div class="field-row">
+          <label for="treasure-grade-select">Grade</label>
+          <select id="treasure-grade-select">
+            <option value="5">5th Grade (first quadrant only)</option>
+            <option value="6" selected>6th Grade (all four quadrants)</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label for="treasure-difficulty-select">Difficulty</label>
+          <select id="treasure-difficulty-select">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label for="treasure-rounds-select">Treasures to Find</label>
+          <select id="treasure-rounds-select">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="15">15</option>
+          </select>
+        </div>
+
+        <div class="field-row">
+          <label for="treasure-lives-select">Lives</label>
+          <select id="treasure-lives-select">
+            <option value="3" selected>3</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+
+        <button id="treasure-start-btn" type="button" class="btn">Start Hunting</button>
+      </section>
+
+      <section id="treasure-active" class="card" hidden>
+        <div class="blaster-hud">
+          <p id="treasure-score" class="duel-score"></p>
+          <p id="treasure-lives"></p>
+        </div>
+        <p id="treasure-round-text" class="progress-text"></p>
+        <p id="treasure-prompt" class="equation-display"></p>
+
+        <div id="treasure-grid-container" class="chart-container"></div>
+      </section>
+
+      <section id="treasure-results" class="card" hidden>
+        <h2>Hunt Complete</h2>
+        <p id="treasure-final-score"></p>
+        <p id="treasure-final-accuracy"></p>
+        <button id="treasure-retry-btn" type="button" class="btn">Play Again</button>
+        <button id="treasure-back-btn" type="button" class="btn secondary">Back to Setup</button>
+        <a href="../index.html" class="btn secondary">Back to Home</a>
+      </section>
+    </main>
+
+    <script src="../js/vendor/d3.v7.min.js"></script>
+    <script type="module">
+      import { init } from '../js/views/treasureHuntView.js';
+      init();
+    </script>
+  </body>
+</html>

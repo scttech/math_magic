@@ -60,4 +60,16 @@
   .lesson-block {
     break-inside: avoid;
   }
+
+  /* Weekly Progress Report: strip the card chrome like .worksheet-sheet, and
+     keep each profile's section from splitting across a page boundary. */
+  .report-sheet {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
+
+  .report-profile {
+    break-inside: avoid;
+  }
 }

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Memory Match</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="../assets/favicon.ico" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <h1>🧠 Memory Match</h1>
+      <p class="progress-text">Flip two cards at a time — match a problem with its answer.</p>
+
+      <section id="memory-setup" class="card">
+        <div class="field-row">
+          <label for="memory-topic-select">Topic</label>
+          <select id="memory-topic-select"></select>
+        </div>
+
+        <div class="field-row">
+          <label for="memory-pair-count-select">Pairs</label>
+          <select id="memory-pair-count-select">
+            <option value="6">6 (12 cards)</option>
+            <option value="8" selected>8 (16 cards)</option>
+            <option value="10">10 (20 cards)</option>
+          </select>
+        </div>
+
+        <p id="memory-setup-error" class="feedback incorrect" hidden></p>
+
+        <button id="memory-start-btn" type="button" class="btn">Deal the Cards</button>
+      </section>
+
+      <section id="memory-active" class="card" hidden>
+        <div class="blaster-hud">
+          <p id="memory-moves" class="duel-score"></p>
+          <p id="memory-matched" class="duel-score"></p>
+        </div>
+
+        <div id="memory-board" class="memory-board"></div>
+      </section>
+
+      <section id="memory-results" class="card" hidden>
+        <h2>All Matched!</h2>
+        <p id="memory-final-moves"></p>
+        <p id="memory-final-accuracy"></p>
+        <button id="memory-retry-btn" type="button" class="btn">Play Again</button>
+        <button id="memory-back-btn" type="button" class="btn secondary">Back to Setup</button>
+        <a href="../index.html" class="btn secondary">Back to Home</a>
+      </section>
+    </main>
+
+    <script type="module">
+      import { init } from '../js/views/memoryMatchView.js';
+      init();
+    </script>
+  </body>
+</html>

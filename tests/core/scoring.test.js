@@ -1,8 +1,12 @@
 import '../../js/generators/grade6/index.js';
-import { computeAccuracyByTopic, computeAccuracyTrend, computeSummary, computeStreak, computeBadges } from '../../js/core/scoring.js';
+import { computeAccuracyByTopic, computeAccuracyTrend, computeSummary, computeStreak, computeBadges, computeDuelStats, filterAttemptsSince } from '../../js/core/scoring.js';
 
 function attempt({ completedAt, problems }) {
   return { attemptId: 'a', type: 'quiz', grade: '6', topics: [], difficulty: 'medium', startedAt: completedAt, completedAt, problems };
+}
+
+function duelAttempt({ completedAt, outcome, opponentScore = 0 }) {
+  return { attemptId: 'd', type: 'duel', topics: ['additionFacts'], startedAt: completedAt, completedAt, problems: [], outcome, opponentScore, rounds: 10 };
 }
 
 function problem(generatorId, correct) {
@@ -204,5 +208,123 @@ QUnit.module('core/scoring', () => {
       attempts: [attempt({ completedAt: '2026-01-01T00:00:00.000Z', problems: [problem(FRACTIONS_GEN, true), problem(FRACTIONS_GEN, true)] })],
     };
     assert.ok(computeBadges(perfect).find((b) => b.id === 'perfect-quiz').earned);
+  });
+
+  QUnit.test('computeDuelStats is all zero with no duel attempts', (assert) => {
+    assert.deepEqual(computeDuelStats({ attempts: [], worksheets: [] }), { total: 0, wins: 0, losses: 0, ties: 0, currentWinStreak: 0, shutouts: 0 });
+  });
+
+  QUnit.test('computeDuelStats tallies wins/losses/ties and ignores non-duel attempts', (assert) => {
+    const progress = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [
+        attempt({ completedAt: '2026-01-01T00:00:00.000Z', problems: [problem(FRACTIONS_GEN, true)] }),
+        duelAttempt({ completedAt: '2026-01-02T00:00:00.000Z', outcome: 'win', opponentScore: 3 }),
+        duelAttempt({ completedAt: '2026-01-03T00:00:00.000Z', outcome: 'loss' }),
+        duelAttempt({ completedAt: '2026-01-04T00:00:00.000Z', outcome: 'tie' }),
+      ],
+    };
+    const stats = computeDuelStats(progress);
+    assert.equal(stats.total, 3);
+    assert.equal(stats.wins, 1);
+    assert.equal(stats.losses, 1);
+    assert.equal(stats.ties, 1);
+  });
+
+  QUnit.test('computeDuelStats counts the current win streak back from the most recent duel', (assert) => {
+    const progress = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [
+        duelAttempt({ completedAt: '2026-01-01T00:00:00.000Z', outcome: 'loss' }),
+        duelAttempt({ completedAt: '2026-01-02T00:00:00.000Z', outcome: 'win' }),
+        duelAttempt({ completedAt: '2026-01-03T00:00:00.000Z', outcome: 'win' }),
+        duelAttempt({ completedAt: '2026-01-04T00:00:00.000Z', outcome: 'win' }),
+      ],
+    };
+    assert.equal(computeDuelStats(progress).currentWinStreak, 3);
+  });
+
+  QUnit.test('computeDuelStats resets the win streak to 0 after a loss or tie', (assert) => {
+    const progress = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [duelAttempt({ completedAt: '2026-01-01T00:00:00.000Z', outcome: 'win' }), duelAttempt({ completedAt: '2026-01-02T00:00:00.000Z', outcome: 'tie' })],
+    };
+    assert.equal(computeDuelStats(progress).currentWinStreak, 0);
+  });
+
+  QUnit.test('computeDuelStats counts a shutout only on a win with opponentScore 0', (assert) => {
+    const shutout = { schemaVersion: 1, worksheets: [], attempts: [duelAttempt({ completedAt: '2026-01-01T00:00:00.000Z', outcome: 'win', opponentScore: 0 })] };
+    const closeWin = { schemaVersion: 1, worksheets: [], attempts: [duelAttempt({ completedAt: '2026-01-01T00:00:00.000Z', outcome: 'win', opponentScore: 2 })] };
+    assert.equal(computeDuelStats(shutout).shutouts, 1);
+    assert.equal(computeDuelStats(closeWin).shutouts, 0);
+  });
+
+  QUnit.test('computeBadges marks duel badges earned based on computeDuelStats', (assert) => {
+    const noDuels = computeBadges({ attempts: [], worksheets: [] });
+    assert.notOk(noDuels.find((b) => b.id === 'first-duel').earned);
+
+    const progress = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [
+        duelAttempt({ completedAt: '2026-01-01T00:00:00.000Z', outcome: 'win', opponentScore: 0 }),
+        duelAttempt({ completedAt: '2026-01-02T00:00:00.000Z', outcome: 'win', opponentScore: 1 }),
+        duelAttempt({ completedAt: '2026-01-03T00:00:00.000Z', outcome: 'win', opponentScore: 2 }),
+      ],
+    };
+    const badges = computeBadges(progress);
+    assert.ok(badges.find((b) => b.id === 'first-duel').earned);
+    assert.ok(badges.find((b) => b.id === 'duel-streak').earned, '3-win streak reached');
+    assert.ok(badges.find((b) => b.id === 'duel-shutout').earned, 'first duel win was a shutout');
+    assert.notOk(badges.find((b) => b.id === 'duel-champion').earned, 'only 3 of the required 5 wins so far');
+  });
+
+  QUnit.test('filterAttemptsSince keeps only attempts completed at or after the given date', (assert) => {
+    const progress = {
+      schemaVersion: 1,
+      worksheets: [{ worksheetId: 'w1' }],
+      attempts: [
+        attempt({ completedAt: '2026-01-01T00:00:00.000Z', problems: [problem(FRACTIONS_GEN, true)] }),
+        attempt({ completedAt: '2026-01-10T00:00:00.000Z', problems: [problem(FRACTIONS_GEN, true)] }),
+        attempt({ completedAt: '2026-01-15T00:00:00.000Z', problems: [problem(FRACTIONS_GEN, false)] }),
+      ],
+    };
+    const filtered = filterAttemptsSince(progress, new Date('2026-01-10T00:00:00.000Z'));
+    assert.equal(filtered.attempts.length, 2, 'the boundary date itself is included');
+    assert.deepEqual(
+      filtered.attempts.map((a) => a.completedAt),
+      ['2026-01-10T00:00:00.000Z', '2026-01-15T00:00:00.000Z']
+    );
+    assert.deepEqual(filtered.worksheets, progress.worksheets, 'other fields pass through unchanged');
+  });
+
+  QUnit.test('filterAttemptsSince accepts a plain date string as well as a Date', (assert) => {
+    const progress = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [attempt({ completedAt: '2026-01-01T00:00:00.000Z', problems: [problem(FRACTIONS_GEN, true)] })],
+    };
+    assert.equal(filterAttemptsSince(progress, '2026-01-05T00:00:00.000Z').attempts.length, 0);
+    assert.equal(filterAttemptsSince(progress, '2025-12-25T00:00:00.000Z').attempts.length, 1);
+  });
+
+  QUnit.test('filterAttemptsSince can be fed straight into computeSummary/computeAccuracyByTopic', (assert) => {
+    const progress = {
+      schemaVersion: 1,
+      worksheets: [],
+      attempts: [
+        attempt({ completedAt: '2026-01-01T00:00:00.000Z', problems: [problem(FRACTIONS_GEN, true), problem(FRACTIONS_GEN, true)] }),
+        attempt({ completedAt: '2026-01-20T00:00:00.000Z', problems: [problem(RATIOS_GEN, false)] }),
+      ],
+    };
+    const windowed = filterAttemptsSince(progress, new Date('2026-01-15T00:00:00.000Z'));
+    assert.equal(computeSummary(windowed).totalProblems, 1);
+    assert.deepEqual(
+      computeAccuracyByTopic(windowed).map((t) => t.topic),
+      ['ratiosProportions']
+    );
   });
 });

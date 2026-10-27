@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Duel Mode</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="../assets/favicon.ico" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <h1>⚔️ Duel Mode</h1>
+      <p class="progress-text">Two players, one screen. Same problem, same choices — first correct click wins the round!</p>
+
+      <section id="duel-setup" class="card">
+        <div class="field-row">
+          <label for="duel-topic-select">Topic</label>
+          <select id="duel-topic-select"></select>
+        </div>
+
+        <div class="field-row">
+          <label for="duel-player-a-select">Player 1</label>
+          <select id="duel-player-a-select"></select>
+        </div>
+        <p id="duel-player-a-record" class="duel-key-hint"></p>
+
+        <div class="field-row">
+          <label for="duel-player-b-select">Player 2</label>
+          <select id="duel-player-b-select"></select>
+        </div>
+        <p id="duel-player-b-record" class="duel-key-hint"></p>
+
+        <div class="field-row">
+          <label for="duel-rounds-select">Rounds</label>
+          <select id="duel-rounds-select">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="15">15</option>
+          </select>
+        </div>
+
+        <p id="duel-setup-error" class="feedback incorrect" hidden></p>
+        <button id="duel-start-btn" type="button" class="btn">Start Duel</button>
+      </section>
+
+      <section id="duel-active" class="card" hidden>
+        <p id="duel-round-text" class="progress-text"></p>
+        <p id="duel-prompt" class="equation-display"></p>
+        <p id="duel-round-banner" class="feedback" hidden></p>
+
+        <div class="duel-grids">
+          <div class="duel-player-column">
+            <h3 id="duel-player-a-name"></h3>
+            <p id="duel-score-a" class="duel-score"></p>
+            <p class="duel-key-hint">⌨️ Keys: 1 2 3 4 (top row)</p>
+            <div id="duel-choices-a" class="choice-grid"></div>
+          </div>
+          <div class="duel-player-column">
+            <h3 id="duel-player-b-name"></h3>
+            <p id="duel-score-b" class="duel-score"></p>
+            <p class="duel-key-hint">⌨️ Keys: A S D F (or Numpad 1-4)</p>
+            <div id="duel-choices-b" class="choice-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="duel-results" class="card" hidden>
+        <h2 id="duel-winner-banner"></h2>
+        <p id="duel-final-score-a"></p>
+        <p id="duel-final-record-a" class="duel-key-hint"></p>
+        <p id="duel-final-score-b"></p>
+        <p id="duel-final-record-b" class="duel-key-hint"></p>
+        <button id="duel-retry-btn" type="button" class="btn">Play Again</button>
+        <button id="duel-back-btn" type="button" class="btn secondary">Back to Setup</button>
+        <a href="../index.html" class="btn secondary">Back to Home</a>
+      </section>
+    </main>
+
+    <script type="module">
+      import { init } from '../js/views/duelView.js';
+      init();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Math Magic — Games</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="../assets/favicon.ico" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+  </head>
+  <body>
+    <nav id="site-nav"></nav>
+
+    <main class="container">
+      <h1>🎲 Games</h1>
+      <p class="progress-text">Practice reinforced through play — pick a game below.</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <h2>⚔️ Duel Mode</h2>
+          <p>Two players, one screen — race to answer the same problem first.</p>
+          <a class="btn" href="duel.html">Start a Duel</a>
+        </div>
+
+        <div class="card">
+          <h2>🎮 Math Blaster</h2>
+          <p>Shoot the right answer before it lands — an arcade game for fact fluency and shape ID.</p>
+          <a class="btn" href="game-math-blaster.html">Play Math Blaster</a>
+        </div>
+
+        <div class="card">
+          <h2>🏴‍☠️ Coordinate Treasure Hunt</h2>
+          <p>Click the grid where the treasure is buried, before you run out of lives.</p>
+          <a class="btn" href="game-treasure-hunt.html">Start Hunting</a>
+        </div>
+
+        <div class="card">
+          <h2>🧠 Memory Match</h2>
+          <p>Flip cards to pair a problem with its answer.</p>
+          <a class="btn" href="game-memory-match.html">Play Memory Match</a>
+        </div>
+      </div>
+    </main>
+
+    <script type="module">
+      import { init } from '../js/views/gamesHubView.js';
+      init();
+    </script>
+  </body>
+</html>

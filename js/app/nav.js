@@ -13,6 +13,7 @@ const LINKS = [
   { href: 'quiz.html', label: 'Quiz' },
   { href: 'worksheet.html', label: 'Worksheets' },
   { href: 'skills.html', label: 'Skills' },
+  { href: 'games.html', label: 'Games' },
   { href: 'dashboard.html', label: 'Progress' },
   { href: 'profiles.html', label: 'Profiles' },
   { href: 'settings.html', label: 'Settings' },

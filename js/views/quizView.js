@@ -9,6 +9,7 @@ import { recordQuizAttempt } from '../core/progressStore.js';
 import { hasHelp, buildHelpUrl } from '../core/helpRegistry.js';
 import { renderVisual } from '../charts/renderVisual.js';
 import { linkifyGlossaryTerms } from '../app/glossary.js';
+import { playCorrectSound, playIncorrectSound, animateFeedback } from '../app/feedbackFx.js';
 
 const els = {};
 let state = null;
@@ -175,6 +176,10 @@ function submitAnswer() {
   els.feedback.hidden = false;
   els.feedback.classList.add(isCorrect ? 'correct' : 'incorrect');
   els.feedback.textContent = isCorrect ? 'Correct! Great job.' : `Not quite. The correct answer was: ${problem.answerDisplay}`;
+
+  if (isCorrect) playCorrectSound();
+  else playIncorrectSound();
+  animateFeedback(els.feedback, isCorrect);
 
   if (problem.visual && problem.visual.interactive) {
     // Freeze the grid and, if wrong, show the correct point alongside the student's own marker.

@@ -13,6 +13,21 @@ function topicOf(generatorId) {
   return lastSegment || 'unknown';
 }
 
+/**
+ * A shallow copy of progressData with only attempts completed at or after
+ * `sinceDate` — feed the result straight into computeSummary/
+ * computeAccuracyByTopic/computeStreak/computeBadges to get those same
+ * aggregations scoped to a date window (e.g. a weekly report), with no
+ * separate windowed versions of any of them needed.
+ */
+export function filterAttemptsSince(progressData, sinceDate) {
+  const since = sinceDate instanceof Date ? sinceDate : new Date(sinceDate);
+  return {
+    ...progressData,
+    attempts: progressData.attempts.filter((a) => a.completedAt && new Date(a.completedAt) >= since),
+  };
+}
+
 /** Accuracy per topic across all recorded attempts, sorted weakest-first. */
 export function computeAccuracyByTopic(progressData) {
   const byTopic = new Map();
@@ -103,8 +118,31 @@ export function computeStreak(progressData, referenceDate = new Date()) {
   return streak;
 }
 
+/**
+ * Duel Mode win/loss record, derived entirely from `type: 'duel'` attempts
+ * (each carrying an `outcome` of 'win'/'loss'/'tie' and, on a win, the
+ * opponent's final score) — no separate stored tally to keep in sync.
+ */
+export function computeDuelStats(progressData) {
+  const duels = progressData.attempts.filter((a) => a.type === 'duel');
+  const wins = duels.filter((d) => d.outcome === 'win').length;
+  const losses = duels.filter((d) => d.outcome === 'loss').length;
+  const ties = duels.filter((d) => d.outcome === 'tie').length;
+
+  let currentWinStreak = 0;
+  for (let i = duels.length - 1; i >= 0; i -= 1) {
+    if (duels[i].outcome !== 'win') break;
+    currentWinStreak += 1;
+  }
+
+  const shutouts = duels.filter((d) => d.outcome === 'win' && d.opponentScore === 0).length;
+
+  return { total: duels.length, wins, losses, ties, currentWinStreak, shutouts };
+}
+
 // A short, fixed list — not a badge engine. Each rule reads the same summary
-// stats + streak every caller already has, so adding one is a one-line diff.
+// stats + streak (+ duel stats) every caller already has, so adding one is a
+// one-line diff.
 const BADGE_DEFINITIONS = [
   { id: 'first-quiz', label: 'First Quiz', check: (summary) => summary.totalAttempts >= 1 },
   { id: 'five-quizzes', label: '5 Quizzes Completed', check: (summary) => summary.totalAttempts >= 5 },
@@ -115,11 +153,16 @@ const BADGE_DEFINITIONS = [
     check: (summary, progressData) => progressData.attempts.some((a) => a.problems.length > 0 && a.problems.every((p) => p.correct)),
   },
   { id: 'week-streak', label: '7-Day Streak', check: (summary, progressData, streak) => streak >= 7 },
+  { id: 'first-duel', label: 'First Duel', check: (summary, progressData, streak, duelStats) => duelStats.total >= 1 },
+  { id: 'duel-champion', label: 'Duel Champion (5 Wins)', check: (summary, progressData, streak, duelStats) => duelStats.wins >= 5 },
+  { id: 'duel-streak', label: '3-Win Duel Streak', check: (summary, progressData, streak, duelStats) => duelStats.currentWinStreak >= 3 },
+  { id: 'duel-shutout', label: 'Flawless Victory', check: (summary, progressData, streak, duelStats) => duelStats.shutouts >= 1 },
 ];
 
 /** Which of a small, fixed set of badges a profile has earned. */
 export function computeBadges(progressData) {
   const summary = computeSummary(progressData);
   const streak = computeStreak(progressData);
-  return BADGE_DEFINITIONS.map((badge) => ({ id: badge.id, label: badge.label, earned: badge.check(summary, progressData, streak) }));
+  const duelStats = computeDuelStats(progressData);
+  return BADGE_DEFINITIONS.map((badge) => ({ id: badge.id, label: badge.label, earned: badge.check(summary, progressData, streak, duelStats) }));
 }

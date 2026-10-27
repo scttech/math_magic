@@ -31,6 +31,8 @@ export function init() {
       scoreSummary: 'skill-score-summary',
       retryBtn: 'skill-retry-btn',
       backBtn: 'skill-back-btn',
+      blitzToggle: 'blitz-toggle',
+      timerText: 'skill-timer-text',
       denominatorInput: 'denominator-input',
     },
     navPage: 'skills.html',
