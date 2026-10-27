@@ -20,6 +20,9 @@ export const TOPIC_LABELS = {
   coordinatePlane: 'The Coordinate Plane',
   multiplicationTables: 'Multiplication Tables',
   shapeIdentification: 'Identifying Shapes',
+  additionFacts: 'Addition Facts',
+  subtractionFacts: 'Subtraction Facts',
+  divisionFacts: 'Division Facts',
 };
 
 export function topicLabel(topicKey) {

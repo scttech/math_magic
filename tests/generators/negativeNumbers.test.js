@@ -69,6 +69,50 @@ QUnit.module('generators/grade6/negativeNumbers', () => {
     }
   }
 
+  QUnit.test('compareIntegers includes a number-line visual plotting both compared values, within its own range', (assert) => {
+    const gen = byId['grade6.negativeNumbers.compareIntegers'];
+    for (let seed = 0; seed < 100; seed++) {
+      for (const difficulty of gen.difficulties) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        assert.equal(problem.visual.type, 'numberLine');
+        assert.ok(problem.visual.min <= Math.min(problem.meta.a, problem.meta.b), 'range covers the lower value');
+        assert.ok(problem.visual.max >= Math.max(problem.meta.a, problem.meta.b), 'range covers the higher value');
+        const plottedValues = problem.visual.points.map((p) => p.value).sort((x, y) => x - y);
+        assert.deepEqual(plottedValues, [problem.meta.a, problem.meta.b].sort((x, y) => x - y));
+      }
+    }
+  });
+
+  QUnit.test('absoluteValue includes a number-line visual spanning 0 to the given value', (assert) => {
+    const gen = byId['grade6.negativeNumbers.absoluteValue'];
+    for (let seed = 0; seed < 100; seed++) {
+      for (const difficulty of gen.difficulties) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        assert.equal(problem.visual.type, 'numberLine');
+        assert.deepEqual(problem.visual.span, [0, problem.meta.value]);
+        const plottedValues = problem.visual.points.map((p) => p.value).sort((x, y) => x - y);
+        assert.deepEqual(plottedValues, [0, problem.meta.value].sort((x, y) => x - y));
+      }
+    }
+  });
+
+  QUnit.test("numberLineWordProblem's visual only plots the given starting value, never the computed answer", (assert) => {
+    const gen = byId['grade6.negativeNumbers.numberLineWordProblem'];
+    for (let seed = 0; seed < 100; seed++) {
+      for (const difficulty of gen.difficulties) {
+        const rng = createRng(seed);
+        const problem = gen.generate({ difficulty, rng });
+        assert.equal(problem.visual.type, 'numberLine');
+        assert.equal(problem.visual.points.length, 1, 'only the starting value is plotted');
+        assert.equal(problem.visual.points[0].value, problem.meta.start);
+        assert.notEqual(problem.visual.points[0].value, problem.answer, 'the plotted point is never the answer itself');
+        assert.notOk('span' in problem.visual, 'no span is drawn, since its far end would be the answer');
+      }
+    }
+  });
+
   QUnit.test('multiplyDivideIntegers division always divides evenly', (assert) => {
     const gen = byId['grade6.negativeNumbers.multiplyDivideIntegers'];
     for (let seed = 0; seed < 100; seed++) {

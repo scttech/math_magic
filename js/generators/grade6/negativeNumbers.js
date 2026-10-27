@@ -21,12 +21,24 @@ const compareIntegers = {
     const a = randomInt(rng, -range, range);
     const b = randomInt(rng, -range, range);
     const symbol = a < b ? '<' : a > b ? '>' : '=';
+    const lo = Math.min(a, b);
+    const hi = Math.max(a, b);
+    const pad = Math.max(3, Math.round((hi - lo) / 4));
     return {
       promptText: `Compare: ${a} ___ ${b} (use <, >, or =)`,
       answer: symbol,
       answerDisplay: symbol,
       checkAnswer: (userInput) => typeof userInput === 'string' && userInput.trim() === symbol,
       meta: { generatorId: compareIntegers.id, difficulty, a, b, answerDisplay: symbol },
+      visual: {
+        type: 'numberLine',
+        min: lo - pad,
+        max: hi + pad,
+        points: [
+          { value: a, label: `${a}` },
+          { value: b, label: `${b}` },
+        ],
+      },
     };
   },
   explain(meta) {
@@ -53,12 +65,23 @@ const absoluteValue = {
     const value = randomNonZeroInt(rng, -range, range);
     const answer = Math.abs(value);
     const answerDisplay = `${answer}`;
+    const pad = Math.max(2, Math.round(answer * 0.2));
     return {
       promptText: `What is |${value}|?`,
       answer,
       answerDisplay,
       checkAnswer: numericCheckAnswer(answer, 1e-9),
       meta: { generatorId: absoluteValue.id, difficulty, value, answerDisplay },
+      visual: {
+        type: 'numberLine',
+        min: Math.min(0, value) - pad,
+        max: Math.max(0, value) + pad,
+        points: [
+          { value, label: `${value}` },
+          { value: 0, label: '0' },
+        ],
+        span: [0, value],
+      },
     };
   },
   explain(meta) {
@@ -199,6 +222,15 @@ const numberLineWordProblem = {
       checkAnswer: numericCheckAnswer(answer, 1e-9),
       // scenario.changeVerb is a function, so it can't survive JSON — stash the already-resolved verb text instead.
       meta: { generatorId: numberLineWordProblem.id, difficulty, unit: scenario.unit, verbText: scenario.changeVerb(delta), start, delta, answerDisplay },
+      // Scaled by the difficulty's change range rather than the actual delta, and
+      // only plotting the (already-given) starting value — showing the end point
+      // would hand over the answer instead of just illustrating the starting position.
+      visual: {
+        type: 'numberLine',
+        min: start - changeRange - 2,
+        max: start + changeRange + 2,
+        points: [{ value: start, label: 'Start' }],
+      },
     };
   },
   explain(meta) {

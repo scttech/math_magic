@@ -4,12 +4,14 @@
 // here, not a change everywhere a chart gets mounted.
 import { renderCoordinatePlane } from './coordinatePlane.js';
 import { renderDotPlot, renderHistogram, renderBoxPlot } from './dataPlots.js';
+import { renderNumberLine } from './numberLine.js';
 
 const RENDERERS = {
   coordinatePlane: renderCoordinatePlane,
   dotPlot: renderDotPlot,
   histogram: renderHistogram,
   boxPlot: renderBoxPlot,
+  numberLine: renderNumberLine,
 };
 
 export function renderVisual(containerEl, visual) {
