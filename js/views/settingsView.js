@@ -7,8 +7,10 @@ import { validateTemplateText, renderTemplate } from '../core/wordProblemTemplat
 import { createRng, randomSeed } from '../core/rng.js';
 import { isSoundEnabled, setSoundEnabled } from '../app/feedbackFx.js';
 import { getBubbleCount, setBubbleCount } from '../app/blasterSettings.js';
+import { getDialogueLines, addDialogueLine, removeDialogueLine, resetCategoryToDefaults as resetDialogueCategory, TREASURE_DIALOGUE_CATEGORIES } from '../core/treasureDialogueStore.js';
 
 const CATEGORY_LABELS = { person: 'People', food: 'Foods', object: 'Objects' };
+const TREASURE_CATEGORY_LABELS = { ship: 'Pirate Ship (Slide 1)', map: 'Treasure Map (Slide 2)' };
 const CATEGORY_SINGULAR = { person: 'person', food: 'food', object: 'object' };
 const PASTE_PLACEHOLDER = {
   person: 'e.g. Ava, Liam, Noah, Mia, Diego, ...',
@@ -38,6 +40,7 @@ function escapeHtml(str) {
 function cacheElements() {
   els.soundEnabledToggle = document.getElementById('sound-enabled-toggle');
   els.blasterBubbleCountSelect = document.getElementById('blaster-bubble-count-select');
+  els.treasureDialogueGroups = document.getElementById('treasure-dialogue-groups');
   els.wordListGroups = document.getElementById('word-list-groups');
   els.templateList = document.getElementById('template-list');
   els.patternSelect = document.getElementById('template-pattern-select');
@@ -125,6 +128,62 @@ function handleWordListGroupsSubmit(event) {
       renderWordLists();
     }
   }
+}
+
+// --- Treasure Hunt intro dialogue ---------------------------------------
+
+function renderTreasureDialogue() {
+  const lines = getDialogueLines();
+  els.treasureDialogueGroups.innerHTML = TREASURE_DIALOGUE_CATEGORIES.map((category) => {
+    const items = lines[category]
+      .map(
+        (line) => `
+        <li class="dialogue-line-item">
+          <span>${escapeHtml(line)}</span>
+          <button type="button" class="btn secondary dialogue-line-remove" data-category="${category}" data-line="${escapeHtml(line)}">Remove</button>
+        </li>`
+      )
+      .join('');
+    return `
+      <fieldset class="dialogue-line-group">
+        <legend>${TREASURE_CATEGORY_LABELS[category]}</legend>
+        <ul class="dialogue-line-list">${items}</ul>
+        <form class="add-dialogue-form" data-category="${category}">
+          <textarea class="add-dialogue-input" rows="2" placeholder="Add a new line of pirate dialogue..."></textarea>
+          <div class="toolbar">
+            <button type="submit" class="btn secondary">Add Line</button>
+            <button type="button" class="btn secondary reset-dialogue-btn" data-category="${category}">Reset to Defaults</button>
+          </div>
+        </form>
+      </fieldset>`;
+  }).join('');
+}
+
+function handleTreasureDialogueClick(event) {
+  const removeBtn = event.target.closest('.dialogue-line-remove');
+  if (removeBtn) {
+    removeDialogueLine(removeBtn.dataset.category, removeBtn.dataset.line);
+    renderTreasureDialogue();
+    return;
+  }
+  const resetBtn = event.target.closest('.reset-dialogue-btn');
+  if (resetBtn) {
+    const label = TREASURE_CATEGORY_LABELS[resetBtn.dataset.category];
+    if (window.confirm(`Reset "${label}" dialogue to the default lines? Any lines you added or removed in this category will be lost.`)) {
+      resetDialogueCategory(resetBtn.dataset.category);
+      renderTreasureDialogue();
+    }
+  }
+}
+
+function handleTreasureDialogueSubmit(event) {
+  const addForm = event.target.closest('.add-dialogue-form');
+  if (!addForm) return;
+  event.preventDefault();
+  const textarea = addForm.querySelector('.add-dialogue-input');
+  if (!textarea.value.trim()) return;
+  addDialogueLine(addForm.dataset.category, textarea.value);
+  renderTreasureDialogue();
 }
 
 // --- Templates ----------------------------------------------------------
@@ -232,6 +291,7 @@ export function init() {
   els.soundEnabledToggle.checked = isSoundEnabled();
   els.blasterBubbleCountSelect.value = String(getBubbleCount());
   renderWordLists();
+  renderTreasureDialogue();
   populatePatternSelect();
   renderTemplateList();
 
@@ -239,6 +299,8 @@ export function init() {
   els.blasterBubbleCountSelect.addEventListener('change', () => setBubbleCount(Number(els.blasterBubbleCountSelect.value)));
   els.wordListGroups.addEventListener('click', handleWordListGroupsClick);
   els.wordListGroups.addEventListener('submit', handleWordListGroupsSubmit);
+  els.treasureDialogueGroups.addEventListener('click', handleTreasureDialogueClick);
+  els.treasureDialogueGroups.addEventListener('submit', handleTreasureDialogueSubmit);
   els.templateList.addEventListener('click', handleTemplateListClick);
   els.patternSelect.addEventListener('change', renderPatternReference);
   els.previewBtn.addEventListener('click', handlePreview);

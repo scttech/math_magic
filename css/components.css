@@ -1522,3 +1522,101 @@ input[type='number'] {
   font-size: 0.85rem;
   color: var(--color-text-muted);
 }
+
+/* Coordinate Treasure Hunt's skippable pirate intro. The speech bubble is
+   positioned against .treasure-intro-image-wrap (the image alone), not the
+   whole slide, so its top/right percentages stay anchored to the artwork
+   even though the action buttons sit below it in normal flow. */
+.treasure-intro-image-wrap {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.treasure-intro-image-wrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.treasure-speech-bubble {
+  position: absolute;
+  top: 8%;
+  right: 6%;
+  max-width: 46%;
+  background: #fffdf6;
+  color: var(--color-text);
+  border: 2px solid var(--color-primary-dark);
+  border-radius: 18px;
+  padding: 0.85rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.4;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+.treasure-intro-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 1rem;
+}
+
+@media (max-width: 560px) {
+  .treasure-speech-bubble {
+    position: static;
+    max-width: none;
+    margin-top: 0.75rem;
+  }
+}
+
+/* Settings: Treasure Hunt intro dialogue editor — same pattern as the Word
+   Lists section above, but a vertical line-per-row list instead of inline
+   chips, since dialogue entries are full sentences rather than single words. */
+.dialogue-line-group {
+  margin-bottom: 1.5rem;
+}
+
+.dialogue-line-list {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.dialogue-line-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.dialogue-line-item span {
+  flex: 1;
+}
+
+.add-dialogue-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.add-dialogue-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}

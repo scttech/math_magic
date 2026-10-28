@@ -18,6 +18,32 @@
       <h1>🏴‍☠️ Coordinate Treasure Hunt</h1>
       <p class="progress-text">Click the grid where the treasure is buried — before you run out of lives!</p>
 
+      <section id="treasure-intro" class="card" hidden>
+        <div class="treasure-intro-slide">
+          <div class="treasure-intro-image-wrap">
+            <img src="../assets/games/treasure_hunt/images/chibi_pirate_ship.png" alt="A chibi pirate on his ship, pointing toward a distant island." />
+            <div class="treasure-speech-bubble"></div>
+          </div>
+          <div class="treasure-intro-actions">
+            <button type="button" class="btn secondary treasure-intro-skip-btn">Skip Intro »</button>
+            <button id="treasure-intro-next-btn" type="button" class="btn">Next ▶</button>
+          </div>
+        </div>
+        <div class="treasure-intro-slide" hidden>
+          <div class="treasure-intro-image-wrap">
+            <img src="../assets/games/treasure_hunt/images/chibi_treasure_hunt.png" alt="The chibi pirate studying a treasure map on a beach." />
+            <div class="treasure-speech-bubble"></div>
+          </div>
+          <div class="treasure-intro-actions">
+            <button type="button" class="btn secondary treasure-intro-skip-btn">Skip Intro »</button>
+            <button id="treasure-intro-start-btn" type="button" class="btn">Start the Hunt ▶</button>
+          </div>
+        </div>
+        <audio id="treasure-intro-music" loop>
+          <source src="../assets/games/treasure_hunt/music/ebunny-pirate-jolly-roger-loop-369969.mp3" type="audio/mpeg" />
+        </audio>
+      </section>
+
       <section id="treasure-setup" class="card">
         <div class="field-row">
           <label for="treasure-grade-select">Grade</label>
