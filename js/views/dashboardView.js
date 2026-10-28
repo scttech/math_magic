@@ -3,9 +3,26 @@ import { renderNav } from '../app/nav.js';
 import { topicLabel } from '../app/topicLabels.js';
 import { getActiveProfile } from '../core/profileStore.js';
 import { getProgress } from '../core/progressStore.js';
+import { getLoginDates } from '../core/loginHistory.js';
+import { buildMonthGrid, WEEKDAY_LABELS } from '../app/loginCalendar.js';
 import { computeAccuracyByTopic, computeAccuracyTrend, computeSummary, computeDuelStats } from '../core/scoring.js';
 import { renderAccuracyByTopicChart } from '../charts/accuracyByTopicChart.js';
 import { renderTrendChart } from '../charts/trendOverTimeChart.js';
+
+const MONTH_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
 
 const els = {};
 let currentProgress = null;
@@ -19,6 +36,33 @@ function cacheElements() {
   els.topicChart = document.getElementById('accuracy-by-topic-chart');
   els.trendChart = document.getElementById('trend-chart');
   els.trendTopicSelect = document.getElementById('trend-topic-select');
+  els.loginCalendarMonth = document.getElementById('login-calendar-month');
+  els.loginCalendar = document.getElementById('login-calendar');
+}
+
+function renderLoginCalendar(profileId) {
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const month = now.getUTCMonth();
+  const todayStr = now.toISOString().slice(0, 10);
+  const loginDates = profileId ? getLoginDates(profileId) : [];
+  const weeks = buildMonthGrid(year, month, loginDates, todayStr);
+
+  els.loginCalendarMonth.textContent = `${MONTH_NAMES[month]} ${year}`;
+
+  const weekdayHeader = WEEKDAY_LABELS.map((label) => `<div class="login-calendar-weekday">${label}</div>`).join('');
+  const dayCells = weeks
+    .flat()
+    .map((cell) => {
+      if (!cell) return '<div class="login-calendar-day empty"></div>';
+      const classes = ['login-calendar-day'];
+      if (cell.logged) classes.push('logged');
+      if (cell.isToday) classes.push('today');
+      return `<div class="${classes.join(' ')}">${cell.day}</div>`;
+    })
+    .join('');
+
+  els.loginCalendar.innerHTML = weekdayHeader + dayCells;
 }
 
 function renderStatTiles(progress) {
@@ -54,6 +98,10 @@ export function init() {
   const profile = getActiveProfile();
   els.profileName.textContent = profile ? `— ${profile.name}` : '';
   currentProgress = profile ? getProgress(profile.id) : { attempts: [], worksheets: [] };
+
+  // Shown regardless of whether any quiz/skill attempts exist yet — logging
+  // in is tracked independently of completing anything.
+  renderLoginCalendar(profile ? profile.id : null);
 
   if (currentProgress.attempts.length === 0) {
     els.emptyState.hidden = false;

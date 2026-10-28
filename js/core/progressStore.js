@@ -10,7 +10,7 @@ function progressKey(profileId) {
 }
 
 function emptyDoc() {
-  return { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [], lessons: {}, resolvedMistakes: {} };
+  return { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [], lessons: {}, resolvedMistakes: {}, loginDates: [] };
 }
 
 export function getProgress(profileId) {

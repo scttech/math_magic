@@ -1620,3 +1620,50 @@ input[type='number'] {
   border: 1px solid var(--color-border);
   border-radius: 8px;
 }
+
+/* Dashboard: Login Calendar — a plain CSS grid month view (js/app/loginCalendar.js
+   builds the cell data, dashboardView.js turns it into this markup). Not a
+   chart: just a highlighted-day grid, so no d3/chart module involved. */
+.login-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.35rem;
+  max-width: 420px;
+}
+
+.login-calendar-weekday {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  padding-bottom: 0.25rem;
+}
+
+.login-calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.login-calendar-day.empty {
+  background: transparent;
+  border-color: transparent;
+}
+
+.login-calendar-day.logged {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.login-calendar-day.today {
+  outline: 2px solid var(--color-primary-dark);
+  outline-offset: 1px;
+}

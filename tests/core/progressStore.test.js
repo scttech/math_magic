@@ -5,7 +5,14 @@ QUnit.module('core/progressStore', (hooks) => {
   hooks.beforeEach(() => localStorage.clear());
 
   QUnit.test('getProgress returns an empty document when nothing is stored', (assert) => {
-    assert.deepEqual(getProgress('profile_x'), { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [], lessons: {}, resolvedMistakes: {} });
+    assert.deepEqual(getProgress('profile_x'), {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      attempts: [],
+      worksheets: [],
+      lessons: {},
+      resolvedMistakes: {},
+      loginDates: [],
+    });
   });
 
   QUnit.test('setProgress + getProgress round-trips (through migrate)', (assert) => {
@@ -15,6 +22,7 @@ QUnit.module('core/progressStore', (hooks) => {
       worksheets: [],
       lessons: { lessonA: { checkpointsCorrect: [0] } },
       resolvedMistakes: {},
+      loginDates: ['2026-01-01'],
     };
     setProgress('profile_x', doc);
     assert.deepEqual(getProgress('profile_x'), doc);
@@ -22,7 +30,14 @@ QUnit.module('core/progressStore', (hooks) => {
 
   QUnit.test('getProgress recovers from corrupt JSON in storage', (assert) => {
     localStorage.setItem('mathmagic.progress.profile_x', 'not json{{{');
-    assert.deepEqual(getProgress('profile_x'), { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [], lessons: {}, resolvedMistakes: {} });
+    assert.deepEqual(getProgress('profile_x'), {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      attempts: [],
+      worksheets: [],
+      lessons: {},
+      resolvedMistakes: {},
+      loginDates: [],
+    });
   });
 
   QUnit.test('recordQuizAttempt appends an attempt with a generated attemptId', (assert) => {

@@ -4,6 +4,7 @@
 import '../generators/grade5/index.js';
 import '../generators/grade6/index.js';
 import { listProfiles, createProfile, getActiveProfile, setActiveProfileId } from '../core/profileStore.js';
+import { recordLogin } from '../core/loginHistory.js';
 
 function ensureActiveProfile() {
   const profiles = listProfiles();
@@ -20,5 +21,5 @@ function ensureActiveProfile() {
   return active;
 }
 
-ensureActiveProfile();
+recordLogin(ensureActiveProfile().id);
 

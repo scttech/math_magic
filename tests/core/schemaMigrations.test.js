@@ -2,11 +2,25 @@ import { migrate, CURRENT_SCHEMA_VERSION } from '../../js/core/schemaMigrations.
 
 QUnit.module('core/schemaMigrations', () => {
   QUnit.test('migrate(undefined) returns a well-formed empty document', (assert) => {
-    assert.deepEqual(migrate(undefined), { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [], lessons: {}, resolvedMistakes: {} });
+    assert.deepEqual(migrate(undefined), {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      attempts: [],
+      worksheets: [],
+      lessons: {},
+      resolvedMistakes: {},
+      loginDates: [],
+    });
   });
 
   QUnit.test('migrate(null) returns a well-formed empty document', (assert) => {
-    assert.deepEqual(migrate(null), { schemaVersion: CURRENT_SCHEMA_VERSION, attempts: [], worksheets: [], lessons: {}, resolvedMistakes: {} });
+    assert.deepEqual(migrate(null), {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      attempts: [],
+      worksheets: [],
+      lessons: {},
+      resolvedMistakes: {},
+      loginDates: [],
+    });
   });
 
   QUnit.test('migrate leaves an already-current document unchanged', (assert) => {
@@ -16,6 +30,7 @@ QUnit.module('core/schemaMigrations', () => {
       worksheets: [{ worksheetId: 'w1' }],
       lessons: { 'grade6-addSubtractFractions': { checkpointsCorrect: [2, 5] } },
       resolvedMistakes: { 'skills.additionFacts::::123': true },
+      loginDates: ['2026-01-01', '2026-01-02'],
     };
     assert.deepEqual(migrate(doc), doc);
   });
@@ -38,6 +53,12 @@ QUnit.module('core/schemaMigrations', () => {
     assert.deepEqual(migrate({ schemaVersion: CURRENT_SCHEMA_VERSION, resolvedMistakes: [1, 2] }).resolvedMistakes, {});
   });
 
+  QUnit.test('migrate normalizes a missing or malformed loginDates field to an empty array', (assert) => {
+    assert.deepEqual(migrate({ schemaVersion: CURRENT_SCHEMA_VERSION }).loginDates, []);
+    assert.deepEqual(migrate({ schemaVersion: CURRENT_SCHEMA_VERSION, loginDates: 'nope' }).loginDates, []);
+    assert.deepEqual(migrate({ schemaVersion: CURRENT_SCHEMA_VERSION, loginDates: { a: 1 } }).loginDates, []);
+  });
+
   QUnit.test('migrate defaults a document with no schemaVersion to the current version', (assert) => {
     const result = migrate({ attempts: [], worksheets: [] });
     assert.equal(result.schemaVersion, CURRENT_SCHEMA_VERSION);
@@ -50,5 +71,6 @@ QUnit.module('core/schemaMigrations', () => {
     assert.deepEqual(result.attempts, v1Doc.attempts);
     assert.deepEqual(result.lessons, {});
     assert.deepEqual(result.resolvedMistakes, {});
+    assert.deepEqual(result.loginDates, []);
   });
 });
